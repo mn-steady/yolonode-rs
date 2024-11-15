@@ -11,6 +11,12 @@ body {
     height: 100vh;
 }
 
+.container {
+    width: 80%;
+    max-width: 1200px;
+    padding-top: 0px;
+}
+
 /* Banner Styles */
 .banner {
     background-color: #C1DF03; /* Background color */
@@ -49,12 +55,6 @@ body {
     max-width: 100%; /* Make sure the image doesn't exceed the container width */
     height: auto; /* Maintain aspect ratio */
     object-fit: contain; /* Ensure the image fits within its container without being cut off */
-}
-
-.container {
-    width: 80%;
-    max-width: 1200px;
-    padding-top: 10px;
 }
 
 .top-bar {

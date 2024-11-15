@@ -89,6 +89,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <div class="container">
+            <div class="banner">"Producing blocks on Secret Network since 7/10/2024!"</div>
             <div class="top-bar">
                 <a href="https://yolonode.com" class="logo">"YoloNode"</a>
                 {move || if is_connected.get() {
@@ -128,7 +129,6 @@ pub fn App(cx: Scope) -> impl IntoView {
             {move || if selected_section.get() == "Home" {
                 view! { cx, 
                     <div>
-                        <div class="banner">"Producing blocks on Secret Network since 7/10/2024!"</div>
                         <div class="image-section">
                             <div class="image-container">
                                 <img src="/static/YoloNode-Logo-Name-Cropped.png" class="main-image" alt="YoloNode Logo" />

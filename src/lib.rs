@@ -104,7 +104,7 @@ pub fn App(cx: Scope) -> impl IntoView {
             <div class="top-bar">
                 <div class="links">
                     <button class="link-button" on:click=move |_| set_selected_section.set("Home".to_string())>"Home"</button>
-                    <button class="link-button" on:click=move |_| set_selected_section.set("Shade".to_string())>"Shade"</button>
+                    <button class="link-button" on:click=move |_| set_selected_section.set("Price APIs".to_string())>"Price APIs"</button>
                 </div>
                 <div class="wallet-info">
                     {move || if is_connected.get() {

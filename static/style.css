@@ -125,6 +125,7 @@ body {
 .connect-wallet {
     background: none;
     border: 1px solid #C1DF03; /* YoloNode Yellow */
+    border-radius: 5px; /* Rounded corners */
     color: #C1DF03; /* YoloNode Yellow */
     padding: 0.3rem 1rem;
     cursor: pointer;
@@ -157,6 +158,7 @@ hr.gold-line {
 .link-button {
     background: none;
     border: 1px solid #C1DF03; /* YoloNode Yellow */
+    border-radius: 5px; /* Rounded corners */
     color: #C1DF03; /* YoloNode Yellow */
     padding: 0.3rem;
     cursor: pointer;

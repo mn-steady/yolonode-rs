@@ -1,0 +1,30 @@
+[package]
+name = "yoloproto"
+version = "0.1.0"
+edition = "2021"
+
+[profile.dev]
+# Potential to opt-in on higher optimization for our code. This may increase incremental compilation times, but will reduce binary size.
+opt-level = 0
+[profile.dev.package."*"]
+# High optimization for our dependencies. This should increase performance drastically whithout hitting our incremental compilation times.
+# This will lead to obscure error messages from third party libraries. Comment this out when experiencing a tricky bug.
+#opt-level = 3
+
+[profile.release]
+opt-level = "z"
+lto = "fat"
+debug = 0
+strip = true
+codegen-units = 1
+
+[dependencies]
+leptos = "0.3"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"  # Include this dependency
+js-sys = "0.3"
+web-sys = { version = "0.3", features = ["console"] }
+console_error_panic_hook = "0.1"
+
+[lib]
+crate-type = ["cdylib"]

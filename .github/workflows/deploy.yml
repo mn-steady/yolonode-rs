@@ -1,0 +1,41 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Install Rust Nightly and Trunk
+        run: |
+          rustup update nightly
+          rustup default nightly
+          rustup target add wasm32-unknown-unknown
+          cargo install trunk --force
+          cargo install wasm-bindgen-cli --force
+
+      - name: Build the project with Trunk
+        run: trunk build --release
+
+      - name: Build for WebAssembly
+        run: cargo build --release --target wasm32-unknown-unknown
+
+      - name: Run wasm-bindgen to Generate `pkg` Folder
+        run: wasm-bindgen --out-dir dist/pkg --target web target/wasm32-unknown-unknown/release/yoloproto.wasm
+
+      - name: Manually Copy Static Files
+        run: |
+          mkdir -p dist/static
+          cp -r static/* dist/static/ 
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist

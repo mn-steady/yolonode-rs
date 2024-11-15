@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YoloProto</title>
+    <base href="/"> <!-- Needed for GitHub Pages deploy with domain name -->
+    <link rel="stylesheet" href="./static/style.css">
+    <link rel="icon" type="image/png" href="./static/money-bag.png">
+</head>
+<body>
+    <div id="app"></div>
+
+    <!-- Load shade.bundle.js as a standard script -->
+    <script src="./static/lib/shade/shade.bundle.js"></script>
+    <script src="./static/wallet.js"></script>
+
+    <!-- Initialize the Rust WASM module -->
+    <script type="module">
+        import init from './dist/pkg/yoloproto.js';
+        init();
+    </script>    
+</body>
+</html>

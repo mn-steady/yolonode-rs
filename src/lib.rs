@@ -3,6 +3,18 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use js_sys::{Promise, Reflect, Function};
 use wasm_bindgen::JsValue;
+use wasm_bindgen::JsCast;
+use web_sys::window;
+use js_sys::Date;
+
+// Function to open a mailto link with a timestamped subject
+fn open_mailto_with_timestamp() {
+    if let Some(window) = window() {
+        let timestamp = Date::new_0().to_locale_string("en-US", &js_sys::Object::new());
+        let mailto_url = format!("mailto:?subject=Bug Report - {}", timestamp);
+        window.open_with_url(&mailto_url).unwrap();
+    }
+}
 
 // Helper function to call JavaScript functions on the `window` object
 fn call_js_function(function_name: &str) -> Result<Function, JsValue> {
@@ -62,7 +74,7 @@ async fn fetch_shd_price(set_shd_price: WriteSignal<String>) {
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
     let (is_connected, set_connected) = create_signal(cx, false);
-    let (wallet_address, set_wallet_address) = create_signal(cx, String::from("Not connected"));
+    let (wallet_address, set_wallet_address) = create_signal(cx, String::new());
     let (shd_price, set_shd_price) = create_signal(cx, String::from("Loading SHD price..."));
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
 
@@ -78,7 +90,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     let disconnect_wallet = move |_| {
         disconnect_keplr_wallet();
         set_connected.set(false);
-        set_wallet_address.set(String::from("Not connected"));
+        set_wallet_address.set(String::new());
     };
 
     let refresh_price = move |_| {
@@ -89,64 +101,148 @@ pub fn App(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <div class="container">
-            <div class="banner">"Producing blocks on Secret Network since 7/10/2024!"</div>
             <div class="top-bar">
-                <a href="https://yolonode.com" class="logo">"YoloNode"</a>
-                {move || if is_connected.get() {
-                    view! { cx,
-                        <button class="connect-wallet" on:click=disconnect_wallet>
-                            "Logout"
-                        </button>
-                    }
-                } else {
-                    view! { cx,
-                        <button class="connect-wallet" on:click=connect_wallet>
-                            "Connect Wallet"
-                        </button>
-                    }
-                }}
-            </div>
-            <hr class="gold-line" />
-            <div class="links-wallet-container">
                 <div class="links">
                     <button class="link-button" on:click=move |_| set_selected_section.set("Home".to_string())>"Home"</button>
                     <button class="link-button" on:click=move |_| set_selected_section.set("Shade".to_string())>"Shade"</button>
                 </div>
-                <div class="wallet-address">
-                    {move || if is_connected.get() {
-                        view! { cx, 
-                            <span>"SCRT Address: " {wallet_address.get()}</span>
+                <p>"Producing blocks on Secret Network since 7/10/2024!"</p>
+                <div class="wallet-info">
+                    {move || if is_connected.get() && !wallet_address.get().is_empty() {
+                        view! { cx,
+                            <span class="wallet-address">"SCRT Address: " {wallet_address.get()} </span>
                         }
                     } else {
-                        view! { cx, 
-                            <span>{wallet_address.get()}</span>
+                        view! { cx, <span></span> }
+                    }}
+                    {move || if is_connected.get() {
+                        view! { cx,
+                            <button class="connect-wallet" on:click=disconnect_wallet>
+                                "Logout"
+                            </button>
+                        }
+                    } else {
+                        view! { cx,
+                            <button class="connect-wallet" on:click=connect_wallet>
+                                "Connect Wallet"
+                            </button>
                         }
                     }}
                 </div>
             </div>
-            <hr class="gold-line" />
-
             {move || if selected_section.get() == "Home" {
                 view! { cx, 
                     <div>
                         <div class="image-section">
-                            <div class="image-container">
-                                <img src="/static/YoloNode-Logo-Name-Cropped.png" class="main-image" alt="YoloNode Logo" />
-                            </div>
                             <div class="button-container">
-                                <a href="#" class="yellow-button">"Yellow Button"</a>
-                                <a href="#" class="black-button">"Black Button"</a>
+                                <a href="https://www.mintscan.io/secret/validators/secretvaloper1pkzmfk34qg46p4hen0dnlkn05rzje65xk4tzjc" 
+                                    class="yellow-button"
+                                    target="_blank">
+                                    "Validator Info"
+                                </a>
+                                <a href="https://dash.scrt.network/staking" 
+                                    class="yellow-button"
+                                    target="_blank">
+                                    "Stake With Us!"
+                                </a>
                             </div>
                         </div>
                         <div class="main-section">
                             <div class="content">
-                                <h1>"Welcome to YoloNode"</h1>
-                                <p>"This is a sample application migrated to Rust with Leptos."</p>
-                                <ul class="custom-list">
-                                    <li>"Feature 1"</li>
-                                    <li>"Feature 2"</li>
-                                </ul>
+                                <h1>"Web3's future needs privacy, and we're here to validate it!"</h1>
+                                <br />
+                                <h2>"Why Does Web3 Need Privacy?"</h2>
+                                <br />
+                                <p>"Traditional blockchains are typically fully transparent, making user data immediately public and available for analysis and research."</p>  
+                                <br />
+                                <p>"This level of transparency can render Web3 unsuitable for institutional players and can prevent its use entirely."</p>
+                                <br />
+                                <img src="/static/compliance.webp" alt="Compliance Image" class="main-image" />
                             </div>
+                            <div class="content">
+                            <h2>"What is Decentralized Confidential Computing (DeCC)?"</h2>
+                            <br />
+                            <p>
+                                "Confidential computing has been around for years but is often mistakenly grouped with privacy chains which obscures its true potential. "
+                                <strong>"DeCC"</strong>
+                                " is a distinct category that ensures compliance and supports corporate use cases."
+                                <br /><br />
+                                <strong>"DeCC"</strong>
+                                " enables protected computing, allowing arbitrary computations on data without exposing it to the world. Additionally, confidential computing facilitates opt-in compliance. Users can decide who can access their data and when with fine-grained access controls."
+                            </p>
+                            <br /><br />
+                            <img src="/static/decc.webp" alt="DeCC Image" class="main-image" />
+                        </div>
+                        
+                        <div class="content">
+                            <h2>"New use cases enabled by DeCC infrastructure:"</h2>
+                            <br />
+                            <ul class="custom-list">
+                                <li>"Decentralized on-chain identity that safeguards data privacy"</li>
+                                <li>"Decentralized confidential document sharing"</li>
+                                <li>"Verifiable on-chain Random Number Generation (RNG)"</li>
+                                <li>"Confidential on-chain voting (e.g., for DAOs)"</li>
+                                <li>"Confidential trading strategies for DeFi"</li>
+                                <li>"AI model training on confidential data and/or with confidential parameters"</li>
+                                <li>"NFTs with protected data, ensuring true ownership of content on Web3"</li>
+                                <li>"Sealed-bid auctions for DeFi, DeSci, and NFTs"</li>
+                                <li>"Various gaming applications"</li>
+                            </ul>
+                        </div>
+                    
+                        <div class="content">
+                            <img src="/static/datacenter.webp" alt="DataCenter Image" class="main-image" />
+                            <br /><br />
+                            <h2>"How does it work?"</h2>
+                            <br />
+                            <p>
+                                "Decentralized Confidential Computing leverages technologies like "
+                                <strong>"ZKPs, MPC, FHE,"</strong>
+                                " and "
+                                <strong>"TEEs"</strong>
+                                " for blockchain implementation. These tools enable decentralized confidential computations, securing user data with varying degrees of security, speed, and flexibility."
+                                <br /><br />
+                                <strong>"Trusted Execution Environments (TEE):"</strong>
+                                " TEEs are secure areas within a processor that ensure code and data loaded inside are protected with respect to confidentiality and integrity. They offer fast and secure hardware-dependent computations."
+                                <br /><br />
+                                <strong>"Zero-Knowledge Proofs (ZKP):"</strong>
+                                "  ZKPs allow one party to prove to another that they know a value, without revealing the value itself. For example, proving you have a password without showing the password."
+                                <br /><br />
+                                <strong>"Multi-Party Computation (MPC):"</strong>
+                                "  MPC enables multiple parties to collaboratively compute a function over their inputs while keeping those inputs private. No single party can access all the confidential information."
+                                <br /><br />
+                                <strong>"Fully-Homomorphic Encryption:"</strong>
+                                "  FHE allows computations to be performed on encrypted data without decrypting it. This means you can process data securely without exposing it."
+                                <br /><br />
+                                <strong>"Each has unique advantages, and combining them will be crucial for DeCC's future."</strong>
+                                <br /><br />
+                                <a href="https://scrt.network/" class="black-button">"Learn More"</a>
+                            </p>
+                        </div>
+                    
+                        <div class="content">
+                            <img src="/static/hacker.webp" alt="Hacker Image" class="main-image" />
+                            <br /><br />
+                            <h2>"Bug Bounty Program"</h2>
+                            <br />
+                            <p>
+                                "We offer a bug bounty reward to individuals who responsibly disclose security vulnerabilities in our systems. By reporting bugs in a responsible manner, you help us maintain the security and integrity of our services."
+                                <br /><br />
+                                "We value your contributions and will provide a monetary reward for verified vulnerabilities, ensuring that our platform remains safe for all users."
+                                <br /><br />
+                                "Thank you for helping us improve our security!"
+                                <br /><br />
+                                <a href="#" class="black-button" on:click=move |_| open_mailto_with_timestamp()>"Report A Bug"</a>
+                            </p>
+                        </div>
+                    
+                        <div class="content">
+                            <h2>"Join us in building a safe and secure future!"</h2>
+                            <br />
+                            <a href="https://x.com/Yolo_Node" target="_blank">
+                                <img src="/static/x-logo.webp" alt="X Logo" class="social-logo" />
+                            </a>
+                        </div>
                         </div>
                     </div>
                 }
@@ -157,7 +253,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <div id="shd-price" class="price-display">{shd_price.get()}</div>
                         <button class="refresh-price" on:click=refresh_price>"Refresh SHD Price"</button>
                     </div>
-                }                                                 
+                }
             }}
         </div>
     }

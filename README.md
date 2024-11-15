@@ -1,9 +1,9 @@
-# YoloProto
+# YoloNoto
 A Leptos-based Rust project with Keplr wallet integration.
 
 ## Features
 - Dark background and gold text
-- Top bar with "YoloProto" and "Connect Wallet" button
+- Top bar with "YoloNode" and "Connect Wallet" button
 - Keplr wallet connectivity
 
 ## Setup
@@ -18,7 +18,7 @@ A Leptos-based Rust project with Keplr wallet integration.
 2. Navigate to the project root directory
 3. Run: trunk build --release 
 4. Run: cargo build --release --target wasm32-unknown-unknown
-5. Run: wasm-bindgen --out-dir dist/pkg --target web target/wasm32-unknown-unknown/release/yoloproto.wasm
+5. Run: wasm-bindgen --out-dir dist/pkg --target web target/wasm32-unknown-unknown/release/yolonode.wasm
 6. Run: mkdir -p dist/static
 7. Run: cp static/* dist/static
 8. To test Locall: python3 -m http.server --bind 127.0.0.1

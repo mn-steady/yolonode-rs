@@ -368,10 +368,6 @@ function __wbg_get_imports() {
         const ret = new Function(v0);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_call_3bfa248576352471 = function() { return handleError(function (arg0, arg1, arg2) {
-        const ret = getObject(arg0).call(getObject(arg1), getObject(arg2));
-        return addHeapObject(ret);
-    }, arguments) };
     imports.wbg.__wbg_is_4b64bc96710d6a0f = function(arg0, arg1) {
         const ret = Object.is(getObject(arg0), getObject(arg1));
         return ret;
@@ -430,6 +426,10 @@ function __wbg_get_imports() {
         const ret = getObject(arg0)[arg1 >>> 0];
         return addHeapObject(ret);
     };
+    imports.wbg.__wbg_call_3bfa248576352471 = function() { return handleError(function (arg0, arg1, arg2) {
+        const ret = getObject(arg0).call(getObject(arg1), getObject(arg2));
+        return addHeapObject(ret);
+    }, arguments) };
     imports.wbg.__wbg_cancelBubble_1fc3632e2ba513ed = function(arg0) {
         const ret = getObject(arg0).cancelBubble;
         return ret;
@@ -573,16 +573,16 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).cloneNode();
         return addHeapObject(ret);
     }, arguments) };
-    imports.wbg.__wbindgen_closure_wrapper99 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper102 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 10, __wbg_adapter_26);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper108 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 43, __wbg_adapter_26);
+    imports.wbg.__wbindgen_closure_wrapper111 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 47, __wbg_adapter_26);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1159 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 61, __wbg_adapter_26);
+    imports.wbg.__wbindgen_closure_wrapper1169 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 69, __wbg_adapter_26);
         return addHeapObject(ret);
     };
 
@@ -642,7 +642,7 @@ async function __wbg_init(module_or_path) {
     }
 
     if (typeof module_or_path === 'undefined') {
-        module_or_path = new URL('yoloproto_bg.wasm', import.meta.url);
+        module_or_path = new URL('yolonode_bg.wasm', import.meta.url);
     }
     const imports = __wbg_get_imports();
 

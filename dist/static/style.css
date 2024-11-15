@@ -2,13 +2,53 @@
 
 body {
     margin: 0;
-    background-color: rgb(39, 43, 48);
-    color: rgb(185, 184, 95);
+    background-color: #101213; /* YoloNode Black */
+    color: #C1DF03; /* YoloNode Yellow */
     font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     height: 100vh;
+}
+
+/* Banner Styles */
+.banner {
+    background-color: #C1DF03; /* Background color */
+    text-align: center;         /* Center text */
+    padding: 10px;             /* Padding around the text */
+    font-size: 1.2rem;           /* Match font size of h3 */
+    color: #101213;              /* Text color */
+    margin: 0;                 /* Remove any margin */
+}
+
+/* Image Section Styles */
+.image-section {
+    background-image: url('/assets/YoloNode-Logo-Name-Cropped.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%;
+    height: 80vh;
+    margin: 0;
+    position: relative;
+    padding: 0;
+    background-color: #101213; /* Black background color */
+}
+
+/* Main Image Styles */
+.image-container {
+    display: flex;
+    justify-content: center; /* Center the image horizontally */
+    align-items: center; /* Center the image vertically */
+    width: 100%;
+    height: auto;
+    padding: 20px; /* Add some padding if needed */
+}
+
+.main-image {
+    max-width: 100%; /* Make sure the image doesn't exceed the container width */
+    height: auto; /* Maintain aspect ratio */
+    object-fit: contain; /* Ensure the image fits within its container without being cut off */
 }
 
 .container {
@@ -22,33 +62,33 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 0;
-    background-color: rgb(39, 43, 48);
+    background-color: #101213; /* YoloNode Black */
 }
 
 .logo {
     font-size: 1.5rem;
-    color: rgb(185, 184, 95);
+    color: #C1DF03; /* YoloNode Yellow */
     text-decoration: none;
     margin: 0;
 }
 
 .connect-wallet {
     background: none;
-    border: 1px solid rgb(185, 184, 95);
-    color: rgb(185, 184, 95);
+    border: 1px solid #C1DF03; /* YoloNode Yellow */
+    color: #C1DF03; /* YoloNode Yellow */
     padding: 0.3rem 1rem;
     cursor: pointer;
     font-size: 1rem;
 }
 
 .connect-wallet:hover {
-    background-color: rgb(185, 184, 95);
-    color: rgb(39, 43, 48);
+    background-color: #C1DF03; /* YoloNode Yellow */
+    color: #101213; /* YoloNode Black */
 }
 
 hr.gold-line {
     border: none;
-    border-top: 2px solid rgb(185, 184, 95);
+    border-top: 2px solid #C1DF03; /* YoloNode Yellow */
     margin: 10px 0;
 }
 
@@ -66,16 +106,16 @@ hr.gold-line {
 
 .link-button {
     background: none;
-    border: 1px solid rgb(185, 184, 95);
-    color: rgb(185, 184, 95);
+    border: 1px solid #C1DF03; /* YoloNode Yellow */
+    color: #C1DF03; /* YoloNode Yellow */
     padding: 0.3rem;
     cursor: pointer;
     font-size: 1rem;
 }
 
 .link-button:hover {
-    background-color: rgb(185, 184, 95);
-    color: rgb(39, 43, 48);
+    background-color: #C1DF03; /* YoloNode Yellow */
+    color: #101213; /* YoloNode Black */
 }
 
 .wallet-address {
@@ -93,12 +133,12 @@ hr.gold-line {
 .section-content {
     margin-top: 20px;
     font-size: 1rem;
-    color: rgb(185, 184, 95);
+    color: #C1DF03; /* YoloNode Yellow */
 }
 
 .price-display {
     font-size: 1.2rem;
-    color: rgb(185, 184, 95);
+    color: #C1DF03; /* YoloNode Yellow */
     text-align: center;
     margin-top: 10px;
 }
@@ -110,26 +150,19 @@ hr.gold-line {
     justify-content: center;
 }
 
-.price-display {
-    font-size: 1.2rem;
-    color: rgb(185, 184, 95);
-}
-
 .refresh-price {
     background: none;
-    border: 1px solid rgb(185, 184, 95);
-    color: rgb(185, 184, 95);
+    border: 1px solid #C1DF03; /* YoloNode Yellow */
+    color: #C1DF03; /* YoloNode Yellow */
     padding: 0.5rem;
     cursor: pointer;
     font-size: 1rem;
 }
 
 .refresh-price:hover {
-    background-color: rgb(185, 184, 95);
-    color: rgb(39, 43, 48);
+    background-color: #C1DF03; /* YoloNode Yellow */
+    color: #101213; /* YoloNode Black */
 }
-
-
 
 /* Mobile view adjustments */
 @media (max-width: 768px) {

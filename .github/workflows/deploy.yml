@@ -27,7 +27,7 @@ jobs:
         run: cargo build --release --target wasm32-unknown-unknown
 
       - name: Run wasm-bindgen to Generate `pkg` Folder
-        run: wasm-bindgen --out-dir dist/pkg --target web target/wasm32-unknown-unknown/release/yoloproto.wasm
+        run: wasm-bindgen --out-dir dist/pkg --target web target/wasm32-unknown-unknown/release/yolonode.wasm
 
       - name: Manually Copy Static Files
         run: |

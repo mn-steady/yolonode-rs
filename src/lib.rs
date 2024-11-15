@@ -29,7 +29,7 @@ fn disconnect_keplr_wallet() {
     }
 }
 
-// Function to fetch and SHD price from Oracle contract
+// Function to fetch SHD price from Oracle contract
 async fn fetch_shd_price(set_shd_price: WriteSignal<String>) {
     let window = web_sys::window().expect("no global `window` exists");
     let func = js_sys::Reflect::get(&window, &JsValue::from_str("fetchSHDPrice"))
@@ -58,33 +58,12 @@ async fn fetch_shd_price(set_shd_price: WriteSignal<String>) {
     }
 }
 
-// Function to fetch and set the STKD viewing key
-async fn fetch_stkd_viewing_key(set_stkd_viewing_key: WriteSignal<String>, wallet_address: String) {
-    if let Ok(js_func) = call_js_function("getSTKDViewingKey") {
-        let promise = js_func.call1(&JsValue::NULL, &JsValue::from_str(&wallet_address)).unwrap();
-        match wasm_bindgen_futures::JsFuture::from(promise.dyn_into::<js_sys::Promise>().unwrap()).await {
-            Ok(key) => {
-                if let Some(viewing_key) = key.as_string() {
-                    set_stkd_viewing_key.set(viewing_key);
-                } else {
-                    set_stkd_viewing_key.set("Viewing key unavailable".to_string());
-                }
-            }
-            Err(err) => {
-                web_sys::console::error_1(&err);
-                set_stkd_viewing_key.set("Error retrieving STKD viewing key".to_string());
-            }
-        }
-    }
-}
-
 // The main app component
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
     let (is_connected, set_connected) = create_signal(cx, false);
     let (wallet_address, set_wallet_address) = create_signal(cx, String::from("Not connected"));
     let (shd_price, set_shd_price) = create_signal(cx, String::from("Loading SHD price..."));
-    let (stkd_viewing_key, set_stkd_viewing_key) = create_signal(cx, String::from("Fetching STKD viewing key..."));
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
 
     let connect_wallet = move |_| {
@@ -106,20 +85,12 @@ pub fn App(cx: Scope) -> impl IntoView {
         spawn_local(fetch_shd_price(set_shd_price.clone()));
     };
 
-    // Check STKD viewing key when in "Keplr" view
-    let fetch_stkd_key = move |_| {
-        let wallet_address = wallet_address.get();
-        if !wallet_address.is_empty() && wallet_address != "Not connected" {
-            spawn_local(fetch_stkd_viewing_key(set_stkd_viewing_key.clone(), wallet_address.to_string()));
-        }
-    };
-
     // UI with views
     view! {
         cx,
         <div class="container">
             <div class="top-bar">
-                <a href="https://yoloproto.com" class="logo">"YoloProto"</a>
+                <a href="https://yolonode.com" class="logo">"YoloNode"</a>
                 {move || if is_connected.get() {
                     view! { cx,
                         <button class="connect-wallet" on:click=disconnect_wallet>
@@ -138,7 +109,6 @@ pub fn App(cx: Scope) -> impl IntoView {
             <div class="links-wallet-container">
                 <div class="links">
                     <button class="link-button" on:click=move |_| set_selected_section.set("Home".to_string())>"Home"</button>
-                    <button class="link-button" on:click=move |_| set_selected_section.set("Keplr".to_string())>"Keplr"</button>
                     <button class="link-button" on:click=move |_| set_selected_section.set("Shade".to_string())>"Shade"</button>
                 </div>
                 <div class="wallet-address">
@@ -158,14 +128,26 @@ pub fn App(cx: Scope) -> impl IntoView {
             {move || if selected_section.get() == "Home" {
                 view! { cx, 
                     <div>
-                        <img src="./static/mn-steady.png" class="main-page-image" alt="Main Page Image" />
-                    </div>
-                }
-            } else if selected_section.get() == "Keplr" {
-                view! { cx, 
-                    <div class="section-content">
-                        <button on:click=fetch_stkd_key>"Get STKD Viewing Key"</button>
-                        <div>"STKD Viewing Key: " {stkd_viewing_key.get()}</div>
+                        <div class="banner">"Producing blocks on Secret Network since 7/10/2024!"</div>
+                        <div class="image-section">
+                            <div class="image-container">
+                                <img src="/static/YoloNode-Logo-Name-Cropped.png" class="main-image" alt="YoloNode Logo" />
+                            </div>
+                            <div class="button-container">
+                                <a href="#" class="yellow-button">"Yellow Button"</a>
+                                <a href="#" class="black-button">"Black Button"</a>
+                            </div>
+                        </div>
+                        <div class="main-section">
+                            <div class="content">
+                                <h1>"Welcome to YoloNode"</h1>
+                                <p>"This is a sample application migrated to Rust with Leptos."</p>
+                                <ul class="custom-list">
+                                    <li>"Feature 1"</li>
+                                    <li>"Feature 2"</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 }
             } else {

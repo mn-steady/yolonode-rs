@@ -8,7 +8,7 @@ echo "Running cargo build for wasm32-unknown-unknown target..."
 cargo build --release --target wasm32-unknown-unknown
 
 echo "Running wasm-bindgen..."
-wasm-bindgen --out-dir dist/pkg --target web target/wasm32-unknown-unknown/release/yoloproto.wasm
+wasm-bindgen --out-dir dist/pkg --target web target/wasm32-unknown-unknown/release/yolonode.wasm
 
 # Bundle JavaScript files (shade.js and secret.js) with webpack
 echo "Bundling JavaScript files with webpack..."

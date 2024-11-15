@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YoloProto</title>
+    <title>YoloNode</title>
     <base href="/"> <!-- Needed for GitHub Pages deploy with domain name -->
     <link rel="stylesheet" href="./static/style.css">
-    <link rel="icon" type="image/png" href="./static/money-bag.png">
-<link rel="modulepreload" href="/yoloproto-438a08125403ffaa.js" crossorigin=anonymous integrity="sha384-oqpDMYzslkJ03tGtjyiL+A9vxiDlt0gWybLacei7KCrkKrOGuAR7/ltfb5qk8zzs"><link rel="modulepreload" href="/snippets/yoloproto-8606234b00f7ebf6/static/wallet.js" crossorigin=anonymous integrity="sha384-xI2PPA8LKLfrQsykrK2Wobq9KPkbCB3DoVQVfpaH3WIigFg8NZFxngIkIGPyUXsv"><link rel="modulepreload" href="/snippets/yoloproto-8606234b00f7ebf6/static/shade.js" crossorigin=anonymous integrity="sha384-Kny5LOgw+N0A7GmaX+CnL3jNkPbUiKCh7nUdiqoslBuC4oZU/lekbI+wlCg8w8Bd"><link rel="modulepreload" href="/snippets/leptos_reactive-f7acfdcc44aba8c4/inline0.js" crossorigin=anonymous integrity="sha384-d8yvubxSuBtBulKXqV75Cat9GIXWqR6k5Bgu7yCoAeqNsM97ASkJwvRGESa4d7HR"><link rel="preload" href="/yoloproto-438a08125403ffaa_bg.wasm" crossorigin=anonymous integrity="sha384-EZqIa3AWHO9iRU61oSdK+W/4SGq0SlCHw3rxFdmcZbyI8JKHJNJt4T3aQXAE8HTZ" as="fetch" type="application/wasm"></head>
+    <link rel="icon" type="image/png" href="./static/YoloNode-Logo-cropped.png">
+<link rel="modulepreload" href="/yolonode-610c84f6d0ad596e.js" crossorigin=anonymous integrity="sha384-0skB4v19Gv+P2Jns1MmI9TohhwE3yAsPh8/u8dg4w/1f2WzGoV8UCupXVQ0iojXD"><link rel="modulepreload" href="/snippets/leptos_reactive-f7acfdcc44aba8c4/inline0.js" crossorigin=anonymous integrity="sha384-d8yvubxSuBtBulKXqV75Cat9GIXWqR6k5Bgu7yCoAeqNsM97ASkJwvRGESa4d7HR"><link rel="preload" href="/yolonode-610c84f6d0ad596e_bg.wasm" crossorigin=anonymous integrity="sha384-ZC8xWzfvqhP3ZOjvJAABYI120BOJHMlRToMm/etbHEO98b8QjCWIPRPaEGpxxXZw" as="fetch" type="application/wasm"></head>
 <body>
     <div id="app"></div>
 
@@ -18,13 +18,13 @@
 
     <!-- Initialize the Rust WASM module -->
     <script type="module">
-        import init from './dist/pkg/yoloproto.js';
+        import init from './dist/pkg/yolonode.js';
         init();
     </script>    
 
-<script type="module" nonce="gVXtTxUs12mY7d564McbEg==">
-import init, * as bindings from '/yoloproto-438a08125403ffaa.js';
-const wasm = await init('/yoloproto-438a08125403ffaa_bg.wasm');
+<script type="module" nonce="9zBUoXoa1FkxDoHDlaXSEg==">
+import init, * as bindings from '/yolonode-610c84f6d0ad596e.js';
+const wasm = await init('/yolonode-610c84f6d0ad596e_bg.wasm');
 
 
 window.wasmBindings = bindings;

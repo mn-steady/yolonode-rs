@@ -29,7 +29,7 @@ body {
 
 /* Image Section Styles */
 .image-section {
-    background-image: url('/assets/YoloNode-Logo-Name-Cropped.png');
+    background-image: url('/static/YoloNode-Logo-Name-Cropped.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -41,14 +41,55 @@ body {
     background-color: #101213; /* Black background color */
 }
 
-/* Main Image Styles */
-.image-container {
-    display: flex;
-    justify-content: center; /* Center the image horizontally */
-    align-items: center; /* Center the image vertically */
-    width: 100%;
-    height: auto;
-    padding: 20px; /* Add some padding if needed */
+.yellow-button {
+    background-color: #C1DF03; /* Yellow background */
+    color: #101213; /* Text color */
+    padding: 10px 20px; /* Button padding */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 1.2rem; /* Font size for the buttons */
+    font-weight: bold; /* Make the text bold */
+    cursor: pointer; /* Pointer cursor on hover */
+    margin: 10px; /* Add space between buttons */
+    text-align: center;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Button shadow for depth */
+    text-decoration: none; /* Remove underline from the link */
+}
+
+.yellow-button:hover {
+    background-color: #c5f103; /* Slightly lighter yellow on hover */
+}
+
+/* Black Button Styles */
+.black-button {
+    background-color: #101213; /* Black background */
+    color: #C1DF03; /* Yellow text */
+    padding: 10px 20px; /* Button padding */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 1.2rem; /* Font size for the button */
+    font-weight: bold; /* Make the text bold */
+    cursor: pointer; /* Pointer cursor on hover */
+    margin: 10px; /* Add space between buttons */
+    text-align: center;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Button shadow for depth */
+    text-decoration: none; /* Remove underline from the link */
+}
+
+/* Black Button hover effect */
+.black-button:hover {
+    background-color: #1c1f1d; /* Slightly lighter black on hover */
+}
+
+/* Button container styles to position buttons at the bottom */
+.button-container {
+    position: absolute; /* Absolute positioning to place at the bottom of the image */
+    bottom: 20px; /* Place the buttons near the bottom */
+    left: 50%; /* Horizontally center */
+    transform: translateX(-50%); /* Adjust position based on width */
+    display: flex; /* Use flexbox to align buttons */
+    justify-content: center; /* Center buttons */
+    flex-wrap: wrap; /* Wrap buttons on mobile */
 }
 
 .main-image {
@@ -63,6 +104,17 @@ body {
     align-items: center;
     padding: 0.5rem 0;
     background-color: #101213; /* YoloNode Black */
+}
+
+.top-bar .wallet-info {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adjust spacing between the wallet address and button */
+}
+
+.wallet-address {
+    text-align: right;
+    font-size: 1.2rem;
 }
 
 .logo {
@@ -118,16 +170,68 @@ hr.gold-line {
     color: #101213; /* YoloNode Black */
 }
 
-.wallet-address {
-    text-align: right;
-    font-size: 1.2rem;
+/* Content within Main Section */
+.main-section .content {
+    width: 100%;
+    text-align: center;
+    padding: 20px; /* Padding inside each content section */
+    box-sizing: border-box;
+    background-color: #C1DF03; /* Ensure the background color persists */
 }
 
-.main-page-image {
-    display: block;
-    margin: 20px auto;
-    max-width: 50%;
-    height: auto;
+.main-section h1 {
+    font-size: 2.25rem; /* Large font size for h1 */
+    margin: 10px 0; /* Margin around heading */
+    color: #101213; /* YoloNode Black */
+}
+
+.main-section h2 {
+    font-size: 2rem; /* Slightly smaller font size for h2 */
+    margin: 8px 0;
+    color: #101213; /* YoloNode Black */
+}
+
+.main-section h3 {
+    font-size: 1.5rem; /* Medium size for h3 */
+    margin: 6px 0;
+    color: #101213; /* YoloNode Black */
+}
+
+.main-section p {
+    font-size: 1.2rem; /* Normal text size for paragraph */
+    margin: 6px 0;
+    line-height: 1.6; /* Improve readability */
+    text-align: center; /* Center align text */
+    color: #101213; /* YoloNode Black */
+}
+
+/* Custom list to match <h3> size and center the items */
+.custom-list {
+    list-style: inside; /* Remove bullet points */
+    padding-left: 0; /* Remove left padding */
+    text-align: center; /* Center the list items */
+    margin: 0; /* Remove default margin */
+}
+
+.custom-list li {
+    font-size: 1.2rem; 
+    margin-bottom: 10px; /* Adds space between each list item */
+    line-height: 1.6; /* Improve readability */
+    color: #101213; /* YoloNode Black */
+}
+
+/* Social media logo styling */
+.social-logo {
+    width: 60px; /* Adjust the size of the logo */
+    height: auto; /* Maintain aspect ratio */
+    display: inline-block; /* Keep it inline with other elements if needed */
+    margin: 10px; /* Adjust spacing around the logo */
+    cursor: pointer; /* Add pointer cursor on hover */
+}
+
+/* Optional: Add hover effect */
+.social-logo:hover {
+    opacity: 0.8; /* Slightly fade the logo on hover */
 }
 
 .section-content {

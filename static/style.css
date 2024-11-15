@@ -331,5 +331,29 @@ hr.gold-line {
         margin: 0; /* Remove any margin */
     }
 
+    .main-section h1 {
+        font-size: 1.5rem !important;
+      }
+      .main-section h2 {
+        font-size: 1.3rem !important;
+      }
+      .main-section h3 {
+        font-size: 1.1rem !important;
+      }
+      .main-section p, .main-section .custom-list li {
+        font-size: 1rem !important;
+        line-height: 1.4 !important;
+      }
+
+    ul.custom-list li {
+        font-size: 1rem; /* Reduce font size for list items */
+        line-height: 1.4; /* Adjust line height */
+    }
+
+    .wallet-info span,
+    .wallet-info p {
+        font-size: 1rem; /* Reduce size for wallet info text */
+    }
+
 }
 

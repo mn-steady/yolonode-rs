@@ -278,43 +278,37 @@ hr.gold-line {
 
     .top-bar {
         display: flex;
-        flex-wrap: wrap; /* Allow items to wrap on smaller screens */
-        justify-content: center; /* Center-align items */
+        flex-wrap: wrap; /* Allow wrapping */
+        justify-content: space-between; /* Spread elements horizontally */
         align-items: center;
-        gap: 10px; /* Add horizontal and vertical spacing between elements */
-        padding: 0.5rem;
-        background-color: #101213; /* YoloNode Black */
+        gap: 10px; /* Add horizontal and vertical spacing */
     }
 
     .links {
         display: flex;
-        flex-wrap: wrap; /* Allow buttons to wrap if necessary */
+        flex: 1; /* Take up available space */
         gap: 10px; /* Add spacing between buttons */
-        justify-content: center; /* Center-align buttons */
-    }
-
-    .image-section {
-        height: 60vh; /* Adjust height slightly to add more bottom space */
-        background-size: cover; /* Ensures the logo fills the width while cropping excess height */
-        background-position: top center; /* Keeps the top part of the logo visible */
-        padding-bottom: 50px; /* Add padding to ensure buttons are not too close to the bottom */
-        margin: 0; /* Remove any margin */
+        justify-content: flex-start; /* Align buttons to the left */
     }
 
     .wallet-info {
+        order: 2; /* Move below buttons */
         text-align: center;
         font-size: 1rem;
-        color: #C1DF03; /* YoloNode Yellow */
-        margin-bottom: 0.5rem; /* Add a bit of spacing below */
+        width: 100%; /* Take full width */
+        margin-top: 10px; /* Add spacing above */
     }
 
-
     .connect-wallet {
-        width: auto; /* Allow the button to size based on content */
-        max-width: 80%; /* Restrict the maximum width */
-        padding: 0.3rem 1rem;
-        font-size: 1rem; /* Maintain consistent font size */
-        box-sizing: border-box;
+        margin-left: auto; /* Push button to the right */
+        order: 1; /* Keep this on the same row */
+        width: auto; /* Allow natural width */
+        max-width: 50%; /* Optional: Limit button width */
+        text-align: center;
+    }
+
+    .links, .connect-wallet {
+        align-self: flex-start; /* Align elements to top of their container */
     }
 
     .links-wallet-container {
@@ -327,6 +321,14 @@ hr.gold-line {
         font-size: 0.85rem;
         text-align: center;
         width: 100%;
+    }
+
+    .image-section {
+        height: 60vh; /* Adjust height slightly to add more bottom space */
+        background-size: cover; /* Ensures the logo fills the width while cropping excess height */
+        background-position: top center; /* Keeps the top part of the logo visible */
+        padding-bottom: 50px; /* Add padding to ensure buttons are not too close to the bottom */
+        margin: 0; /* Remove any margin */
     }
 
 }

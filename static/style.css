@@ -1,0 +1,208 @@
+/* General styling */
+
+body {
+    margin: 0;
+    background-color: #101213; /* YoloNode Black */
+    color: #C1DF03; /* YoloNode Yellow */
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+}
+
+/* Banner Styles */
+.banner {
+    background-color: #C1DF03; /* Background color */
+    text-align: center;         /* Center text */
+    padding: 10px;             /* Padding around the text */
+    font-size: 1.2rem;           /* Match font size of h3 */
+    color: #101213;              /* Text color */
+    margin: 0;                 /* Remove any margin */
+}
+
+/* Image Section Styles */
+.image-section {
+    background-image: url('/assets/YoloNode-Logo-Name-Cropped.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%;
+    height: 80vh;
+    margin: 0;
+    position: relative;
+    padding: 0;
+    background-color: #101213; /* Black background color */
+}
+
+/* Main Image Styles */
+.image-container {
+    display: flex;
+    justify-content: center; /* Center the image horizontally */
+    align-items: center; /* Center the image vertically */
+    width: 100%;
+    height: auto;
+    padding: 20px; /* Add some padding if needed */
+}
+
+.main-image {
+    max-width: 100%; /* Make sure the image doesn't exceed the container width */
+    height: auto; /* Maintain aspect ratio */
+    object-fit: contain; /* Ensure the image fits within its container without being cut off */
+}
+
+.container {
+    width: 80%;
+    max-width: 1200px;
+    padding-top: 10px;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    background-color: #101213; /* YoloNode Black */
+}
+
+.logo {
+    font-size: 1.5rem;
+    color: #C1DF03; /* YoloNode Yellow */
+    text-decoration: none;
+    margin: 0;
+}
+
+.connect-wallet {
+    background: none;
+    border: 1px solid #C1DF03; /* YoloNode Yellow */
+    color: #C1DF03; /* YoloNode Yellow */
+    padding: 0.3rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.connect-wallet:hover {
+    background-color: #C1DF03; /* YoloNode Yellow */
+    color: #101213; /* YoloNode Black */
+}
+
+hr.gold-line {
+    border: none;
+    border-top: 2px solid #C1DF03; /* YoloNode Yellow */
+    margin: 10px 0;
+}
+
+.links-wallet-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.links {
+    display: flex;
+    gap: 10px;
+}
+
+.link-button {
+    background: none;
+    border: 1px solid #C1DF03; /* YoloNode Yellow */
+    color: #C1DF03; /* YoloNode Yellow */
+    padding: 0.3rem;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.link-button:hover {
+    background-color: #C1DF03; /* YoloNode Yellow */
+    color: #101213; /* YoloNode Black */
+}
+
+.wallet-address {
+    text-align: right;
+    font-size: 1.2rem;
+}
+
+.main-page-image {
+    display: block;
+    margin: 20px auto;
+    max-width: 50%;
+    height: auto;
+}
+
+.section-content {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #C1DF03; /* YoloNode Yellow */
+}
+
+.price-display {
+    font-size: 1.2rem;
+    color: #C1DF03; /* YoloNode Yellow */
+    text-align: center;
+    margin-top: 10px;
+}
+
+.price-row {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adjust gap as needed */
+    justify-content: center;
+}
+
+.refresh-price {
+    background: none;
+    border: 1px solid #C1DF03; /* YoloNode Yellow */
+    color: #C1DF03; /* YoloNode Yellow */
+    padding: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.refresh-price:hover {
+    background-color: #C1DF03; /* YoloNode Yellow */
+    color: #101213; /* YoloNode Black */
+}
+
+/* Mobile view adjustments */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 0 10px;
+    }
+
+    .top-bar {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        padding: 0.5rem;
+    }
+
+    .logo {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    .connect-wallet {
+        width: 100%;
+        padding: 0.3rem;
+        box-sizing: border-box;
+    }
+
+    .links-wallet-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .wallet-address {
+        font-size: 0.85rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    .main-page-image {
+        max-width: 100%;
+    }
+}

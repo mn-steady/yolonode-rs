@@ -257,6 +257,7 @@ hr.gold-line {
 .refresh-price {
     background: none;
     border: 1px solid #C1DF03; /* YoloNode Yellow */
+    border-radius: 5px; /* Rounded corners */
     color: #C1DF03; /* YoloNode Yellow */
     padding: 0.5rem;
     cursor: pointer;
@@ -276,21 +277,43 @@ hr.gold-line {
     }
 
     .top-bar {
-        flex-direction: column;
+        display: flex;
+        flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+        justify-content: center; /* Center-align items */
         align-items: center;
-        width: 100%;
+        gap: 10px; /* Add horizontal and vertical spacing between elements */
         padding: 0.5rem;
+        background-color: #101213; /* YoloNode Black */
     }
 
-    .logo {
-        width: 100%;
-        text-align: center;
-        margin-bottom: 5px;
+    .links {
+        display: flex;
+        flex-wrap: wrap; /* Allow buttons to wrap if necessary */
+        gap: 10px; /* Add spacing between buttons */
+        justify-content: center; /* Center-align buttons */
     }
+
+    .image-section {
+        height: 60vh; /* Adjust height slightly to add more bottom space */
+        background-size: cover; /* Ensures the logo fills the width while cropping excess height */
+        background-position: top center; /* Keeps the top part of the logo visible */
+        padding-bottom: 50px; /* Add padding to ensure buttons are not too close to the bottom */
+        margin: 0; /* Remove any margin */
+    }
+
+    .wallet-info {
+        text-align: center;
+        font-size: 1rem;
+        color: #C1DF03; /* YoloNode Yellow */
+        margin-bottom: 0.5rem; /* Add a bit of spacing below */
+    }
+
 
     .connect-wallet {
-        width: 100%;
-        padding: 0.3rem;
+        width: auto; /* Allow the button to size based on content */
+        max-width: 80%; /* Restrict the maximum width */
+        padding: 0.3rem 1rem;
+        font-size: 1rem; /* Maintain consistent font size */
         box-sizing: border-box;
     }
 
@@ -306,7 +329,5 @@ hr.gold-line {
         width: 100%;
     }
 
-    .main-page-image {
-        max-width: 100%;
-    }
 }
+

@@ -102,27 +102,27 @@ pub fn App(cx: Scope) -> impl IntoView {
         cx,
         <div class="container">
             <div class="top-bar">
-                <div class="links">
-                    <button class="link-button" on:click=move |_| set_selected_section.set("Home".to_string())>"Home"</button>
-                    <button class="link-button" on:click=move |_| set_selected_section.set("Price APIs".to_string())>"Price APIs"</button>
-                </div>
-                <div class="wallet-info">
-                    {move || if is_connected.get() {
-                        view! { cx,
-                            <span class="wallet-address">"SCRT Address: " {wallet_address.get()}</span>
-                        }
-                    } else {
-                        view! { cx,
-                            <span class="wallet-address">"Producing blocks on Secret Network since 7/10/2024!"</span>
-                        }
-                    }}
-                </div>
+            <div class="links">
+                <button class="link-button" on:click=move |_| set_selected_section.set("Home".to_string())>"Home"</button>
+                <button class="link-button" on:click=move |_| set_selected_section.set("Price API".to_string())>"Price API"</button>
+            </div>
+            <div class="wallet-info">
                 {move || if is_connected.get() {
                     view! { cx,
-                        <button class="connect-wallet" on:click=disconnect_wallet>
-                            "Logout"
-                        </button>
+                        <span class="wallet-address">"SCRT Address: " {wallet_address.get()}</span>
                     }
+                } else {
+                    view! { cx,
+                        <span class="wallet-address">"Producing blocks on Secret Network since 7/10/2024!"</span>
+                    }
+                }}
+            </div>
+            {move || if is_connected.get() {
+                view! { cx,
+                    <button class="connect-wallet" on:click=disconnect_wallet>
+                        "Logout"
+                    </button>
+                }
                 } else {
                     view! { cx,
                         <button class="connect-wallet" on:click=connect_wallet>
@@ -131,6 +131,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                     }
                 }}
             </div>
+            <hr class="gold-line" />
             {move || if selected_section.get() == "Home" {
                 view! { cx, 
                     <div>

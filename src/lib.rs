@@ -106,29 +106,30 @@ pub fn App(cx: Scope) -> impl IntoView {
                     <button class="link-button" on:click=move |_| set_selected_section.set("Home".to_string())>"Home"</button>
                     <button class="link-button" on:click=move |_| set_selected_section.set("Shade".to_string())>"Shade"</button>
                 </div>
-                <p>"Producing blocks on Secret Network since 7/10/2024!"</p>
                 <div class="wallet-info">
-                    {move || if is_connected.get() && !wallet_address.get().is_empty() {
-                        view! { cx,
-                            <span class="wallet-address">"SCRT Address: " {wallet_address.get()} </span>
-                        }
-                    } else {
-                        view! { cx, <span></span> }
-                    }}
                     {move || if is_connected.get() {
                         view! { cx,
-                            <button class="connect-wallet" on:click=disconnect_wallet>
-                                "Logout"
-                            </button>
+                            <span class="wallet-address">"SCRT Address: " {wallet_address.get()}</span>
                         }
                     } else {
                         view! { cx,
-                            <button class="connect-wallet" on:click=connect_wallet>
-                                "Connect Wallet"
-                            </button>
+                            <span class="wallet-address">"Producing blocks on Secret Network since 7/10/2024!"</span>
                         }
                     }}
                 </div>
+                {move || if is_connected.get() {
+                    view! { cx,
+                        <button class="connect-wallet" on:click=disconnect_wallet>
+                            "Logout"
+                        </button>
+                    }
+                } else {
+                    view! { cx,
+                        <button class="connect-wallet" on:click=connect_wallet>
+                            "Connect Wallet"
+                        </button>
+                    }
+                }}
             </div>
             {move || if selected_section.get() == "Home" {
                 view! { cx, 

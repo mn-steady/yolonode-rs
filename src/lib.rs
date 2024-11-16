@@ -293,7 +293,7 @@ pub fn App(cx: Scope) -> impl IntoView {
             } else if selected_section.get() == "Prices" {
                 view! {
                     cx,
-                    <div class="section-content">
+                    <div class="price-section">
                         <div class="price-row">
                             <button class="link-button" on:click=refresh_price>"Refresh SHD Price"</button>
                             <div id="shd-price" class="price-display">{shd_price.get()}</div>

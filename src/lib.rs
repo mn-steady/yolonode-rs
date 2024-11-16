@@ -293,14 +293,20 @@ pub fn App(cx: Scope) -> impl IntoView {
                 view! {
                     cx,
                     <div class="section-content">
-                        <div id="shd-price" class="price-display">{shd_price.get()}</div>
-                        <button class="link-button" on:click=refresh_price>"Refresh SHD Price"</button>
+                        <div class="price-row">
+                            <button class="link-button" on:click=refresh_price>"Refresh SHD Price"</button>
+                            <div id="shd-price" class="price-display">{shd_price.get()}</div>
+                        </div>
                         <hr class="gold-line" />
-                        <div id="scrt-price" class="price-display">{scrt_price.get()}</div>
-                        <button class="link-button" on:click=refresh_scrt_price>"Refresh SCRT Price"</button>
+                        <div class="price-row">
+                            <button class="link-button" on:click=refresh_scrt_price>"Refresh SCRT Price"</button>
+                            <div id="scrt-price" class="price-display">{scrt_price.get()}</div>
+                        </div>
                         <hr class="gold-line" />
-                        <div id="price-ratio" class="price-display">{price_ratio.get()}</div>
-                        <button class="link-button" on:click=refresh_price_ratio>"Refresh Price Ratio"</button>
+                        <div class="price-row">
+                            <button class="link-button" on:click=refresh_price_ratio>"Refresh Price Ratio"</button>
+                            <div id="price-ratio" class="price-display">{price_ratio.get()}</div>
+                        </div>
                         <hr class="gold-line" />
                     </div>
                 }

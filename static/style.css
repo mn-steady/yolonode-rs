@@ -122,21 +122,6 @@ body {
     font-size: 1.2rem;
 }
 
-.connect-wallet {
-    background: none;
-    border: 1px solid #C1DF03; /* YoloNode Yellow */
-    border-radius: 5px; /* Rounded corners */
-    color: #C1DF03; /* YoloNode Yellow */
-    padding: 0.3rem 1rem;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-.connect-wallet:hover {
-    background-color: #C1DF03; /* YoloNode Yellow */
-    color: #101213; /* YoloNode Black */
-}
-
 hr.gold-line {
     border: none;
     border-top: 2px solid #C1DF03; /* YoloNode Yellow */
@@ -252,21 +237,6 @@ hr.gold-line {
     align-items: center;
     gap: 10px; /* Adjust gap as needed */
     justify-content: center;
-}
-
-.refresh-price {
-    background: none;
-    border: 1px solid #C1DF03; /* YoloNode Yellow */
-    border-radius: 5px; /* Rounded corners */
-    color: #C1DF03; /* YoloNode Yellow */
-    padding: 0.5rem;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-.refresh-price:hover {
-    background-color: #C1DF03; /* YoloNode Yellow */
-    color: #101213; /* YoloNode Black */
 }
 
 /* Mobile view adjustments */

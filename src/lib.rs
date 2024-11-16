@@ -297,7 +297,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                     <div class="price-section">
                         <div class="price-row">
                             <h2>"Shade API :"</h2>
-                            <p>"Query the current price of an asset within the Shade Protocol liquidy pools."</p>
+                            <p>"Query the current price of an asset within the Shade Protocol liquidity pools."</p>
                         </div>
                         <hr class="gold-line" />
                         <div class="price-row">

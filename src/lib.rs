@@ -89,11 +89,31 @@ async fn calculate_price_ratio(shd_price: String, scrt_price: String, set_ratio:
     let scrt_value = scrt_price.trim_start_matches("SCRT = $").parse::<f64>().unwrap_or(1.0); // Avoid division by zero
     if scrt_value > 0.0 {
         let ratio = shd_value / scrt_value;
-        set_ratio.set(format!("SHD/SCRT = {:.2}", ratio));
+        set_ratio.set(format!("SHD/SCRT = {:.4}", ratio)); // Four decimal places
     } else {
         set_ratio.set("Invalid Ratio".to_string());
     }
 }
+
+// Function to fetch stkd-SCRT price
+async fn fetch_stkd_scrt_price(set_stkd_scrt_price: WriteSignal<String>) {
+    if let Ok(js_func) = call_js_function("fetchSTKDPrice") {
+        if let Ok(promise) = js_func.call0(&JsValue::NULL).and_then(|val| val.dyn_into::<Promise>()) {
+            match wasm_bindgen_futures::JsFuture::from(promise).await {
+                Ok(js_value) => {
+                    if let Some(price_str) = js_value.as_string() {
+                        set_stkd_scrt_price.set(format!("stkd-SCRT = ${}", price_str));
+                    }
+                }
+                Err(err) => {
+                    web_sys::console::error_1(&err);
+                    set_stkd_scrt_price.set("Error fetching stkd-SCRT price".to_string());
+                }
+            }
+        }
+    }
+}
+
 
 // The main app component
 #[component]
@@ -102,13 +122,15 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (wallet_address, set_wallet_address) = create_signal(cx, String::new());
     let (shd_price, set_shd_price) = create_signal(cx, String::from("Loading SHD price..."));
     let (scrt_price, set_scrt_price) = create_signal(cx, String::from("Loading SCRT price..."));
-    let (price_ratio, set_price_ratio) = create_signal(cx, String::from("Loading price ratio..."));
+    let (price_ratio, set_price_ratio) = create_signal(cx, String::from("Loading SHD/SCRT ratio..."));
+    let (stkd_scrt_price, set_stkd_scrt_price) = create_signal(cx, String::from("Loading stkd-SCRT price..."));
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
 
     // Fetch prices on page load
     spawn_local(async move {
         fetch_shd_price(set_shd_price.clone()).await;
         fetch_scrt_price(set_scrt_price.clone()).await;
+        fetch_stkd_scrt_price(set_stkd_scrt_price.clone()).await;
 
         // Calculate the ratio once both prices are fetched
         let shd_price_value = shd_price.get();
@@ -326,6 +348,11 @@ pub fn App(cx: Scope) -> impl IntoView {
                             <div id="price-ratio" class="price-display">{price_ratio.get()}</div>
                         </div>
                         <hr class="gold-line" />
+                        <div class="price-row">
+                            <button class="link-button" on:click=move |_| spawn_local(fetch_stkd_scrt_price(set_stkd_scrt_price.clone()))>"Refresh stkd-SCRT Price"</button>
+                            <div id="stkd-scrt-price" class="price-display">{stkd_scrt_price.get()}</div>
+                        </div>
+                        <hr class="gold-line" />                    
                     </div>
                 }
             } else if selected_section.get() == "Tools" {    

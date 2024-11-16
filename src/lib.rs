@@ -349,7 +349,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                         <hr class="gold-line" />
                         <div class="price-row">
-                            <button class="link-button" on:click=move |_| spawn_local(fetch_stkd_scrt_price(set_stkd_scrt_price.clone()))>"Refresh stkd-SCRT Price"</button>
+                            <button class="link-button" on:click=move |_| spawn_local(fetch_stkd_scrt_price(set_stkd_scrt_price.clone()))>"Refresh STKD Price"</button>
                             <div id="stkd-scrt-price" class="price-display">{stkd_scrt_price.get()}</div>
                         </div>
                         <hr class="gold-line" />                    

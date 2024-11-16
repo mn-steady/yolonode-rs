@@ -70,12 +70,26 @@ async fn fetch_shd_price(set_shd_price: WriteSignal<String>) {
     }
 }
 
+// Function to fetch SCRT price
+async fn fetch_scrt_price(set_scrt_price: WriteSignal<String>) {
+    if let Ok(js_func) = call_js_function("fetchSCRTPrice") {
+        if let Ok(promise) = js_func.call0(&JsValue::NULL).and_then(|val| val.dyn_into::<Promise>()) {
+            if let Ok(js_value) = wasm_bindgen_futures::JsFuture::from(promise).await {
+                if let Some(price_str) = js_value.as_string() {
+                    set_scrt_price.set(format!("SCRT = ${}", price_str));
+                }
+            }
+        }
+    }
+}
+
 // The main app component
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
     let (is_connected, set_connected) = create_signal(cx, false);
     let (wallet_address, set_wallet_address) = create_signal(cx, String::new());
     let (shd_price, set_shd_price) = create_signal(cx, String::from("Loading SHD price..."));
+    let (scrt_price, set_scrt_price) = create_signal(cx, String::from("Loading SCRT price..."));
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
 
     let connect_wallet = move |_| {
@@ -95,6 +109,10 @@ pub fn App(cx: Scope) -> impl IntoView {
 
     let refresh_price = move |_| {
         spawn_local(fetch_shd_price(set_shd_price.clone()));
+    };
+
+        let refresh_scrt_price = move |_| {
+        spawn_local(fetch_scrt_price(set_scrt_price.clone()));
     };
 
     // UI with views
@@ -119,13 +137,13 @@ pub fn App(cx: Scope) -> impl IntoView {
             </div>
             {move || if is_connected.get() {
                 view! { cx,
-                    <button class="connect-wallet" on:click=disconnect_wallet>
+                    <button class="link-button" on:click=disconnect_wallet>
                         "Logout"
                     </button>
                 }
                 } else {
                     view! { cx,
-                        <button class="connect-wallet" on:click=connect_wallet>
+                        <button class="link-button" on:click=connect_wallet>
                             "Connect Wallet"
                         </button>
                     }
@@ -253,7 +271,10 @@ pub fn App(cx: Scope) -> impl IntoView {
                     cx,
                     <div class="section-content">
                         <div id="shd-price" class="price-display">{shd_price.get()}</div>
-                        <button class="refresh-price" on:click=refresh_price>"Refresh SHD Price"</button>
+                        <button class="link-button" on:click=refresh_price>"Refresh SHD Price"</button>
+                        <hr class="gold-line" />
+                        <div id="scrt-price" class="price-display">{scrt_price.get()}</div>
+                        <button class="link-button" on:click=refresh_scrt_price>"Refresh SCRT Price"</button>
                     </div>
                 }
             }}

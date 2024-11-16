@@ -591,15 +591,15 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).cloneNode();
         return addHeapObject(ret);
     }, arguments) };
-    imports.wbg.__wbindgen_closure_wrapper104 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper106 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 10, __wbg_adapter_26);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper113 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper115 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 51, __wbg_adapter_26);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1189 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1196 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 76, __wbg_adapter_26);
         return addHeapObject(ret);
     };

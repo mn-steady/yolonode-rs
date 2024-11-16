@@ -83,6 +83,18 @@ async fn fetch_scrt_price(set_scrt_price: WriteSignal<String>) {
     }
 }
 
+// Function to calculate the price ratio
+async fn calculate_price_ratio(shd_price: String, scrt_price: String, set_ratio: WriteSignal<String>) {
+    let shd_value = shd_price.trim_start_matches("SHD = $").parse::<f64>().unwrap_or(0.0);
+    let scrt_value = scrt_price.trim_start_matches("SCRT = $").parse::<f64>().unwrap_or(1.0); // Avoid division by zero
+    if scrt_value > 0.0 {
+        let ratio = shd_value / scrt_value;
+        set_ratio.set(format!("SHD/SCRT = {:.2}", ratio));
+    } else {
+        set_ratio.set("Invalid Ratio".to_string());
+    }
+}
+
 // The main app component
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
@@ -90,6 +102,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (wallet_address, set_wallet_address) = create_signal(cx, String::new());
     let (shd_price, set_shd_price) = create_signal(cx, String::from("Loading SHD price..."));
     let (scrt_price, set_scrt_price) = create_signal(cx, String::from("Loading SCRT price..."));
+    let (price_ratio, set_price_ratio) = create_signal(cx, String::from("Loading price ratio..."));
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
 
     let connect_wallet = move |_| {
@@ -113,6 +126,16 @@ pub fn App(cx: Scope) -> impl IntoView {
 
         let refresh_scrt_price = move |_| {
         spawn_local(fetch_scrt_price(set_scrt_price.clone()));
+    };
+
+    let refresh_price_ratio = move |_| {
+        let shd_price_value = shd_price.get();
+        let scrt_price_value = scrt_price.get();
+        spawn_local(calculate_price_ratio(
+            shd_price_value.clone(),
+            scrt_price_value.clone(),
+            set_price_ratio.clone(),
+        ));
     };
 
     // UI with views
@@ -275,6 +298,10 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <hr class="gold-line" />
                         <div id="scrt-price" class="price-display">{scrt_price.get()}</div>
                         <button class="link-button" on:click=refresh_scrt_price>"Refresh SCRT Price"</button>
+                        <hr class="gold-line" />
+                        <div id="price-ratio" class="price-display">{price_ratio.get()}</div>
+                        <button class="link-button" on:click=refresh_price_ratio>"Refresh Price Ratio"</button>
+                        <hr class="gold-line" />
                     </div>
                 }
             }}

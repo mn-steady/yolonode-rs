@@ -220,7 +220,7 @@ hr.gold-line {
 }
 
 .section-content {
-    margin-top: 20px;
+    margin-top: 0px;
     font-size: 1rem;
     color: #C1DF03; /* YoloNode Yellow */
 }
@@ -235,8 +235,8 @@ hr.gold-line {
 .price-row {
     display: flex;
     align-items: center;
-    gap: 10px; /* Adjust gap as needed */
-    justify-content: center;
+    gap: 40px; /* Adjust gap as needed */
+    justify-content: space-between;
 }
 
 /* Mobile view adjustments */

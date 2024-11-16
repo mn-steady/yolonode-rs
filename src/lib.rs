@@ -319,6 +319,13 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <p>"A place for additional tools and utilities."</p>
                     </div>
                 }
+            } else if selected_section.get() == "Vote" {    
+                view! { cx,
+                    <div class="vote-section">
+                        <h2>"Governance"</h2>
+                        <p>"A place to vote on current proposals or view past proposals."</p>
+                    </div>
+                }
             } else {
                 view! { cx,
                     <div class="error-section">

@@ -295,6 +295,9 @@ pub fn App(cx: Scope) -> impl IntoView {
                 view! {
                     cx,
                     <div class="price-section">
+                    <h2>"Shade API"</h2>
+                    <p>"Query current price of an asset within the Shade Protocol liquidy pools."</p>
+                    <hr class="gold-line" />
                         <div class="price-row">
                             <button class="link-button" on:click=refresh_price>"Refresh SHD Price"</button>
                             <div id="shd-price" class="price-display">{shd_price.get()}</div>
@@ -315,8 +318,9 @@ pub fn App(cx: Scope) -> impl IntoView {
             } else if selected_section.get() == "Tools" {    
                 view! { cx,
                     <div class="tools-section">
-                        <h2>"Tools/Utilities"</h2>
+                        <h2>"Tools|Utilities"</h2>
                         <p>"A place for additional tools and utilities."</p>
+                        <hr class="gold-line" />
                     </div>
                 }
             } else if selected_section.get() == "Vote" {    
@@ -324,6 +328,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                     <div class="vote-section">
                         <h2>"Governance"</h2>
                         <p>"A place to vote on current proposals or view past proposals."</p>
+                        <hr class="gold-line" />
                     </div>
                 }
             } else {

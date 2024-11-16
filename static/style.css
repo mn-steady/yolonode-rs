@@ -240,15 +240,15 @@ hr.gold-line {
 }
 
 .tools-section {
-    padding: 16px;
+    padding: 0px;
     background-color: #101213;
-    border-radius: 8px;
+    border-radius: 5px;
 }
 
 .vote-section {
-    padding: 16px;
+    padding: 0px;
     background-color: #101213;
-    border-radius: 8px;
+    border-radius: 5px;
 }
 
 /* Mobile view adjustments */

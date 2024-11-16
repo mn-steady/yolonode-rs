@@ -239,6 +239,12 @@ hr.gold-line {
     justify-content: space-between;
 }
 
+.tools-section {
+    padding: 16px;
+    background-color: #101213;
+    border-radius: 8px;
+}
+
 /* Mobile view adjustments */
 @media (max-width: 768px) {
     .container {

@@ -145,7 +145,8 @@ pub fn App(cx: Scope) -> impl IntoView {
             <div class="top-bar">
             <div class="links">
                 <button class="link-button" on:click=move |_| set_selected_section.set("Home".to_string())>"Home"</button>
-                <button class="link-button" on:click=move |_| set_selected_section.set("Price API".to_string())>"Price API"</button>
+                <button class="link-button" on:click=move |_| set_selected_section.set("Prices".to_string())>"Prices"</button>
+                <button class="link-button" on:click=move |_| set_selected_section.set("Tools".to_string())>"Tools"</button>
             </div>
             <div class="wallet-info">
                 {move || if is_connected.get() {
@@ -289,7 +290,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                     </div>
                 }
-            } else {
+            } else if selected_section.get() == "Prices" {
                 view! {
                     cx,
                     <div class="section-content">
@@ -308,6 +309,19 @@ pub fn App(cx: Scope) -> impl IntoView {
                             <div id="price-ratio" class="price-display">{price_ratio.get()}</div>
                         </div>
                         <hr class="gold-line" />
+                    </div>
+                }
+            } else if selected_section.get() == "Tools" {    
+                view! { cx,
+                    <div class="tools-section">
+                        <h2>"Tools/Utilities"</h2>
+                        <p>"A place for additional tools and utilities."</p>
+                    </div>
+                }
+            } else {
+                view! { cx,
+                    <div class="error-section">
+                        <p>"Section not found."</p>
                     </div>
                 }
             }}

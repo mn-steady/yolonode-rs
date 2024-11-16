@@ -220,9 +220,12 @@ hr.gold-line {
 }
 
 .price-section {
+    padding: 0px;
     margin-top: 0px;
     font-size: 1rem;
     color: #C1DF03; /* YoloNode Yellow */
+    background-color: #101213;
+    border-radius: 5px;
 }
 
 .price-display {
@@ -234,21 +237,80 @@ hr.gold-line {
 
 .price-row {
     display: flex;
-    align-items: center;
-    gap: 40px; /* Adjust gap as needed */
     justify-content: space-between;
+    align-items: center;
+    gap: 0px; /* Adjust gap as needed */
+    margin: 10px 0; /* Optional: Adjust spacing around the row */
+}
+
+.price-row h2 {
+    margin: 0; /* Remove default margin to keep it aligned */
+    flex: 1; /* Allow flexibility to grow/shrink */
+    margin-right: 5px;
+}
+
+.price-row p {
+    margin: 5px; 
+    margin-left: 5px;
+    flex: 1; /* Align with h1 */
 }
 
 .tools-section {
     padding: 0px;
+    margin-top: 0px;
+    font-size: 1rem;
+    color: #C1DF03; /* YoloNode Yellow */
     background-color: #101213;
     border-radius: 5px;
 }
 
+.tools-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0px; /* Adjust gap as needed */
+    margin: 10px 0; /* Optional: Adjust spacing around the row */
+}
+
+.tools-row h2 {
+    margin: 0; /* Remove default margin to keep it aligned */
+    flex: 1; /* Allow flexibility to grow/shrink */
+    margin-right: 15px;
+}
+
+.tools-row p {
+    margin: 5px; 
+    margin-left: 15px;
+    flex: 1; /* Align with h1 */
+}
+
 .vote-section {
     padding: 0px;
+    margin-top: 0px;
+    font-size: 1rem;
+    color: #C1DF03; /* YoloNode Yellow */
     background-color: #101213;
     border-radius: 5px;
+}
+
+.vote-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0px; /* Adjust gap as needed */
+    margin: 10px 0; /* Optional: Adjust spacing around the row */
+}
+
+.vote-row h2 {
+    margin: 0; 
+    margin-right: 15px;
+    flex: 1; /* Allow flexibility to grow/shrink */
+}
+
+.vote-row p {
+    margin: 5px; 
+    margin-left: 15px;
+    flex: 1; /* Align with h1 */
 }
 
 /* Mobile view adjustments */

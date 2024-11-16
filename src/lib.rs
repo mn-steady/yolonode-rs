@@ -105,6 +105,17 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (price_ratio, set_price_ratio) = create_signal(cx, String::from("Loading price ratio..."));
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
 
+    // Fetch prices on page load
+    spawn_local(async move {
+        fetch_shd_price(set_shd_price.clone()).await;
+        fetch_scrt_price(set_scrt_price.clone()).await;
+
+        // Calculate the ratio once both prices are fetched
+        let shd_price_value = shd_price.get();
+        let scrt_price_value = scrt_price.get();
+        calculate_price_ratio(shd_price_value.clone(), scrt_price_value.clone(), set_price_ratio.clone()).await;
+    });
+
     let connect_wallet = move |_| {
         set_connected.set(true);
         spawn_local(async move {

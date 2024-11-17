@@ -346,9 +346,6 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).createDocumentFragment();
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
-        takeObject(arg0);
-    };
     imports.wbg.__wbindgen_is_function = function(arg0) {
         const ret = typeof(getObject(arg0)) === 'function';
         return ret;
@@ -389,6 +386,9 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_is_4b64bc96710d6a0f = function(arg0, arg1) {
         const ret = Object.is(getObject(arg0), getObject(arg1));
         return ret;
+    };
+    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
+        takeObject(arg0);
     };
     imports.wbg.__wbg_createTreeWalker_d94fb819870e1f24 = function() { return handleError(function (arg0, arg1, arg2) {
         const ret = getObject(arg0).createTreeWalker(getObject(arg1), arg2 >>> 0);
@@ -599,7 +599,7 @@ function __wbg_get_imports() {
         const ret = makeMutClosure(arg0, arg1, 53, __wbg_adapter_26);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1234 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1232 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 78, __wbg_adapter_26);
         return addHeapObject(ret);
     };

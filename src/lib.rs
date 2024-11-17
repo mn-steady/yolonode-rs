@@ -23,7 +23,7 @@ fn call_js_function(function_name: &str) -> Result<Function, JsValue> {
     func.dyn_into::<Function>()
 }
 
-// Call specific JavaScript functions
+// Call specific keplr functions
 async fn get_wallet_address() -> Option<String> {
     if let Ok(js_func) = call_js_function("get_wallet_address") {
         if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<Promise>()) {
@@ -113,7 +113,6 @@ async fn fetch_stkd_scrt_price(set_stkd_scrt_price: WriteSignal<String>) {
         }
     }
 }
-
 
 // The main app component
 #[component]

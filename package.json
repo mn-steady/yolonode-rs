@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@shadeprotocol/shadejs": "^1.5.9",
+    "buffer": "^6.0.3",
     "secretjs": "^1.12.5"
   },
   "devDependencies": {

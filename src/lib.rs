@@ -114,6 +114,39 @@ async fn fetch_stkd_scrt_price(set_stkd_scrt_price: WriteSignal<String>) {
     }
 }
 
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = window)]
+    async fn fetchBTCPrice() -> JsValue;
+
+    #[wasm_bindgen(js_namespace = window)]
+    async fn fetchETHPrice() -> JsValue;
+}
+
+// Function to fetch BTC price
+async fn fetch_btc_price(set_btc_price: WriteSignal<String>) {
+    match fetchBTCPrice().await.as_string() {
+        Some(price) => {
+            set_btc_price.set(format!("BTC = ${}", price));
+        }
+        None => {
+            set_btc_price.set("BTC Price Unavailable".to_string());
+        }
+    }
+}
+
+// Function to fetch ETH price
+async fn fetch_eth_price(set_eth_price: WriteSignal<String>) {
+    match fetchETHPrice().await.as_string() {
+        Some(price) => {
+            set_eth_price.set(format!("ETH = ${}", price));
+        }
+        None => {
+            set_eth_price.set("ETH Price Unavailable".to_string());
+        }
+    }
+}
+
 // The main app component
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
@@ -124,12 +157,16 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (price_ratio, set_price_ratio) = create_signal(cx, String::from("Loading SHD/SCRT ratio..."));
     let (stkd_scrt_price, set_stkd_scrt_price) = create_signal(cx, String::from("Loading stkd-SCRT price..."));
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
+    let (btc_price, set_btc_price) = create_signal(cx, String::from("Loading BTC price..."));
+    let (eth_price, set_eth_price) = create_signal(cx, String::from("Loading ETH price..."));
 
     // Fetch prices on page load
     spawn_local(async move {
         fetch_shd_price(set_shd_price.clone()).await;
         fetch_scrt_price(set_scrt_price.clone()).await;
         fetch_stkd_scrt_price(set_stkd_scrt_price.clone()).await;
+        fetch_btc_price(set_btc_price.clone()).await;
+        fetch_eth_price(set_eth_price.clone()).await;
 
         // Calculate the ratio once both prices are fetched
         let shd_price_value = shd_price.get();
@@ -326,11 +363,21 @@ pub fn App(cx: Scope) -> impl IntoView {
             } else if selected_section.get() == "Prices" {
                 view! {
                     cx,
-                    <div class="price-section">
+                    <div class="price-section"> 
                         <div class="price-row">
                             <h2>"Shade API :"</h2>
                             <p>"Query the current price of an asset within the Shade Protocol liquidity pools."</p>
                         </div>
+                        <hr class="gold-line" />
+                        <div class="price-row">
+                            <button class="link-button" on:click=move |_| spawn_local(fetch_btc_price(set_btc_price.clone()))>"Refresh BTC Price"</button>
+                            <div id="btc-price" class="price-display">{btc_price.get()}</div>
+                        </div>
+                        <hr class="gold-line" />
+                        <div class="price-row">
+                            <button class="link-button" on:click=move |_| spawn_local(fetch_eth_price(set_eth_price.clone()))>"Refresh ETH Price"</button>
+                            <div id="eth-price" class="price-display">{eth_price.get()}</div>
+                        </div> 
                         <hr class="gold-line" />
                         <div class="price-row">
                             <button class="link-button" on:click=refresh_price>"Refresh SHD Price"</button>
@@ -343,7 +390,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                         <hr class="gold-line" />
                         <div class="price-row">
-                            <button class="link-button" on:click=refresh_price_ratio>"Refresh Price Ratio"</button>
+                            <button class="link-button" on:click=refresh_price_ratio>"Refresh SHD/SCRT"</button>
                             <div id="price-ratio" class="price-display">{price_ratio.get()}</div>
                         </div>
                         <hr class="gold-line" />
@@ -351,7 +398,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             <button class="link-button" on:click=move |_| spawn_local(fetch_stkd_scrt_price(set_stkd_scrt_price.clone()))>"Refresh STKD Price"</button>
                             <div id="stkd-scrt-price" class="price-display">{stkd_scrt_price.get()}</div>
                         </div>
-                        <hr class="gold-line" />                    
+                        <hr class="gold-line" />    
                     </div>
                 }
             } else if selected_section.get() == "Tools" {    

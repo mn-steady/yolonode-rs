@@ -327,6 +327,14 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_error_53abcd6a461f73d8 = function(arg0) {
         console.error(getObject(arg0));
     };
+    imports.wbg.__wbg_fetchBTCPrice_c05d74ee48a2c440 = function() {
+        const ret = window.fetchBTCPrice();
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_fetchETHPrice_5170e8464f309313 = function() {
+        const ret = window.fetchETHPrice();
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbg_new0_218ada33b570be35 = function() {
         const ret = new Date();
         return addHeapObject(ret);
@@ -591,15 +599,15 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).cloneNode();
         return addHeapObject(ret);
     }, arguments) };
-    imports.wbg.__wbindgen_closure_wrapper106 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper108 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 10, __wbg_adapter_26);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper115 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper117 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 53, __wbg_adapter_26);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1232 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1243 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 78, __wbg_adapter_26);
         return addHeapObject(ret);
     };

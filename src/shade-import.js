@@ -60,7 +60,44 @@ window.fetchSTKDPrice = async function () {
     }
 };
 
-// Function to fetch multiple prices in a batch
+window.fetchBTCPrice = async function () {
+    try {
+        const priceData = await queryPrice({
+            contractAddress: "secret10n2xl5jmez6r9umtdrth78k0vwmce0l5m9f5dm",
+            codeHash: "32c4710842b97a526c243a68511b15f58d6e72a388af38a7221ff3244c754e91",
+            oracleKey: 'BTC',
+        });
+
+        const rateFormatted = (parseFloat(priceData.rate) / 1e18).toFixed(4);
+        console.log("Formatted BTC Price:", rateFormatted);
+        return rateFormatted;
+    } catch (error) {
+        console.error("Error fetching BTC price:", error);
+        throw error;
+    }
+};
+
+window.fetchETHPrice = async function () {
+    try {
+        const priceData = await queryPrice({
+            contractAddress: "secret10n2xl5jmez6r9umtdrth78k0vwmce0l5m9f5dm",
+            codeHash: "32c4710842b97a526c243a68511b15f58d6e72a388af38a7221ff3244c754e91",
+            oracleKey: 'ETH',
+        });
+
+        const rateFormatted = (parseFloat(priceData.rate) / 1e18).toFixed(4);
+        console.log("Formatted ETH Price:", rateFormatted);
+        return rateFormatted;
+    } catch (error) {
+        console.error("Error fetching ETH price:", error);
+        throw error;
+    }
+};
+
+// Function to fetch multiple prices individually but in a batch  
+// This is a less efficient version of the multi-price query in the oracle contract, 
+// however the benefits are that an error in any single price will not cause all prices to fail. 
+
 window.fetchBatchPrices = async function (oracleKeys = ["BTC", "ETH", "SHD", "SCRT", "stkd-SCRT", "SILK"], options = {}) {
     const {
         queryRouterContractAddress = "secret15mkmad8ac036v4nrpcc7nk8wyr578egt077syt",

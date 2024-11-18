@@ -45,61 +45,74 @@ async function get_wallet_address() {
     }
 }
 
-// Function to fetch the viewing key for STKD
-async function getSTKDViewingKey(address, contractAddress = "secret1k6u0cy4feepm6pehnz804zmwakuwdapm69tuc4") {
+async function fetchGovernanceProposals() {
     if (window.keplr) {
         try {
-            await window.keplr.enable("secret-4");
-            
-            console.log("Testing grpcWebUrl:", "https://grpc.mainnet.secretsaturn.net");
+            console.log("Fetching governance proposals...");
 
-            // Test code to confirm client initialization
-            try {
-                const client = new window.SecretNetworkClient({
-                    grpcWebUrl: "https://grpc.mainnet.secretsaturn.net",
-                    chainId: "secret-4",
-                    wallet: window.getOfflineSigner("secret-4"),
-                    walletAddress: address,
-                });
-                console.log("Client created successfully:", client);
-            } catch (e) {
-                console.error("Error creating client:", e);
-                return "Error creating SecretNetworkClient.";
+            await window.keplr.enable("secret-4");
+            const signer = window.getOfflineSigner("secret-4");
+            const accounts = await signer.getAccounts();
+            const walletAddress = accounts[0]?.address;
+
+            console.log("Signer:", signer);
+            console.log("Wallet Address:", walletAddress);
+
+            if (!walletAddress) {
+                console.error("No wallet address found.");
+                return [];
             }
 
-            // Assuming the client was created successfully, proceed with the query
-            const client = await window.SecretNetworkClient.create({
+            // Debug initialization parameters
+            console.log("Initializing SecretNetworkClient with:", {
                 grpcWebUrl: "https://grpc.mainnet.secretsaturn.net",
                 chainId: "secret-4",
-                wallet: window.getOfflineSigner("secret-4"),
-                walletAddress: address,
+                wallet: signer,
+                walletAddress,
             });
 
-            const response = await client.query.compute.queryContract({
-                contractAddress: contractAddress,
-                query: { "viewing_key": { "address": address } },
-            });
+            // Try initializing with LCD fallback if gRPC fails
+            let client;
+            try {
+                client = new window.SecretNetworkClient({
+                    grpcWebUrl: "https://grpc.mainnet.secretsaturn.net",
+                    chainId: "secret-4",
+                    wallet: signer,
+                    walletAddress,
+                });
+            } catch (grpcError) {
+                console.warn("gRPC failed, switching to LCD:", grpcError);
+                client = new window.SecretNetworkClient({
+                    url: "https://lcd.mainnet.secretsaturn.net",
+                    chainId: "secret-4",
+                    wallet: signer,
+                    walletAddress,
+                });
+            }
 
-            if (response && response.key) {
-                console.log("Viewing Key:", response.key);
-                return response.key;
+            console.log("SecretNetworkClient initialized:", client);
+
+            // Query governance proposals
+            const response = await client.query.gov.proposals({});
+            if (response && response.proposals) {
+                console.log("Governance Proposals:", response.proposals);
+                return response.proposals;
             } else {
-                console.warn("No viewing key found or response invalid.");
-                return "No viewing key found.";
+                console.warn("No governance proposals found.");
+                return [];
             }
         } catch (error) {
-            console.error("Failed to retrieve viewing key:", error);
-            return "Error retrieving viewing key.";
+            console.error("Error fetching governance proposals:", error);
+            return [];
         }
     } else {
         alert("Keplr wallet not found!");
-        return "Keplr not available.";
+        return [];
     }
 }
-
 
 // Attach functions to the global window object for Rust to access
 window.connectKeplrWallet = connectKeplrWallet;
 window.disconnectKeplrWallet = disconnectKeplrWallet;
 window.get_wallet_address = get_wallet_address;
-window.getSTKDViewingKey = getSTKDViewingKey;
+window.fetchGovernanceProposals = fetchGovernanceProposals; 

@@ -225,7 +225,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                     }
                 } else {
                     view! { cx,
-                        <span class="wallet-address">"Producing blocks on Secret Network since 7/10/2024!"</span>
+                        <span class="wallet-address"></span> 
                     }
                 }}
             </div>

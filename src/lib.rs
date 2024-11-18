@@ -161,18 +161,18 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (eth_price, set_eth_price) = create_signal(cx, String::from("Loading ETH price..."));
 
     // Fetch prices on page load
-    spawn_local(async move {
-        fetch_shd_price(set_shd_price.clone()).await;
-        fetch_scrt_price(set_scrt_price.clone()).await;
-        fetch_stkd_scrt_price(set_stkd_scrt_price.clone()).await;
-        fetch_btc_price(set_btc_price.clone()).await;
-        fetch_eth_price(set_eth_price.clone()).await;
+    //spawn_local(async move {
+    //    fetch_shd_price(set_shd_price.clone()).await;
+    //    fetch_scrt_price(set_scrt_price.clone()).await;
+    //    fetch_stkd_scrt_price(set_stkd_scrt_price.clone()).await;
+    //    fetch_btc_price(set_btc_price.clone()).await;
+    //    fetch_eth_price(set_eth_price.clone()).await;
 
         // Calculate the ratio once both prices are fetched
-        let shd_price_value = shd_price.get();
-        let scrt_price_value = scrt_price.get();
-        calculate_price_ratio(shd_price_value.clone(), scrt_price_value.clone(), set_price_ratio.clone()).await;
-    });
+    //    let shd_price_value = shd_price.get();
+    //    let scrt_price_value = scrt_price.get();
+    //    calculate_price_ratio(shd_price_value.clone(), scrt_price_value.clone(), set_price_ratio.clone()).await;
+    //});
 
     let connect_wallet = move |_| {
         set_connected.set(true);

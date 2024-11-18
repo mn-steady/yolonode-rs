@@ -232,7 +232,7 @@ pub fn App(cx: Scope) -> impl IntoView {
             {move || if is_connected.get() {
                 view! { cx,
                     <button class="link-button" on:click=disconnect_wallet>
-                        "Logout"
+                        "Logout Keplr"
                     </button>
                 }
                 } else {

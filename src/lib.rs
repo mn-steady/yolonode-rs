@@ -276,21 +276,33 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                     </div>
                 };
-                view! { cx,
+                view! {
+                    cx,
                     <div class="price-section">
                         <h2>"Current Prices"</h2>
                         <button class="link-button" on:click=move |_| fetch_all_prices()>"Refresh All Prices"</button>
                         <hr class="gold-line" />
                 
-                        // Dynamically render the price list
+                        // Dynamically render the price list in the desired order
                         <div class="price-list">
-                            {move || prices.get().iter().map(|(key, value)| {
-                                view! {
-                                    cx,
-                                    <div class="price-row">
-                                        <h3>{format!("{} Price:", key)}</h3>
-                                        <div class="price-display">{format!("${}", value)}</div>
-                                    </div>
+                            {let ordered_keys = vec!["BTC", "ETH", "SHD", "SCRT", "stkd-SCRT", "SILK"];
+                            move || ordered_keys.iter().map(|key| {
+                                if let Some(value) = prices.get().get(*key) {
+                                    view! {
+                                        cx,
+                                        <div class="price-row">
+                                            <h3>{format!("{} Price:", key)}</h3>
+                                            <div class="price-display">{format!("${}", value)}</div>
+                                        </div>
+                                    }
+                                } else {
+                                    view! {
+                                        cx,
+                                        <div class="price-row">
+                                            <h3>{format!("{} Price:", key)}</h3>
+                                            <div class="price-display">"No Data"</div>
+                                        </div>
+                                    }
                                 }
                             }).collect::<Vec<_>>()}
                         </div>
@@ -307,7 +319,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }
                         }}
                     </div>
-                }           
+                }                
             } else if selected_section.get() == "Tools" {    
                 view! { cx,
                     <div class="tools-section">

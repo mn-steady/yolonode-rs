@@ -6,11 +6,10 @@ use wasm_bindgen::JsValue;
 use wasm_bindgen::JsCast;
 use web_sys::window;
 use js_sys::Date;
-use log; 
-use std::collections::HashMap; 
+use log;
+use std::collections::HashMap;
 use gloo_utils::format::JsValueSerdeExt;
 use serde::Deserialize;
-
 
 // Function to open a mailto link with a timestamped subject
 fn open_mailto_with_timestamp() {
@@ -92,7 +91,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
     let (prices, set_prices) = create_signal(cx, HashMap::new());
 
-    let fetch_all_prices = move || {
+    let fetch_all_prices = move |_| {
         spawn_local(async move {
             match fetch_batch_prices().await {
                 Ok(data) => {
@@ -101,12 +100,10 @@ pub fn App(cx: Scope) -> impl IntoView {
                 }
                 Err(err) => {
                     log::error!("Failed to fetch batch prices: {:?}", err);
-                    // If there's a deserialization error but we can still extract some data, log it
-                    // Example fallback could be a manually parsed HashMap if needed
                 }
             }
         });
-    };
+    };    
 
     let connect_wallet = move |_| {
         set_connected.set(true);
@@ -121,47 +118,47 @@ pub fn App(cx: Scope) -> impl IntoView {
         disconnect_keplr_wallet();
         set_connected.set(false);
         set_wallet_address.set(String::new());
-    };  
+    };
 
     // UI with views
     view! {
         cx,
         <div class="container">
             <div class="top-bar">
-            <div class="links">
-                <button class="link-button" on:click=move |_| set_selected_section.set("Home".to_string())>"Home"</button>
-                <button class="link-button" on:click=move |_| set_selected_section.set("Prices".to_string())>"Prices"</button>
-                <button class="link-button" on:click=move |_| set_selected_section.set("Tools".to_string())>"Tools"</button>
-                <button class="link-button" on:click=move |_| set_selected_section.set("Vote".to_string())>"Vote"</button>
-            </div>
-            <div class="wallet-info">
+                <div class="links">
+                    <button class="link-button" on:click=move |_| set_selected_section.set("Home".to_string())>"Home"</button>
+                    <button class="link-button" on:click=move |_| set_selected_section.set("Prices".to_string())>"Prices"</button>
+                    <button class="link-button" on:click=move |_| set_selected_section.set("Vote".to_string())>"Vote"</button>
+                    <button class="link-button" on:click=move |_| set_selected_section.set("Tools".to_string())>"Tools"</button>
+                </div>
+                <div class="wallet-info">
+                    {move || if is_connected.get() {
+                        view! { cx,
+                            <span class="wallet-address">"SCRT Address: " {wallet_address.get()}</span>
+                        }
+                    } else {
+                        view! { cx,
+                            <span class="wallet-address"></span>
+                        }
+                    }}
+                </div>
                 {move || if is_connected.get() {
                     view! { cx,
-                        <span class="wallet-address">"SCRT Address: " {wallet_address.get()}</span>
-                    }
-                } else {
-                    view! { cx,
-                        <span class="wallet-address"></span> 
-                    }
-                }}
-            </div>
-            {move || if is_connected.get() {
-                view! { cx,
-                    <button class="link-button" on:click=disconnect_wallet>
-                        "Logout Keplr"
-                    </button>
-                }
-                } else {
-                    view! { cx,
-                        <button class="link-button" on:click=connect_wallet>
-                            "Connect Wallet"
+                        <button class="link-button" on:click=disconnect_wallet>
+                            "Logout Keplr"
                         </button>
                     }
-                }}
+                    } else {
+                        view! { cx,
+                            <button class="link-button" on:click=connect_wallet>
+                                "Connect Wallet"
+                            </button>
+                        }
+                    }}
             </div>
             <hr class="gold-line" />
-            {move || if selected_section.get() == "Home" {
-                view! { cx, 
+            {move || match selected_section.get().as_str() {
+                "Home" => view! { cx,
                     <div>
                         <div class="image-section">
                             <div class="button-container">
@@ -275,15 +272,12 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                         </div>
                     </div>
-                };
-                view! {
-                    cx,
+                },
+                "Prices" => view! { cx,
                     <div class="price-section">
                         <h2>"Current Prices"</h2>
-                        <button class="link-button" on:click=move |_| fetch_all_prices()>"Refresh All Prices"</button>
+                        <button class="link-button" on:click=fetch_all_prices>"Refresh All Prices"</button>
                         <hr class="gold-line" />
-                
-                        // Dynamically render the price list in the desired order
                         <div class="price-list">
                             {let ordered_keys = vec!["BTC", "ETH", "SHD", "SCRT", "stkd-SCRT", "SILK"];
                             move || ordered_keys.iter().map(|key| {
@@ -306,46 +300,25 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 }
                             }).collect::<Vec<_>>()}
                         </div>
-                
-                        {move || if prices.get().is_empty() {
-                            view! { cx,
-                                <div class="error-message">
-                                    <p>"No prices available. Please try refreshing."</p>
-                                </div>
-                            }
-                        } else {
-                            view! { cx, 
-                                <div></div> // Placeholder to satisfy type consistency
-                            }
-                        }}
                     </div>
-                }                
-            } else if selected_section.get() == "Tools" {    
-                view! { cx,
+                },
+                "Tools" => view! { cx,
                     <div class="tools-section">
-                        <div class="tools-row">
-                            <h2>"Tools | Utilities :"</h2>
-                            <p>"A place for additional tools and utilities."</p>
-                        </div>
-                        <hr class="gold-line" />
+                        <h2>"Tools | Utilities"</h2>
+                        <p>"A place for additional tools and utilities."</p>
                     </div>
-                }
-            } else if selected_section.get() == "Vote" {    
-                view! { cx,
+                },
+                "Vote" => view! { cx,
                     <div class="vote-section">
-                        <div class="vote-row">
-                            <h2>"Governance :"</h2>
-                            <p>"A place to vote on current proposals or view past proposals."</p>
-                        </div> 
-                        <hr class="gold-line" />
+                        <h2>"Governance"</h2>
+                        <p>"A place to vote on current proposals or view past proposals."</p>
                     </div>
-                }
-            } else {
-                view! { cx,
+                },
+                _ => view! { cx,
                     <div class="error-section">
                         <p>"Section not found."</p>
                     </div>
-                }
+                },
             }}
         </div>
     }
@@ -354,7 +327,6 @@ pub fn App(cx: Scope) -> impl IntoView {
 #[wasm_bindgen(start)]
 pub fn start() {
     console_log::init_with_level(log::Level::Debug).expect("Error initializing log");
-    log::info!("Application started"); // Example log
+    log::info!("Application started");
     mount_to_body(|cx| view! { cx, <App /> });
 }
-

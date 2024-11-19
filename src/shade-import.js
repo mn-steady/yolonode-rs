@@ -1,12 +1,24 @@
 // src/shade-import.js
-import { queryPrice } from '@shadeprotocol/shadejs';
-import { batchQueryIndividualPrices } from '@shadeprotocol/shadejs';
+import { queryPrice, batchQueryIndividualPrices } from '@shadeprotocol/shadejs';
 import { SecretNetworkClient } from 'secretjs';
 import { Buffer } from 'buffer';
 window.Buffer = Buffer;
 
 // Attach SecretNetworkClient to `window` for global access
 window.SecretNetworkClient = SecretNetworkClient;
+
+// Default LCD endpoint
+const DEFAULT_LCD_ENDPOINT = "https://rpc.ankr.com/http/scrt_cosmos";
+
+// Function to create SecretNetworkClient with a configurable LCD endpoint
+function createSecretClient(endpoint = DEFAULT_LCD_ENDPOINT) {
+    console.log("Creating SecretNetworkClient with endpoint:", endpoint);
+
+    return new SecretNetworkClient({
+        url: endpoint,
+        chainId: "secret-4",
+    });
+}
 
 window.fetchSHDPrice = async function () {
     try {
@@ -104,17 +116,26 @@ window.fetchBatchPrices = async function (oracleKeys = ["BTC", "ETH", "SHD", "SC
         queryRouterCodeHash = "1c7e86ba4fdb6760e70bf08a7df7f44b53eb0b23290e3e69ca96140810d4f432",
         oracleContractAddress = "secret10n2xl5jmez6r9umtdrth78k0vwmce0l5m9f5dm",
         oracleCodeHash = "32c4710842b97a526c243a68511b15f58d6e72a388af38a7221ff3244c754e91",
+        lcdEndpoint = DEFAULT_LCD_ENDPOINT, // Ensure DEFAULT_LCD_ENDPOINT is set or passed as an option
     } = options;
+
+    console.log("Using LCD endpoint:", lcdEndpoint);
+
+    // Create a Secret Network client
+    const client = createSecretClient(lcdEndpoint);
+    console.log("Secret client created:", client);
 
     const DECIMALS = 1e18; // Constant for rate conversion
 
     try {
+        // Fetch batch prices, explicitly passing the LCD endpoint
         const priceData = await batchQueryIndividualPrices({
             queryRouterContractAddress,
             queryRouterCodeHash,
             oracleContractAddress,
             oracleCodeHash,
             oracleKeys,
+            lcdEndpoint, // Pass the LCD endpoint explicitly
         });
 
         const formattedPrices = {};

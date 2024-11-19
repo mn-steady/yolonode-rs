@@ -91,6 +91,16 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
     let (prices, set_prices) = create_signal(cx, HashMap::new());
 
+    // Fetch prices on page load
+    spawn_local({
+        let set_prices = set_prices.clone();
+        async move {
+            if let Ok(fetched_prices) = fetch_batch_prices().await {
+                set_prices.set(fetched_prices);
+            }
+        }
+    });
+
     let fetch_all_prices = move |_| {
         spawn_local(async move {
             match fetch_batch_prices().await {
@@ -287,6 +297,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                         <div class="price-row">
                                             <h3>{format!("{} Price:", key)}</h3>
                                             <div class="price-display">{format!("${}", value)}</div>
+                                            <hr class="gold-line" />
                                         </div>
                                     }
                                 } else {

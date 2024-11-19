@@ -6,6 +6,11 @@ use wasm_bindgen::JsValue;
 use wasm_bindgen::JsCast;
 use web_sys::window;
 use js_sys::Date;
+use log; 
+use std::collections::HashMap; 
+use gloo_utils::format::JsValueSerdeExt;
+use serde::Deserialize;
+
 
 // Function to open a mailto link with a timestamped subject
 fn open_mailto_with_timestamp() {
@@ -21,6 +26,46 @@ fn call_js_function(function_name: &str) -> Result<Function, JsValue> {
     let window = web_sys::window().expect("no global `window` exists");
     let func = Reflect::get(&window, &JsValue::from_str(function_name))?;
     func.dyn_into::<Function>()
+}
+
+// Define a structure to match the expected response format
+#[derive(Deserialize, Debug)]
+struct FetchBatchPricesResponse {
+    prices: HashMap<String, String>,
+    #[serde(rename = "fetchedAt")]
+    fetched_at: String, 
+}
+
+async fn fetch_batch_prices() -> Result<HashMap<String, String>, String> {
+    if let Ok(js_func) = call_js_function("fetchBatchPrices") {
+        if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<js_sys::Promise>()) {
+            match wasm_bindgen_futures::JsFuture::from(promise).await {
+                Ok(result) => {
+                    log::info!("Raw result from fetchBatchPrices: {:?}", result);
+
+                    // Deserialize the JsValue into FetchBatchPricesResponse
+                    match result.into_serde::<FetchBatchPricesResponse>() {
+                        Ok(response) => {
+                            log::info!("Deserialized response: {:?}", response);
+                            Ok(response.prices) // Extract and return only the prices
+                        }
+                        Err(e) => {
+                            log::error!("Failed to deserialize response: {:?}", e);
+                            Err(format!("Failed to deserialize response: {:?}", e))
+                        }
+                    }
+                }
+                Err(err) => {
+                    log::error!("Promise resolution failed: {:?}", err);
+                    Err("Failed to resolve the promise".to_string())
+                }
+            }
+        } else {
+            Err("Failed to cast JsValue to Promise".to_string())
+        }
+    } else {
+        Err("fetchBatchPrices not defined".to_string())
+    }
 }
 
 // Call specific keplr functions
@@ -159,6 +204,23 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
     let (btc_price, set_btc_price) = create_signal(cx, String::from("Loading BTC price..."));
     let (eth_price, set_eth_price) = create_signal(cx, String::from("Loading ETH price..."));
+    let (prices, set_prices) = create_signal(cx, HashMap::new());
+
+    let fetch_all_prices = move || {
+        spawn_local(async move {
+            match fetch_batch_prices().await {
+                Ok(data) => {
+                    log::info!("Successfully fetched batch prices: {:?}", data);
+                    set_prices(data); // Update the signal with the fetched prices
+                }
+                Err(err) => {
+                    log::error!("Failed to fetch batch prices: {:?}", err);
+                    // If there's a deserialization error but we can still extract some data, log it
+                    // Example fallback could be a manually parsed HashMap if needed
+                }
+            }
+        });
+    };
 
     // Fetch prices on page load
     //spawn_local(async move {
@@ -189,23 +251,19 @@ pub fn App(cx: Scope) -> impl IntoView {
         set_wallet_address.set(String::new());
     };
 
-    let refresh_price = move |_| {
-        spawn_local(fetch_shd_price(set_shd_price.clone()));
-    };
-
-        let refresh_scrt_price = move |_| {
-        spawn_local(fetch_scrt_price(set_scrt_price.clone()));
-    };
-
-    let refresh_price_ratio = move |_| {
-        let shd_price_value = shd_price.get();
-        let scrt_price_value = scrt_price.get();
-        spawn_local(calculate_price_ratio(
-            shd_price_value.clone(),
-            scrt_price_value.clone(),
-            set_price_ratio.clone(),
-        ));
-    };
+    let refresh_price = move |_: web_sys::Event| {
+        spawn_local(async move {
+            match fetch_batch_prices().await {
+                Ok(data) => {
+                    log::info!("Successfully fetched batch prices: {:?}", data);
+                    set_prices(data); // Update the signal with the fetched prices
+                }
+                Err(err) => {
+                    log::error!("Failed to fetch batch prices: {:?}", err);
+                }
+            }
+        });
+    };    
 
     // UI with views
     view! {
@@ -359,48 +417,39 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                         </div>
                     </div>
-                }
-            } else if selected_section.get() == "Prices" {
-                view! {
-                    cx,
-                    <div class="price-section"> 
-                        <div class="price-row">
-                            <h2>"Shade API :"</h2>
-                            <p>"Query the current price of an asset within the Shade Protocol liquidity pools."</p>
-                        </div>
+                };
+                view! { cx,
+                    <div class="price-section">
+                        <h2>"Current Prices"</h2>
+                        <button class="link-button" on:click=move |_| fetch_all_prices()>"Refresh All Prices"</button>
                         <hr class="gold-line" />
-                        <div class="price-row">
-                            <button class="link-button" on:click=move |_| spawn_local(fetch_btc_price(set_btc_price.clone()))>"Refresh BTC Price"</button>
-                            <div id="btc-price" class="price-display">{btc_price.get()}</div>
+                
+                        // Dynamically render the price list
+                        <div class="price-list">
+                            {move || prices.get().iter().map(|(key, value)| {
+                                view! {
+                                    cx,
+                                    <div class="price-row">
+                                        <h3>{format!("{} Price:", key)}</h3>
+                                        <div class="price-display">{format!("${}", value)}</div>
+                                    </div>
+                                }
+                            }).collect::<Vec<_>>()}
                         </div>
-                        <hr class="gold-line" />
-                        <div class="price-row">
-                            <button class="link-button" on:click=move |_| spawn_local(fetch_eth_price(set_eth_price.clone()))>"Refresh ETH Price"</button>
-                            <div id="eth-price" class="price-display">{eth_price.get()}</div>
-                        </div> 
-                        <hr class="gold-line" />
-                        <div class="price-row">
-                            <button class="link-button" on:click=refresh_price>"Refresh SHD Price"</button>
-                            <div id="shd-price" class="price-display">{shd_price.get()}</div>
-                        </div>
-                        <hr class="gold-line" />
-                        <div class="price-row">
-                            <button class="link-button" on:click=refresh_scrt_price>"Refresh SCRT Price"</button>
-                            <div id="scrt-price" class="price-display">{scrt_price.get()}</div>
-                        </div>
-                        <hr class="gold-line" />
-                        <div class="price-row">
-                            <button class="link-button" on:click=refresh_price_ratio>"Refresh SHD/SCRT"</button>
-                            <div id="price-ratio" class="price-display">{price_ratio.get()}</div>
-                        </div>
-                        <hr class="gold-line" />
-                        <div class="price-row">
-                            <button class="link-button" on:click=move |_| spawn_local(fetch_stkd_scrt_price(set_stkd_scrt_price.clone()))>"Refresh STKD Price"</button>
-                            <div id="stkd-scrt-price" class="price-display">{stkd_scrt_price.get()}</div>
-                        </div>
-                        <hr class="gold-line" />    
+                
+                        {move || if prices.get().is_empty() {
+                            view! { cx,
+                                <div class="error-message">
+                                    <p>"No prices available. Please try refreshing."</p>
+                                </div>
+                            }
+                        } else {
+                            view! { cx, 
+                                <div></div> // Placeholder to satisfy type consistency
+                            }
+                        }}
                     </div>
-                }
+                }           
             } else if selected_section.get() == "Tools" {    
                 view! { cx,
                     <div class="tools-section">
@@ -434,5 +483,8 @@ pub fn App(cx: Scope) -> impl IntoView {
 
 #[wasm_bindgen(start)]
 pub fn start() {
+    console_log::init_with_level(log::Level::Debug).expect("Error initializing log");
+    log::info!("Application started"); // Example log
     mount_to_body(|cx| view! { cx, <App /> });
 }
+

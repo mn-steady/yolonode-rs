@@ -110,39 +110,60 @@ window.fetchETHPrice = async function () {
 // This is a less efficient version of the multi-price query in the oracle contract, 
 // however the benefits are that an error in any single price will not cause all prices to fail. 
 
-window.fetchBatchPrices = async function (oracleKeys = ["BTC", "ETH", "SHD", "SCRT", "stkd-SCRT", "SILK"], options = {}) {
+window.fetchBatchPrices = async function (
+    oracleKeys = ["BTC", "ETH", "SHD", "SCRT", "stkd-SCRT", "SILK"],
+    options = {}
+) {
     const {
         queryRouterContractAddress = "secret15mkmad8ac036v4nrpcc7nk8wyr578egt077syt",
         queryRouterCodeHash = "1c7e86ba4fdb6760e70bf08a7df7f44b53eb0b23290e3e69ca96140810d4f432",
         oracleContractAddress = "secret10n2xl5jmez6r9umtdrth78k0vwmce0l5m9f5dm",
         oracleCodeHash = "32c4710842b97a526c243a68511b15f58d6e72a388af38a7221ff3244c754e91",
-        lcdEndpoint = DEFAULT_LCD_ENDPOINT, // Ensure DEFAULT_LCD_ENDPOINT is set or passed as an option
+        lcdEndpoint = DEFAULT_LCD_ENDPOINT,
     } = options;
 
     console.log("Using LCD endpoint:", lcdEndpoint);
 
-    // Create a Secret Network client
-    const client = createSecretClient(lcdEndpoint);
-    console.log("Secret client created:", client);
+    // Ensure the LCD endpoint is valid
+    if (!lcdEndpoint) {
+        throw new Error("LCD endpoint is not defined. Please provide a valid endpoint.");
+    }
+
+    // Create Secret Network client
+    let client;
+    try {
+        client = createSecretClient(lcdEndpoint);
+        console.log("Secret client created:", client);
+    } catch (error) {
+        console.error("Error creating Secret client:", error);
+        return { prices: {}, error: "Failed to create Secret client" };
+    }
 
     const DECIMALS = 1e18; // Constant for rate conversion
 
     try {
-        // Fetch batch prices, explicitly passing the LCD endpoint
+        // Fetch prices individually in a batch
         const priceData = await batchQueryIndividualPrices({
             queryRouterContractAddress,
             queryRouterCodeHash,
             oracleContractAddress,
             oracleCodeHash,
             oracleKeys,
-            lcdEndpoint, // Pass the LCD endpoint explicitly
+            lcdEndpoint,
         });
 
         const formattedPrices = {};
+
+        // Format fetched prices
         oracleKeys.forEach((key) => {
-            if (priceData[key]) {
-                formattedPrices[key] = (parseFloat(priceData[key].rate) / DECIMALS).toFixed(2);
-                console.log(`Formatted ${key} Price:`, formattedPrices[key]);
+            if (priceData[key]?.rate) {
+                try {
+                    formattedPrices[key] = (parseFloat(priceData[key].rate) / DECIMALS).toFixed(2);
+                    console.log(`Formatted ${key} Price:`, formattedPrices[key]);
+                } catch (formatError) {
+                    console.error(`Error formatting price for ${key}:`, formatError);
+                    formattedPrices[key] = "Error Formatting";
+                }
             } else {
                 formattedPrices[key] = "No Data";
                 console.warn(`No price data found for ${key}`);
@@ -155,4 +176,3 @@ window.fetchBatchPrices = async function (oracleKeys = ["BTC", "ETH", "SHD", "SC
         return { prices: {}, error: "Failed to fetch batch prices" };
     }
 };
-

@@ -45,6 +45,7 @@ async function get_wallet_address() {
     }
 }
 
+// Function to fetch governance proposals
 async function fetchGovernanceProposals() {
     if (window.keplr) {
         try {
@@ -63,32 +64,13 @@ async function fetchGovernanceProposals() {
                 return [];
             }
 
-            // Debug initialization parameters
-            console.log("Initializing SecretNetworkClient with:", {
-                grpcWebUrl: "https://grpc.mainnet.secretsaturn.net",
+            // Initialize SecretNetworkClient with LCD
+            const client = new window.SecretNetworkClient({
+                url: "https://rpc.ankr.com/http/scrt_cosmos", // LCD endpoint
                 chainId: "secret-4",
                 wallet: signer,
                 walletAddress,
             });
-
-            // Try initializing with LCD fallback if gRPC fails
-            let client;
-            try {
-                client = new window.SecretNetworkClient({
-                    grpcWebUrl: "https://grpc.mainnet.secretsaturn.net",
-                    chainId: "secret-4",
-                    wallet: signer,
-                    walletAddress,
-                });
-            } catch (grpcError) {
-                console.warn("gRPC failed, switching to LCD:", grpcError);
-                client = new window.SecretNetworkClient({
-                    url: "https://lcd.mainnet.secretsaturn.net",
-                    chainId: "secret-4",
-                    wallet: signer,
-                    walletAddress,
-                });
-            }
 
             console.log("SecretNetworkClient initialized:", client);
 
@@ -115,4 +97,4 @@ async function fetchGovernanceProposals() {
 window.connectKeplrWallet = connectKeplrWallet;
 window.disconnectKeplrWallet = disconnectKeplrWallet;
 window.get_wallet_address = get_wallet_address;
-window.fetchGovernanceProposals = fetchGovernanceProposals; 
+window.fetchGovernanceProposals = fetchGovernanceProposals;

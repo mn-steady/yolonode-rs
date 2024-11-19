@@ -32,8 +32,6 @@ fn call_js_function(function_name: &str) -> Result<Function, JsValue> {
 #[derive(Deserialize, Debug)]
 struct FetchBatchPricesResponse {
     prices: HashMap<String, String>,
-    #[serde(rename = "fetchedAt")]
-    fetched_at: String, 
 }
 
 async fn fetch_batch_prices() -> Result<HashMap<String, String>, String> {
@@ -86,124 +84,12 @@ fn disconnect_keplr_wallet() {
     }
 }
 
-// Function to fetch SHD price from Oracle contract
-async fn fetch_shd_price(set_shd_price: WriteSignal<String>) {
-    let window = web_sys::window().expect("no global `window` exists");
-    let func = js_sys::Reflect::get(&window, &JsValue::from_str("fetchSHDPrice"))
-        .expect("fetchSHDPrice function not found")
-        .dyn_into::<js_sys::Function>()
-        .expect("fetchSHDPrice is not a function");
-
-    // Call the JavaScript function, expecting a Promise
-    let promise = func.call0(&JsValue::NULL)
-        .expect("Error invoking fetchSHDPrice")
-        .dyn_into::<js_sys::Promise>()
-        .expect("Expected a Promise from fetchSHDPrice");
-
-    match wasm_bindgen_futures::JsFuture::from(promise).await {
-        Ok(price) => {
-            if let Some(price_str) = price.as_string() {
-                set_shd_price.set(format!("SHD = ${}", price_str));
-            } else {
-                set_shd_price.set("Price data unavailable".to_string());
-            }
-        }
-        Err(err) => {
-            web_sys::console::error_1(&err);
-            set_shd_price.set("Error fetching SHD price".to_string());
-        }
-    }
-}
-
-// Function to fetch SCRT price
-async fn fetch_scrt_price(set_scrt_price: WriteSignal<String>) {
-    if let Ok(js_func) = call_js_function("fetchSCRTPrice") {
-        if let Ok(promise) = js_func.call0(&JsValue::NULL).and_then(|val| val.dyn_into::<Promise>()) {
-            if let Ok(js_value) = wasm_bindgen_futures::JsFuture::from(promise).await {
-                if let Some(price_str) = js_value.as_string() {
-                    set_scrt_price.set(format!("SCRT = ${}", price_str));
-                }
-            }
-        }
-    }
-}
-
-// Function to calculate the price ratio
-async fn calculate_price_ratio(shd_price: String, scrt_price: String, set_ratio: WriteSignal<String>) {
-    let shd_value = shd_price.trim_start_matches("SHD = $").parse::<f64>().unwrap_or(0.0);
-    let scrt_value = scrt_price.trim_start_matches("SCRT = $").parse::<f64>().unwrap_or(1.0); // Avoid division by zero
-    if scrt_value > 0.0 {
-        let ratio = shd_value / scrt_value;
-        set_ratio.set(format!("SHD/SCRT = {:.4}", ratio)); // Four decimal places
-    } else {
-        set_ratio.set("Invalid Ratio".to_string());
-    }
-}
-
-// Function to fetch stkd-SCRT price
-async fn fetch_stkd_scrt_price(set_stkd_scrt_price: WriteSignal<String>) {
-    if let Ok(js_func) = call_js_function("fetchSTKDPrice") {
-        if let Ok(promise) = js_func.call0(&JsValue::NULL).and_then(|val| val.dyn_into::<Promise>()) {
-            match wasm_bindgen_futures::JsFuture::from(promise).await {
-                Ok(js_value) => {
-                    if let Some(price_str) = js_value.as_string() {
-                        set_stkd_scrt_price.set(format!("stkd-SCRT = ${}", price_str));
-                    }
-                }
-                Err(err) => {
-                    web_sys::console::error_1(&err);
-                    set_stkd_scrt_price.set("Error fetching stkd-SCRT price".to_string());
-                }
-            }
-        }
-    }
-}
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = window)]
-    async fn fetchBTCPrice() -> JsValue;
-
-    #[wasm_bindgen(js_namespace = window)]
-    async fn fetchETHPrice() -> JsValue;
-}
-
-// Function to fetch BTC price
-async fn fetch_btc_price(set_btc_price: WriteSignal<String>) {
-    match fetchBTCPrice().await.as_string() {
-        Some(price) => {
-            set_btc_price.set(format!("BTC = ${}", price));
-        }
-        None => {
-            set_btc_price.set("BTC Price Unavailable".to_string());
-        }
-    }
-}
-
-// Function to fetch ETH price
-async fn fetch_eth_price(set_eth_price: WriteSignal<String>) {
-    match fetchETHPrice().await.as_string() {
-        Some(price) => {
-            set_eth_price.set(format!("ETH = ${}", price));
-        }
-        None => {
-            set_eth_price.set("ETH Price Unavailable".to_string());
-        }
-    }
-}
-
 // The main app component
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
     let (is_connected, set_connected) = create_signal(cx, false);
     let (wallet_address, set_wallet_address) = create_signal(cx, String::new());
-    let (shd_price, set_shd_price) = create_signal(cx, String::from("Loading SHD price..."));
-    let (scrt_price, set_scrt_price) = create_signal(cx, String::from("Loading SCRT price..."));
-    let (price_ratio, set_price_ratio) = create_signal(cx, String::from("Loading SHD/SCRT ratio..."));
-    let (stkd_scrt_price, set_stkd_scrt_price) = create_signal(cx, String::from("Loading stkd-SCRT price..."));
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
-    let (btc_price, set_btc_price) = create_signal(cx, String::from("Loading BTC price..."));
-    let (eth_price, set_eth_price) = create_signal(cx, String::from("Loading ETH price..."));
     let (prices, set_prices) = create_signal(cx, HashMap::new());
 
     let fetch_all_prices = move || {
@@ -222,20 +108,6 @@ pub fn App(cx: Scope) -> impl IntoView {
         });
     };
 
-    // Fetch prices on page load
-    //spawn_local(async move {
-    //    fetch_shd_price(set_shd_price.clone()).await;
-    //    fetch_scrt_price(set_scrt_price.clone()).await;
-    //    fetch_stkd_scrt_price(set_stkd_scrt_price.clone()).await;
-    //    fetch_btc_price(set_btc_price.clone()).await;
-    //    fetch_eth_price(set_eth_price.clone()).await;
-
-        // Calculate the ratio once both prices are fetched
-    //    let shd_price_value = shd_price.get();
-    //    let scrt_price_value = scrt_price.get();
-    //    calculate_price_ratio(shd_price_value.clone(), scrt_price_value.clone(), set_price_ratio.clone()).await;
-    //});
-
     let connect_wallet = move |_| {
         set_connected.set(true);
         spawn_local(async move {
@@ -249,21 +121,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         disconnect_keplr_wallet();
         set_connected.set(false);
         set_wallet_address.set(String::new());
-    };
-
-    let refresh_price = move |_: web_sys::Event| {
-        spawn_local(async move {
-            match fetch_batch_prices().await {
-                Ok(data) => {
-                    log::info!("Successfully fetched batch prices: {:?}", data);
-                    set_prices(data); // Update the signal with the fetched prices
-                }
-                Err(err) => {
-                    log::error!("Failed to fetch batch prices: {:?}", err);
-                }
-            }
-        });
-    };    
+    };  
 
     // UI with views
     view! {

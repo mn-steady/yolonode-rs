@@ -47,48 +47,102 @@ async function get_wallet_address() {
 
 // Function to fetch governance proposals
 async function fetchGovernanceProposals() {
-    if (window.keplr) {
-        try {
-            console.log("Fetching governance proposals...");
+    if (!window.keplr) {
+        alert("Keplr wallet not found!");
+        return [];
+    }
 
-            await window.keplr.enable("secret-4");
-            const signer = window.getOfflineSigner("secret-4");
-            const accounts = await signer.getAccounts();
-            const walletAddress = accounts[0]?.address;
+    try {
+        console.log("Fetching governance proposals...");
 
-            console.log("Signer:", signer);
-            console.log("Wallet Address:", walletAddress);
+        // Enable Keplr wallet and initialize the signer
+        await window.keplr.enable("secret-4");
+        const signer = window.getOfflineSigner("secret-4");
+        const accounts = await signer.getAccounts();
+        const walletAddress = accounts[0]?.address;
 
-            if (!walletAddress) {
-                console.error("No wallet address found.");
-                return [];
-            }
+        console.log("Signer:", signer);
+        console.log("Wallet Address:", walletAddress);
 
-            // Initialize SecretNetworkClient with LCD
-            const client = new window.SecretNetworkClient({
-                url: "https://rpc.ankr.com/http/scrt_cosmos", // LCD endpoint
-                chainId: "secret-4",
-                wallet: signer,
-                walletAddress,
-            });
-
-            console.log("SecretNetworkClient initialized:", client);
-
-            // Query governance proposals
-            const response = await client.query.gov.proposals({});
-            if (response && response.proposals) {
-                console.log("Governance Proposals:", response.proposals);
-                return response.proposals;
-            } else {
-                console.warn("No governance proposals found.");
-                return [];
-            }
-        } catch (error) {
-            console.error("Error fetching governance proposals:", error);
+        if (!walletAddress) {
+            console.error("No wallet address found.");
             return [];
         }
-    } else {
-        alert("Keplr wallet not found!");
+
+        // Initialize SecretNetworkClient
+        const client = new window.SecretNetworkClient({
+            url: "https://rpc.ankr.com/http/scrt_cosmos", // LCD endpoint
+            chainId: "secret-4",
+            wallet: signer,
+            walletAddress,
+        });
+
+        console.log("SecretNetworkClient initialized:", client);
+
+        let allProposals = [];
+        let nextKey = null;
+        let latestProposalId = null;
+
+        // Step 1: Fetch the latest proposal ID
+        const latestProposalResponse = await client.query.gov.proposals({
+            "pagination.limit": 1, // Fetch only the latest proposal
+            "pagination.reverse": true, // Fetch in descending order
+        });
+
+        if (
+            latestProposalResponse &&
+            latestProposalResponse.proposals &&
+            latestProposalResponse.proposals.length > 0
+        ) {
+            latestProposalId = parseInt(latestProposalResponse.proposals[0].proposal_id);
+            console.log("Latest Proposal ID:", latestProposalId);
+        } else {
+            console.error("Unable to fetch the latest proposal.");
+            return [];
+        }
+
+        // Step 2: Fetch proposals in descending order using pagination
+        do {
+            const response = await client.query.gov.proposals({
+                "pagination.key": nextKey || undefined, // Use pagination key
+                "pagination.limit": 50,                // Fetch 50 proposals at a time
+                "pagination.reverse": true,            // Fetch in descending order
+            });
+
+            if (response && response.proposals) {
+                // Collect proposals
+                allProposals = [...allProposals, ...response.proposals];
+
+                // Update the pagination key
+                nextKey = response.pagination?.next_key;
+
+                console.log(
+                    `Fetched ${response.proposals.length} proposals, total so far: ${allProposals.length}`
+                );
+
+                // Stop if we've fetched up to the latest proposal ID
+                if (
+                    allProposals.length >= 100 ||
+                    parseInt(allProposals[allProposals.length - 1].proposal_id) <=
+                        (latestProposalId - 100)
+                ) {
+                    break;
+                }
+            } else {
+                console.warn("No more proposals or empty response.");
+                break;
+            }
+        } while (nextKey);
+
+        // Sort proposals by `submit_time` in descending order
+        allProposals.sort((a, b) => new Date(b.submit_time) - new Date(a.submit_time));
+
+        // Return only the most recent 100 proposals
+        const mostRecentProposals = allProposals.slice(0, 100);
+        console.log("Most Recent 100 Governance Proposals:", mostRecentProposals);
+        return mostRecentProposals;
+    } catch (error) {
+        console.error("Error fetching governance proposals:", error);
         return [];
     }
 }

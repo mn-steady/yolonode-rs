@@ -220,39 +220,82 @@ hr.gold-line {
 }
 
 .price-section {
-    padding: 0px;
+    padding: 10px; /* Add padding for spacing */
     margin-top: 0px;
     font-size: 1rem;
     color: #C1DF03; /* YoloNode Yellow */
-    background-color: #101213;
+    background-color: #101213; /* YoloNode Black */
     border-radius: 5px;
 }
 
+.price-section h2 {
+    margin: 0; /* Remove default margin */
+    flex: 1; /* Allow the heading to take up remaining space */
+    text-align: left; /* Align text to the left */
+}
+
+.price-section-header {
+    display: flex; /* Use flexbox for layout */
+    justify-content: space-between; /* Space items on opposite ends */
+    align-items: center; /* Vertically align items */
+    margin-bottom: 10px; /* Add spacing below the header */
+}
+
+.price-section .link-button {
+    margin: 0; /* Remove default margin */
+    flex: 0 0 auto; /* Prevent the button from stretching */
+    white-space: nowrap; /* Prevent the button text from wrapping */
+}
+
+.price-list {
+    width: 100%;
+}
+
 .price-display {
-    font-size: 1.2rem;
+    flex: 0 0 120px; /* Fixed width for consistent price alignment */
+    margin: 0; /* Remove default margins */
+    text-align: right; /* Align prices to the right */
+    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden; /* Handle overflow */
+    text-overflow: ellipsis; /* Add ellipsis for long values */
+    font-weight: bold; /* Emphasize the price */
     color: #C1DF03; /* YoloNode Yellow */
-    text-align: center;
-    margin-top: 10px;
 }
 
 .price-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0px; /* Adjust gap as needed */
-    margin: 10px 0; /* Optional: Adjust spacing around the row */
+    justify-content: space-between; /* Name on the left, price on the right */
+    align-items: center; /* Vertically align content */
+    padding: 10px; /* Add some padding for spacing */
+    border-bottom: 1px solid #C1DF03; /* Add a dividing line */
 }
 
 .price-row h2 {
-    margin: 0; /* Remove default margin to keep it aligned */
-    flex: 1; /* Allow flexibility to grow/shrink */
-    margin-right: 5px;
+    margin: 0; /* Remove default margin */
+    text-align: left; /* Keep the name aligned to the left */
+    flex: 1; /* Allow flexibility for alignment */
+    overflow: hidden; /* Handle overflow for long text */
+    text-overflow: ellipsis; /* Add ellipsis for long names */
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+.price-row h3 {
+    flex: 1; /* Allow the name to take flexible space */
+    margin: 0; /* Remove default margins */
+    text-align: left; /* Left-align the names */
+    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden; /* Handle overflow */
+    text-overflow: ellipsis; /* Add ellipsis for long names */
 }
 
 .price-row p {
-    margin: 5px; 
-    margin-left: 5px;
-    flex: 1; /* Align with h1 */
+    margin: 0; /* Remove default margin */
+    text-align: right; /* Align price or placeholder to the right */
+    flex: 0 0 120px; /* Fixed width for the price column */
+    min-width: 100px; /* Ensure a minimum width for "No Data" and price */
+    overflow: hidden; /* Handle overflow for long text */
+    white-space: nowrap; /* Prevent wrapping */
+    text-overflow: ellipsis; /* Add ellipsis for long text */
 }
 
 .tools-section {

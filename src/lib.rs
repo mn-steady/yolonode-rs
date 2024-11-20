@@ -339,8 +339,10 @@ pub fn App(cx: Scope) -> impl IntoView {
                 },
                 "Prices" => view! { cx,
                     <div class="price-section">
-                        <h2>"Current Prices"</h2>
-                        <button class="link-button" on:click=fetch_all_prices>"Refresh All Prices"</button>
+                        <div class="price-section-header">
+                            <h2>"Current Prices"</h2>
+                            <button class="link-button" on:click=fetch_all_prices>"Refresh All Prices"</button>
+                        </div>
                         <hr class="gold-line" />
                         <div class="price-list">
                             {let ordered_keys = vec!["BTC", "ETH", "SHD", "SCRT", "stkd-SCRT", "SILK"];
@@ -353,7 +355,6 @@ pub fn App(cx: Scope) -> impl IntoView {
                                             <div class="price-display">{format!("${}", value)}</div>
                                             <hr class="gold-line" />
                                         </div>
-                                        <hr class="gold-line" />
                                     }
                                 } else {
                                     view! {
@@ -362,7 +363,6 @@ pub fn App(cx: Scope) -> impl IntoView {
                                             <h3>{format!("{} Price:", key)}</h3>
                                             <div class="price-display">"No Data"</div>
                                         </div>
-                                        <hr class="gold-line" />
                                     }
                                 }
                             }).collect::<Vec<_>>()}

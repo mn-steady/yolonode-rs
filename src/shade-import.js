@@ -158,7 +158,7 @@ window.fetchBatchPrices = async function (
         oracleKeys.forEach((key) => {
             if (priceData[key]?.rate) {
                 try {
-                    formattedPrices[key] = (parseFloat(priceData[key].rate) / DECIMALS).toFixed(2);
+                    formattedPrices[key] = (parseFloat(priceData[key].rate) / DECIMALS).toFixed(4);
                     console.log(`Formatted ${key} Price:`, formattedPrices[key]);
                 } catch (formatError) {
                     console.error(`Error formatting price for ${key}:`, formatError);

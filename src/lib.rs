@@ -353,6 +353,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                             <div class="price-display">{format!("${}", value)}</div>
                                             <hr class="gold-line" />
                                         </div>
+                                        <hr class="gold-line" />
                                     }
                                 } else {
                                     view! {
@@ -361,6 +362,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                             <h3>{format!("{} Price:", key)}</h3>
                                             <div class="price-display">"No Data"</div>
                                         </div>
+                                        <hr class="gold-line" />
                                     }
                                 }
                             }).collect::<Vec<_>>()}
@@ -370,20 +372,26 @@ pub fn App(cx: Scope) -> impl IntoView {
                 "Vote" => view! { cx,
                     <div class="vote-section">
                         <h2>"Governance Proposals"</h2>
+                        <hr class="gold-line" />
                         <ul>
-                            {move || governance_proposals.get().iter().map(|proposal| {
-                                view! {
-                                    cx,
-                                    <li>
-                                        <h3>{format!("Proposal #{}: {}", proposal.id, proposal.content.title)}</h3>
-                                        <p>{format!("Description: {}", proposal.content.description)}</p>
-                                        <p>{format!("Status: {}", proposal.status)}</p>
-                                    </li>
-                                }
-                            }).collect::<Vec<_>>()}
+                            {move || {
+                                let mut sorted_proposals = governance_proposals.get();
+                                sorted_proposals.sort_by(|a, b| b.id.cmp(&a.id)); // Sort by id in descending order
+                                sorted_proposals.iter().map(|proposal| {
+                                    view! {
+                                        cx,
+                                        <li>
+                                            <h3>{format!("Proposal #{}: {}", proposal.id, proposal.content.title)}</h3>
+                                            <p>{format!("Description: {}", proposal.content.description)}</p>
+                                            <p>{format!("Status: {}", proposal.status)}</p>
+                                            <hr class="gold-line" />
+                                        </li>
+                                    }
+                                }).collect::<Vec<_>>()
+                            }}
                         </ul>
                     </div>
-                },
+                },                
                 "Tools" => view! { cx,
                     <div class="tools-section">
                         <h2>"Tools | Utilities"</h2>

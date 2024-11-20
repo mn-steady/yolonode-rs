@@ -4,17 +4,47 @@ use wasm_bindgen_futures::spawn_local;
 use js_sys::{Promise, Reflect, Function};
 use wasm_bindgen::JsValue;
 use wasm_bindgen::JsCast;
-use web_sys::window;
-use js_sys::Date;
 use log;
 use std::collections::HashMap;
 use gloo_utils::format::JsValueSerdeExt;
 use serde::Deserialize;
+use serde::de::{self, Deserializer};
+use std::str::FromStr;
+
+// Define structures to match the expected response formats
+//Batch Prices
+#[derive(Deserialize, Debug)]
+struct FetchBatchPricesResponse {
+    prices: HashMap<String, String>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+struct GovernanceProposal {
+    #[serde(rename = "proposal_id", deserialize_with = "deserialize_string_to_u64")]
+    id: u64,
+    #[serde(rename = "content")]
+    content: ProposalContent,
+    status: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+struct ProposalContent {
+    title: String,
+    description: String,
+}
+
+fn deserialize_string_to_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: String = Deserialize::deserialize(deserializer)?;
+    u64::from_str(&s).map_err(de::Error::custom)
+}
 
 // Function to open a mailto link with a timestamped subject
 fn open_mailto_with_timestamp() {
-    if let Some(window) = window() {
-        let timestamp = Date::new_0().to_locale_string("en-US", &js_sys::Object::new());
+    if let Some(window) = web_sys::window() {
+        let timestamp = js_sys::Date::new_0().to_locale_string("en-US", &js_sys::Object::new());
         let mailto_url = format!("mailto:?subject=Bug Report - {}", timestamp);
         window.open_with_url(&mailto_url).unwrap();
     }
@@ -27,12 +57,8 @@ fn call_js_function(function_name: &str) -> Result<Function, JsValue> {
     func.dyn_into::<Function>()
 }
 
-// Define a structure to match the expected response format
-#[derive(Deserialize, Debug)]
-struct FetchBatchPricesResponse {
-    prices: HashMap<String, String>,
-}
 
+//Function for fetching individual prices in a batch query
 async fn fetch_batch_prices() -> Result<HashMap<String, String>, String> {
     if let Ok(js_func) = call_js_function("fetchBatchPrices") {
         if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<js_sys::Promise>()) {
@@ -83,6 +109,26 @@ fn disconnect_keplr_wallet() {
     }
 }
 
+async fn fetch_governance_proposals() -> Result<Vec<GovernanceProposal>, String> {
+    if let Ok(js_func) = call_js_function("fetchGovernanceProposals") {
+        if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<Promise>()) {
+            match wasm_bindgen_futures::JsFuture::from(promise).await {
+                Ok(result) => {
+                    log::info!("Raw governance proposals JSON: {:?}", result);
+                    result
+                        .into_serde::<Vec<GovernanceProposal>>()
+                        .map_err(|e| format!("Failed to deserialize governance proposals: {:?}", e))
+                }
+                Err(err) => Err(format!("Failed to resolve promise: {:?}", err)),
+            }
+        } else {
+            Err("Failed to cast to Promise".to_string())
+        }
+    } else {
+        Err("fetchGovernanceProposals not defined".to_string())
+    }
+}
+
 // The main app component
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
@@ -90,30 +136,38 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (wallet_address, set_wallet_address) = create_signal(cx, String::new());
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
     let (prices, set_prices) = create_signal(cx, HashMap::new());
+    let (governance_proposals, set_governance_proposals) = create_signal(cx, Vec::<GovernanceProposal>::new());
 
-    // Fetch prices on page load
-    spawn_local({
-        let set_prices = set_prices.clone();
-        async move {
-            if let Ok(fetched_prices) = fetch_batch_prices().await {
-                set_prices.set(fetched_prices);
+    // Auto-fetch prices on page load
+    create_effect(cx, move |_| {
+        spawn_local(async move {
+            match fetch_batch_prices().await {
+                Ok(data) => set_prices(data),
+                Err(err) => log::error!("Error fetching prices on load: {}", err),
             }
+        });
+    });
+
+    // Fetch governance proposals when "Vote" is selected
+    create_effect(cx, move |_| {
+        if selected_section.get().as_str() == "Vote" {
+            spawn_local(async move {
+                match fetch_governance_proposals().await {
+                    Ok(proposals) => set_governance_proposals.set(proposals),
+                    Err(err) => log::error!("Error fetching governance proposals: {}", err),
+                }
+            });
         }
     });
 
     let fetch_all_prices = move |_| {
         spawn_local(async move {
             match fetch_batch_prices().await {
-                Ok(data) => {
-                    log::info!("Successfully fetched batch prices: {:?}", data);
-                    set_prices(data); // Update the signal with the fetched prices
-                }
-                Err(err) => {
-                    log::error!("Failed to fetch batch prices: {:?}", err);
-                }
+                Ok(data) => set_prices(data),
+                Err(err) => log::error!("Failed to fetch batch prices: {:?}", err),
             }
         });
-    };    
+    };
 
     let connect_wallet = move |_| {
         set_connected.set(true);
@@ -313,16 +367,27 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                     </div>
                 },
+                "Vote" => view! { cx,
+                    <div class="vote-section">
+                        <h2>"Governance Proposals"</h2>
+                        <ul>
+                            {move || governance_proposals.get().iter().map(|proposal| {
+                                view! {
+                                    cx,
+                                    <li>
+                                        <h3>{format!("Proposal #{}: {}", proposal.id, proposal.content.title)}</h3>
+                                        <p>{format!("Description: {}", proposal.content.description)}</p>
+                                        <p>{format!("Status: {}", proposal.status)}</p>
+                                    </li>
+                                }
+                            }).collect::<Vec<_>>()}
+                        </ul>
+                    </div>
+                },
                 "Tools" => view! { cx,
                     <div class="tools-section">
                         <h2>"Tools | Utilities"</h2>
                         <p>"A place for additional tools and utilities."</p>
-                    </div>
-                },
-                "Vote" => view! { cx,
-                    <div class="vote-section">
-                        <h2>"Governance"</h2>
-                        <p>"A place to vote on current proposals or view past proposals."</p>
                     </div>
                 },
                 _ => view! { cx,

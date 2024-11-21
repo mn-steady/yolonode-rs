@@ -57,6 +57,14 @@ fn call_js_function(function_name: &str) -> Result<Function, JsValue> {
     func.dyn_into::<Function>()
 }
 
+//Event helper funciton
+fn event_target_value(ev: &web_sys::Event) -> String {
+    ev.target()
+        .and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok())
+        .map(|input| input.value())
+        .unwrap_or_default()
+}
+
 
 //Function for fetching individual prices in a batch query
 async fn fetch_batch_prices() -> Result<HashMap<String, String>, String> {
@@ -137,6 +145,9 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
     let (prices, set_prices) = create_signal(cx, HashMap::new());
     let (governance_proposals, set_governance_proposals) = create_signal(cx, Vec::<GovernanceProposal>::new());
+    let (liquidation_price, set_liquidation_price) = create_signal(cx, String::new());
+    let (exchange_rate, set_exchange_rate) = create_signal(cx, 1.077_f64);
+    let (result, set_result) = create_signal(cx, String::new());
 
     // Auto-fetch prices on page load
     create_effect(cx, move |_| {
@@ -148,18 +159,6 @@ pub fn App(cx: Scope) -> impl IntoView {
         });
     });
 
-    // Fetch governance proposals when "Vote" is selected
-    create_effect(cx, move |_| {
-        if selected_section.get().as_str() == "Vote" {
-            spawn_local(async move {
-                match fetch_governance_proposals().await {
-                    Ok(proposals) => set_governance_proposals.set(proposals),
-                    Err(err) => log::error!("Error fetching governance proposals: {}", err),
-                }
-            });
-        }
-    });
-
     let fetch_all_prices = move |_| {
         spawn_local(async move {
             match fetch_batch_prices().await {
@@ -169,6 +168,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         });
     };
 
+    // Keplr Fumctions
     let connect_wallet = move |_| {
         set_connected.set(true);
         spawn_local(async move {
@@ -182,6 +182,30 @@ pub fn App(cx: Scope) -> impl IntoView {
         disconnect_keplr_wallet();
         set_connected.set(false);
         set_wallet_address.set(String::new());
+    };
+
+    // Fetch governance proposals when "Vote" is selected
+    create_effect(cx, move |_| {
+        if selected_section.get().as_str() == "Vote" {
+            spawn_local(async move {
+                match fetch_governance_proposals().await {
+                    Ok(proposals) => set_governance_proposals.set(proposals),
+                    Err(err) => log::error!("Error fetching governance proposals: {}", err),
+                }
+            });
+        }
+    });    
+
+    // Calculator function
+    let calculate_liquidation_price = move || {
+        let price = liquidation_price.get().parse::<f64>().unwrap_or(0.0);
+        let rate = exchange_rate.get();
+        if rate > 0.0 {
+            let base_asset_price = price / rate;
+            set_result(format!("${:.2}", base_asset_price)); // Only set the dollar amount
+        } else {
+            set_result("Invalid rate".to_string()); // Optional error message for invalid rate
+        }
     };
 
     // UI with views
@@ -340,7 +364,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                 "Prices" => view! { cx,
                     <div class="price-section">
                         <div class="price-section-header">
-                            <h2>"Current Prices"</h2>
+                            <h2>"Current Prices :"</h2>
                             <button class="link-button" on:click=fetch_all_prices>"Refresh All Prices"</button>
                         </div>
                         <hr class="gold-line" />
@@ -351,7 +375,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     view! {
                                         cx,
                                         <div class="price-row">
-                                            <h3>{format!("{} Price:", key)}</h3>
+                                            <h3>{format!("{} :", key)}</h3>
                                             <div class="price-display">{format!("${}", value)}</div>
                                             <hr class="gold-line" />
                                         </div>
@@ -360,7 +384,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     view! {
                                         cx,
                                         <div class="price-row">
-                                            <h3>{format!("{} Price:", key)}</h3>
+                                            <h3>{format!("{} :", key)}</h3>
                                             <div class="price-display">"No Data"</div>
                                         </div>
                                     }
@@ -368,10 +392,10 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }).collect::<Vec<_>>()}
                         </div>
                     </div>
-                },
+                },                
                 "Vote" => view! { cx,
                     <div class="vote-section">
-                        <h2>"Governance Proposals"</h2>
+                        <h2>"Governance Proposals :"</h2>
                         <hr class="gold-line" />
                         <ul>
                             {move || {
@@ -394,10 +418,47 @@ pub fn App(cx: Scope) -> impl IntoView {
                 },                
                 "Tools" => view! { cx,
                     <div class="tools-section">
-                        <h2>"Tools | Utilities"</h2>
-                        <p>"A place for additional tools and utilities."</p>
+                        <h2>"Tools | Utilities :"</h2>
+                        <hr class="gold-line" />
+                        <h3>"Derivative Price Convertor"</h3>
+                        <div class="calculator">
+                            <div class="input-row">
+                                <label for="liquidation-price">"stTIA Liquidation Price:"</label>
+                                <input
+                                    id="liquidation-price"
+                                    type="number"
+                                    step="0.0001"
+                                    placeholder="Enter stTIA price"
+                                    value={move || liquidation_price.get()}
+                                    on:input=move |ev| set_liquidation_price(event_target_value(&ev))
+                                />
+                            </div>
+                            <div class="input-row">
+                                <label for="exchange-rate">"Exchange Rate (1 stTIA = TIA):"</label>
+                                <input
+                                    id="exchange-rate"
+                                    type="number"
+                                    step="0.0001"
+                                    value={move || exchange_rate.get().to_string()}
+                                    on:input=move |ev| {
+                                        let value = event_target_value(&ev).parse().unwrap_or(1.077);
+                                        set_exchange_rate(value);
+                                    }
+                                />
+                            </div>
+                            <button
+                                class="calculate-button"
+                                on:click=move |_| calculate_liquidation_price()
+                            >
+                                "Calculate"
+                            </button>
+                            <div class="result">
+                                <h3>"Base Asset (TIA) Price:"</h3>
+                                <p>{move || result.get()}</p>
+                            </div>
+                        </div>
                     </div>
-                },
+                },                                        
                 _ => view! { cx,
                     <div class="error-section">
                         <p>"Section not found."</p>

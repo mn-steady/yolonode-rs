@@ -176,3 +176,22 @@ window.fetchBatchPrices = async function (
         return { prices: {}, error: "Failed to fetch batch prices" };
     }
 };
+
+// Calculator price convertor function
+function calculate_liquidation_price() {
+    const liquidationPriceInput = document.getElementById("liquidation-price");
+    const exchangeRateInput = document.getElementById("exchange-rate");
+    const resultElement = document.getElementById("base-asset-price");
+
+    const liquidationPrice = parseFloat(liquidationPriceInput.value);
+    const exchangeRate = parseFloat(exchangeRateInput.value);
+
+    if (isNaN(liquidationPrice) || isNaN(exchangeRate) || exchangeRate <= 0) {
+        resultElement.textContent = "Please enter valid inputs.";
+        return;
+    }
+
+    const baseAssetPrice = liquidationPrice / exchangeRate;
+    resultElement.textContent = `$${baseAssetPrice.toFixed(4)}`;
+}
+

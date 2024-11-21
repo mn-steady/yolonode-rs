@@ -155,6 +155,13 @@ hr.gold-line {
     color: #101213; /* YoloNode Black */
 }
 
+.link-button.active {
+    background-color: #C1DF03; /* Active yellow background */
+    color: #101213; /* Contrasting black text */
+    font-weight: bold; /* Emphasize text */
+    border: none; /* Remove the border */
+}
+
 /* Content within Main Section */
 .main-section .content {
     width: 100%;
@@ -235,10 +242,10 @@ hr.gold-line {
 }
 
 .price-section-header {
-    display: flex; /* Use flexbox for layout */
-    justify-content: space-between; /* Space items on opposite ends */
+    display: flex;
+    justify-content: space-between; /* Keep items apart */
     align-items: center; /* Vertically align items */
-    margin-bottom: 10px; /* Add spacing below the header */
+    gap: 10px; /* Optional: add space between items */
 }
 
 .price-section .link-button {
@@ -334,6 +341,62 @@ hr.gold-line {
     color: #C1DF03; /* YoloNode Yellow */
     background-color: #101213;
     border-radius: 5px;
+}
+
+.calculator {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    gap: 15px; /* Add spacing between inputs */
+    padding: 20px;
+    background-color: #1a1c1d; /* Slightly lighter black */
+    border-radius: 10px;
+    color: #C1DF03; /* Yellow text */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+}
+
+.calculator .input-row {
+    display: flex;
+    flex-direction: column; /* Stack label and input */
+    gap: 5px; /* Add space between label and input */
+}
+
+.calculator .input-row label {
+    font-size: 1rem; /* Adjust label size */
+}
+
+.calculator .input-row input {
+    padding: 8px;
+    border: 1px solid #C1DF03; /* Yellow border */
+    border-radius: 5px;
+    background-color: #101213; /* Dark background */
+    color: #C1DF03; /* Yellow text */
+    font-size: 1rem;
+}
+
+.calculator .input-row input:focus {
+    outline: none;
+    border-color: #c5f103; /* Highlight on focus */
+}
+
+.calculator .calculate-button {
+    padding: 10px 20px;
+    background-color: #C1DF03; /* Yellow button */
+    color: #101213; /* Black text */
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.calculator .calculate-button:hover {
+    background-color: #c5f103; /* Lighter yellow on hover */
+}
+
+.calculator .result {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 10px;
 }
 
 .vote-row {
@@ -442,5 +505,14 @@ hr.gold-line {
         font-size: 1rem; /* Reduce size for wallet info text */
     }
 
+    .calculator {
+        padding: 15px;
+        gap: 10px;
+    }
+
+    .calculator .input-row {
+        flex-direction: column; /* Keep labels and inputs stacked */
+        gap: 5px;
+    }
 }
 

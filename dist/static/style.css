@@ -404,7 +404,7 @@ hr.gold-line {
     justify-content: space-between;
     align-items: center;
     gap: 0px; /* Adjust gap as needed */
-    margin: 10px 0; /* Optional: Adjust spacing around the row */
+    margin: 5px 0; /* Optional: Adjust spacing around the row */
 }
 
 .vote-row h2 {
@@ -417,6 +417,12 @@ hr.gold-line {
     margin: 5px; 
     margin-left: 15px;
     flex: 1; /* Align with h1 */
+}
+
+.vote-section ul {
+    list-style-type: none; /* Removes the default bullet points */
+    padding-left: 0; /* Removes default left padding */
+    margin-left: 5px; /* Ensures alignment with other elements */
 }
 
 /* Mobile view adjustments */

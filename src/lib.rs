@@ -365,7 +365,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                     <div class="price-section">
                         <div class="price-section-header">
                             <h2>"Current Prices :"</h2>
-                            <button class="link-button" on:click=fetch_all_prices>"Refresh All Prices"</button>
+                            <button class="link-button" on:click=fetch_all_prices>"Refresh Prices"</button>
                         </div>
                         <hr class="gold-line" />
                         <div class="price-list">
@@ -397,7 +397,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                     <div class="vote-section">
                         <h2>"Governance Proposals :"</h2>
                         <hr class="gold-line" />
-                        <ul>
+                        <ul class="vote-list">
                             {move || {
                                 let mut sorted_proposals = governance_proposals.get();
                                 sorted_proposals.sort_by(|a, b| b.id.cmp(&a.id)); // Sort by id in descending order

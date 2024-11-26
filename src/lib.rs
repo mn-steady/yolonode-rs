@@ -145,8 +145,8 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
     let (prices, set_prices) = create_signal(cx, HashMap::new());
     let (governance_proposals, set_governance_proposals) = create_signal(cx, Vec::<GovernanceProposal>::new());
-    let (liquidation_price, set_liquidation_price) = create_signal(cx, String::new());
-    let (exchange_rate, set_exchange_rate) = create_signal(cx, 1.077_f64);
+    let (liquidation_price, set_liquidation_price) = create_signal(cx, 1.0_f64); // Default price is 1
+    let (exchange_rate, set_exchange_rate) = create_signal(cx, 1.775557_f64); // Default rate for stkd-SCRT
     let (result, set_result) = create_signal(cx, String::new());
 
     // Auto-fetch prices on page load
@@ -195,18 +195,6 @@ pub fn App(cx: Scope) -> impl IntoView {
             });
         }
     });    
-
-    // Calculator function
-    let calculate_liquidation_price = move || {
-        let price = liquidation_price.get().parse::<f64>().unwrap_or(0.0);
-        let rate = exchange_rate.get();
-        if rate > 0.0 {
-            let base_asset_price = price / rate;
-            set_result(format!("${:.2}", base_asset_price)); // Only set the dollar amount
-        } else {
-            set_result("Invalid rate".to_string()); // Optional error message for invalid rate
-        }
-    };
 
     // UI with views
     view! {
@@ -423,37 +411,83 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <h3>"Derivative Price Converter"</h3>
                         <div class="calculator">
                             <div class="input-row">
-                                <label for="liquidation-price">"stTIA Liquidation Price:"</label>
+                                <label for="derivative-select">"Select Derivative:"</label>
+                                <select
+                                    id="derivative-select"
+                                    on:change=move |ev| {
+                                        if let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::HtmlSelectElement>().ok()) {
+                                            let selected_value = target.value();
+                                            log::info!("Selected Derivative: {}", selected_value);
+
+                                            match selected_value.as_str() {
+                                                "stkd-SCRT" => set_exchange_rate(1.775557),
+                                                "stAtom" => set_exchange_rate(1.469),
+                                                "stTIA" => set_exchange_rate(1.078),
+                                                _ => {
+                                                    log::warn!("Unexpected derivative: {}", selected_value);
+                                                    set_exchange_rate(1.0); // Default fallback rate
+                                                },
+                                            }
+                                        } else {
+                                            log::error!("Failed to cast event target to HtmlSelectElement");
+                                        }
+                                    }
+                                >
+                                    <option value="stkd-SCRT" selected="selected">"stkd-SCRT"</option>
+                                    <option value="stAtom">"stAtom"</option>
+                                    <option value="stTIA">"stTIA"</option>
+                                </select>
+                            </div>
+                            <div class="input-row">
+                                <label for="liquidation-price">"Liquidation Price:"</label>
                                 <input
                                     id="liquidation-price"
                                     type="number"
                                     step="0.0001"
-                                    placeholder="Enter stTIA price"
-                                    value={move || liquidation_price.get()}
-                                    on:input=move |ev| set_liquidation_price(event_target_value(&ev))
+                                    placeholder="Enter liquidation price"
+                                    value={move || liquidation_price.get().to_string()}
+                                    on:input=move |ev| {
+                                        let raw_value = event_target_value(&ev);
+                                        let parsed_value = raw_value.parse::<f64>().unwrap_or(0.0);
+                                        set_liquidation_price(parsed_value);
+                                    }
                                 />
                             </div>
                             <div class="input-row">
-                                <label for="exchange-rate">"Exchange Rate (1 stTIA = TIA):"</label>
+                                <label for="exchange-rate">"Exchange Rate:"</label>
                                 <input
                                     id="exchange-rate"
                                     type="number"
                                     step="0.0001"
+                                    placeholder="Enter exchange rate"
                                     value={move || exchange_rate.get().to_string()}
                                     on:input=move |ev| {
-                                        let value = event_target_value(&ev).parse().unwrap_or(1.077);
-                                        set_exchange_rate(value);
+                                        let raw_value = event_target_value(&ev);
+                                        let parsed_value = raw_value.parse::<f64>().unwrap_or(1.0);
+                                        set_exchange_rate(parsed_value);
                                     }
                                 />
                             </div>
                             <button
                                 class="calculate-button"
-                                on:click=move |_| calculate_liquidation_price()
+                                on:click=move |_| {
+                                    let price = liquidation_price.get();
+                                    let rate = exchange_rate.get();
+
+                                    if price > 0.0 && rate > 0.0 {
+                                        let base_asset_price = price / rate;
+                                        set_result(format!("${:.4}", base_asset_price));
+                                    } else if rate <= 0.0 {
+                                        set_result("Invalid exchange rate. Please correct it.".to_string());
+                                    } else {
+                                        set_result("Please enter valid inputs.".to_string());
+                                    }
+                                }
                             >
                                 "Calculate"
                             </button>
                             <div class="result">
-                                <h3>"Base Asset (TIA) Price:"</h3>
+                                <h3>"Base Asset Price:"</h3>
                                 <p>{move || result.get()}</p>
                             </div>
                         </div>

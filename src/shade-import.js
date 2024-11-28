@@ -111,7 +111,7 @@ window.fetchETHPrice = async function () {
 // however the benefits are that an error in any single price will not cause all prices to fail. 
 
 window.fetchBatchPrices = async function (
-    oracleKeys = ["BTC", "ETH", "SHD", "SCRT", "stkd-SCRT", "SILK"],
+    oracleKeys = ["BTC", "ETH", "SHD", "SCRT", "ATOM", "TIA", "stkd-SCRT", "SILK"],
     options = {}
 ) {
     const {

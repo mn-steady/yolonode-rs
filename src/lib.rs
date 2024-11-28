@@ -357,7 +357,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                         <hr class="gold-line" />
                         <div class="price-list">
-                            {let ordered_keys = vec!["BTC", "ETH", "SHD", "SCRT", "stkd-SCRT", "SILK"];
+                            {let ordered_keys = vec!["BTC", "ETH", "SHD", "SCRT", "ATOM", "TIA", "stkd-SCRT", "SILK" ];
                             move || ordered_keys.iter().map(|key| {
                                 if let Some(value) = prices.get().get(*key) {
                                     view! {

@@ -148,6 +148,10 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (liquidation_price, set_liquidation_price) = create_signal(cx, 1.0_f64); // Default price is 1
     let (exchange_rate, set_exchange_rate) = create_signal(cx, 1.775557_f64); // Default rate for stkd-SCRT
     let (result, set_result) = create_signal(cx, String::new());
+    let (api_endpoint, set_api_endpoint) = create_signal(cx, String::new());
+    let (transaction_type, set_transaction_type) = create_signal(cx, "MsgSend".to_string());
+    let (transaction_details, set_transaction_details) = create_signal(cx, String::new());
+    let (transaction_response, _set_transaction_response) = create_signal(cx, String::new());
 
     // Auto-fetch prices on page load
     create_effect(cx, move |_| {
@@ -195,6 +199,33 @@ pub fn App(cx: Scope) -> impl IntoView {
             });
         }
     });    
+
+    // Submit Smart Contract Interaction
+    fn submit_transaction(_: leptos::ev::MouseEvent) {
+        use wasm_bindgen_futures::spawn_local;
+        use wasm_bindgen::JsValue;
+        use wasm_bindgen::JsCast;
+        use js_sys::Function;
+        use web_sys::window;
+    
+        spawn_local(async move {
+            if let Some(window) = window() {
+                let js_function_name = "sendTransaction"; // JavaScript function name
+                if let Ok(js_func) = js_sys::Reflect::get(&window, &JsValue::from_str(js_function_name))
+                    .and_then(|f| f.dyn_into::<Function>())
+                {
+                    // Call the JS function asynchronously
+                    let result = js_func.call0(&window);
+                    match result {
+                        Ok(_) => log::info!("Transaction submitted successfully."),
+                        Err(err) => log::error!("Failed to execute sendTransaction: {:?}", err),
+                    }
+                } else {
+                    log::error!("JS function `sendTransaction` not found.");
+                }
+            }
+        });
+    }    
 
     // UI with views
     view! {
@@ -418,18 +449,16 @@ pub fn App(cx: Scope) -> impl IntoView {
                                         if let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::HtmlSelectElement>().ok()) {
                                             let selected_value = target.value();
                                             log::info!("Selected Derivative: {}", selected_value);
-
+                
                                             match selected_value.as_str() {
                                                 "stkd-SCRT" => set_exchange_rate(1.775557),
                                                 "stAtom" => set_exchange_rate(1.469),
                                                 "stTIA" => set_exchange_rate(1.078),
                                                 _ => {
                                                     log::warn!("Unexpected derivative: {}", selected_value);
-                                                    set_exchange_rate(1.0); // Default fallback rate
+                                                    set_exchange_rate(1.0);
                                                 },
                                             }
-                                        } else {
-                                            log::error!("Failed to cast event target to HtmlSelectElement");
                                         }
                                     }
                                 >
@@ -473,7 +502,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 on:click=move |_| {
                                     let price = liquidation_price.get();
                                     let rate = exchange_rate.get();
-
+                
                                     if price > 0.0 && rate > 0.0 {
                                         let base_asset_price = price / rate;
                                         set_result(format!("${:.4}", base_asset_price));
@@ -491,8 +520,50 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 <p>{move || result.get()}</p>
                             </div>
                         </div>
+                
+                        <hr class="gold-line" />
+                        <h3>"Smart Contract Interface"</h3>
+                        <div class="smart-contract-interface">
+                            <div class="input-row">
+                                <label>"API Endpoint:"</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter API endpoint"
+                                    on:input=move |ev| set_api_endpoint(event_target_value(&ev))
+                                    value={move || api_endpoint.get()}
+                                />
+                            </div>
+                            <div class="input-row">
+                                <label>"Transaction Type:"</label>
+                                <select
+                                    on:change=move |ev| set_transaction_type(event_target_value(&ev))
+                                >
+                                    <option value="MsgSend" selected={move || transaction_type.get() == "MsgSend"}>"MsgSend"</option>
+                                    <option value="MsgDeposit" selected={move || transaction_type.get() == "MsgDeposit"}>"MsgDeposit"</option>
+                                    <option value="MsgExecute" selected={move || transaction_type.get() == "MsgExecute"}>"MsgExecute"</option>
+                                </select>
+                            </div>
+                            <div class="input-row">
+                                <label>"Transaction Details (JSON):"</label>
+                                <textarea
+                                placeholder="{\"to\": \"...\", \"amount\": \"1000\"}"
+                                on:input=move |ev| set_transaction_details(event_target_value(&ev))
+                                value={move || transaction_details.get()}
+                            />                            
+                            </div>
+                            <button
+                                class="submit-button"
+                                on:click=submit_transaction
+                            >
+                                "Submit Transaction"
+                            </button>
+                            <div class="result">
+                                <h3>"Response:"</h3>
+                                <p>{move || transaction_response.get()}</p>
+                            </div>
+                        </div>                        
                     </div>
-                },                                        
+                },                          
                 _ => view! { cx,
                     <div class="error-section">
                         <p>"Section not found."</p>

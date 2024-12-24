@@ -8,13 +8,15 @@
     <base href="/"> <!-- Needed for GitHub Pages deploy with domain name -->
     <link rel="stylesheet" href="./static/style.css">
     <link rel="icon" type="image/png" href="./static/YoloNode-Logo-cropped.png">
-<link rel="modulepreload" href="/yolonode-afe767565601b25b.js" crossorigin=anonymous integrity="sha384-uuFnOSKc18lv1vEi5HpXM7x7tjr4ZqlDV4rErMUa3Kpwi9t+wRIldV5dRMWi0gEB"><link rel="modulepreload" href="/snippets/leptos_reactive-f7acfdcc44aba8c4/inline0.js" crossorigin=anonymous integrity="sha384-d8yvubxSuBtBulKXqV75Cat9GIXWqR6k5Bgu7yCoAeqNsM97ASkJwvRGESa4d7HR"><link rel="preload" href="/yolonode-afe767565601b25b_bg.wasm" crossorigin=anonymous integrity="sha384-Bfo+xoDbcLb2YQiiLTJ1TJ97w81W3kPrab3WMovIzxVMI8sFTEq1HGzaSrqyZz3x" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="/yolonode-e46ca34da1bce845.js" crossorigin=anonymous integrity="sha384-L7O/bO1Wac2drQvZn1t4oy3jHtnVFQvzHCATzm0JfBNveuEyXH2QQpcFwWzPrLjQ"><link rel="modulepreload" href="/snippets/leptos_reactive-f7acfdcc44aba8c4/inline0.js" crossorigin=anonymous integrity="sha384-d8yvubxSuBtBulKXqV75Cat9GIXWqR6k5Bgu7yCoAeqNsM97ASkJwvRGESa4d7HR"><link rel="preload" href="/yolonode-e46ca34da1bce845_bg.wasm" crossorigin=anonymous integrity="sha384-gZtHoeknfAo3uvQVE/94LG7y8BTCC84ihQ68pdTL8cLtHspMvEORfPiSwXLdZWUF" as="fetch" type="application/wasm"></head>
 <body>
     <div id="app"></div>
 
-    <!-- Load shade.bundle.js as a standard script -->
-    <script src="./static/lib/shade/shade.bundle.js"></script>
-    <script src="./static/wallet.js"></script>
+    <!-- Load standard scripts -->
+    <script src="./static/lib/shade-import.js"></script>
+    <script src="./static/lib/wallet.js"></script>
+    <script src="./static/lib/secret-client.js"></script>
+    <script src="./static/lib/smart-contract.js"></script>
 
     <!-- Initialize the Rust WASM module -->
     <script type="module">
@@ -22,9 +24,9 @@
         init();
     </script>    
 
-<script type="module" nonce="KGwN/sqYruUbEgaS55P9+w==">
-import init, * as bindings from '/yolonode-afe767565601b25b.js';
-const wasm = await init('/yolonode-afe767565601b25b_bg.wasm');
+<script type="module" nonce="J5ZLfWLr0+mEjH1+lX05+g==">
+import init, * as bindings from '/yolonode-e46ca34da1bce845.js';
+const wasm = await init('/yolonode-e46ca34da1bce845_bg.wasm');
 
 
 window.wasmBindings = bindings;

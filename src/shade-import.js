@@ -194,4 +194,3 @@ function calculate_liquidation_price() {
     const baseAssetPrice = liquidationPrice / exchangeRate;
     resultElement.textContent = `$${baseAssetPrice.toFixed(4)}`;
 }
-

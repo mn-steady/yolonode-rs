@@ -146,7 +146,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (prices, set_prices) = create_signal(cx, HashMap::new());
     let (governance_proposals, set_governance_proposals) = create_signal(cx, Vec::<GovernanceProposal>::new());
     let (liquidation_price, set_liquidation_price) = create_signal(cx, 1.0_f64); // Default price is 1
-    let (exchange_rate, set_exchange_rate) = create_signal(cx, 1.799247_f64); // Default rate for stkd-SCRT
+    let (exchange_rate, set_exchange_rate) = create_signal(cx, 1.807799_f64); // Default rate for stkd-SCRT
     let (result, set_result) = create_signal(cx, String::new());
 
     // Auto-fetch prices on page load
@@ -420,9 +420,9 @@ pub fn App(cx: Scope) -> impl IntoView {
                                             log::info!("Selected Derivative: {}", selected_value);
 
                                             match selected_value.as_str() {
-                                                "stkd-SCRT" => set_exchange_rate(1.799247),
-                                                "stAtom" => set_exchange_rate(1.489),
-                                                "stTIA" => set_exchange_rate(1.086),
+                                                "stkd-SCRT" => set_exchange_rate(1.807799),
+                                                "stAtom" => set_exchange_rate(1.496),
+                                                "stTIA" => set_exchange_rate(1.089),
                                                 _ => {
                                                     log::warn!("Unexpected derivative: {}", selected_value);
                                                     set_exchange_rate(1.0); // Default fallback rate

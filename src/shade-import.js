@@ -1,5 +1,6 @@
 // src/shade-import.js
 import { queryPrice, batchQueryIndividualPrices } from '@shadeprotocol/shadejs';
+import { queryDerivativeScrtInfo } from '@shadeprotocol/shadejs';
 import { SecretNetworkClient } from 'secretjs';
 import { Buffer } from 'buffer';
 window.Buffer = Buffer;
@@ -177,6 +178,29 @@ window.fetchBatchPrices = async function (
     }
 };
 
+//Fetch STKD Exchange Rate
+async function fetchSTKDExchangeRate() {
+    try {
+        const derivativeInfo = await queryDerivativeScrtInfo({
+            queryRouterContractAddress: "secret15mkmad8ac036v4nrpcc7nk8wyr578egt077syt",
+            queryRouterCodeHash: "1c7e86ba4fdb6760e70bf08a7df7f44b53eb0b23290e3e69ca96140810d4f432",
+            contractAddress: 'secret1k6u0cy4feepm6pehnz804zmwakuwdapm69tuc4', // Replace with stkd-SCRT contract address
+            codeHash: 'f6be719b3c6feb498d3554ca0398eb6b7e7db262acb33f84a8f12106da6bbb09', // Replace with stkd-SCRT code hash
+            queryTimeSeconds: Math.floor(Date.now() / 1000), // Optional: specify the query time in seconds
+        });
+
+        const exchangeRate = derivativeInfo.exchangeRate;
+        console.log('stkd-SCRT to SCRT Exchange Rate:', exchangeRate);
+        return exchangeRate;
+    } catch (error) {
+        console.error('Error fetching stkd-SCRT to SCRT exchange rate:', error);
+        throw error;
+    }
+}
+
+// Attach fetchSTKDExchangeRate to `window` for global access
+window.fetchSTKDExchangeRate = fetchSTKDExchangeRate;
+
 // Calculator price convertor function
 function calculate_liquidation_price() {
     const liquidationPriceInput = document.getElementById("liquidation-price");
@@ -194,4 +218,5 @@ function calculate_liquidation_price() {
     const baseAssetPrice = liquidationPrice / exchangeRate;
     resultElement.textContent = `$${baseAssetPrice.toFixed(4)}`;
 }
+
 

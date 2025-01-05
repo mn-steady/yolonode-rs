@@ -18,6 +18,11 @@ struct FetchBatchPricesResponse {
     prices: HashMap<String, String>,
 }
 
+#[derive(Deserialize, Debug)]
+struct DerivativePricesResponse {
+    prices: HashMap<String, String>,
+}
+
 #[derive(Deserialize, Debug, Clone)]
 struct GovernanceProposal {
     #[serde(rename = "proposal_id", deserialize_with = "deserialize_string_to_u64")]
@@ -99,6 +104,39 @@ async fn fetch_batch_prices() -> Result<HashMap<String, String>, String> {
     }
 }
 
+//Function for fetching derivative prices individually in a batch query
+async fn fetch_derivative_prices() -> Result<HashMap<String, String>, String> {
+    if let Ok(js_func) = call_js_function("fetchDerivativePrices") {
+        if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<Promise>()) {
+            match wasm_bindgen_futures::JsFuture::from(promise).await {
+                Ok(result) => {
+                    log::info!("Raw result from fetchDerivativePrices: {:?}", result);
+
+                    // Deserialize the JsValue into DerivativePricesResponse
+                    match result.into_serde::<DerivativePricesResponse>() {
+                        Ok(response) => {
+                            log::info!("Deserialized derivative prices: {:?}", response);
+                            Ok(response.prices)
+                        }
+                        Err(e) => {
+                            log::error!("Failed to deserialize derivative prices: {:?}", e);
+                            Err(format!("Failed to deserialize response: {:?}", e))
+                        }
+                    }
+                }
+                Err(err) => {
+                    log::error!("Promise resolution failed: {:?}", err);
+                    Err("Failed to resolve the promise".to_string())
+                }
+            }
+        } else {
+            Err("Failed to cast JsValue to Promise".to_string())
+        }
+    } else {
+        Err("fetchDerivativePrices not defined".to_string())
+    }
+}
+
 // Function to fetch the stkd-SCRT to SCRT exchange rate
 async fn fetch_stkd_scrt_exchange_rate() -> Result<f64, String> {
     if let Ok(js_func) = call_js_function("fetchSTKDExchangeRate") {
@@ -171,6 +209,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (result, set_result) = create_signal(cx, String::new());
     let (exchange_rate, set_exchange_rate) = create_signal(cx, 1.0_f64);
     let (default_exchange_rate, set_default_exchange_rate) = create_signal(cx, 1.0_f64);
+    let (derivative_prices, set_derivative_prices) = create_signal(cx, HashMap::<String, String>::new());
 
     // Auto-fetch prices on page load
     create_effect(cx, move |_| {
@@ -180,16 +219,34 @@ pub fn App(cx: Scope) -> impl IntoView {
                 Err(err) => log::error!("Error fetching prices on load: {}", err),
             }
         });
-    });
+    });  
 
-    let fetch_all_prices = move |_| {
+    // Fetch derivative prices on page load
+    create_effect(cx, move |_| {
         spawn_local(async move {
-            match fetch_batch_prices().await {
-                Ok(data) => set_prices(data),
-                Err(err) => log::error!("Failed to fetch batch prices: {:?}", err),
+            match fetch_derivative_prices().await {
+                Ok(data) => set_derivative_prices(data),
+                Err(err) => log::error!("Error fetching derivative prices on load: {}", err),
             }
         });
-    };
+    });    
+
+    // Fetch all prices button function
+    let fetch_all_prices = move |_| {
+        spawn_local(async move {
+            // Fetch batch prices
+            match fetch_batch_prices().await {
+                Ok(batch_data) => set_prices(batch_data),
+                Err(err) => log::error!("Failed to fetch batch prices: {:?}", err),
+            }
+    
+            // Fetch derivative prices
+            match fetch_derivative_prices().await {
+                Ok(derivative_data) => set_derivative_prices(derivative_data),
+                Err(err) => log::error!("Failed to fetch derivative prices: {:?}", err),
+            }
+        });
+    };  
 
     // Auto-fetch STKD exhcange rate on page load
     create_effect(cx, move |_| {
@@ -394,7 +451,8 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                         <hr class="gold-line" />
                         <div class="price-list">
-                            {let ordered_keys = vec!["BTC", "ETH", "SHD", "SCRT", "ATOM", "TIA", "stkd-SCRT", "SILK" ];
+                            // Render regular prices
+                            {let ordered_keys = vec!["BTC", "ETH", "SHD", "SCRT", "ATOM", "TIA", "SILK"];
                             move || ordered_keys.iter().map(|key| {
                                 if let Some(value) = prices.get().get(*key) {
                                     view! {
@@ -416,8 +474,43 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 }
                             }).collect::<Vec<_>>()}
                         </div>
+                        <div class="price-section-header">
+                            <h2>"Derivative Prices :"</h2>  
+                        </div>    
+                        <hr class="gold-line" />
+                        <div class="price-list">
+                            // Render derivative prices
+                            {let derivative_keys = vec!["stkd-SCRT", "Stride ATOM", "Stride TIA"];
+                            let display_key_map = HashMap::from([
+                                ("stkd-SCRT", "stkd-SCRT"),
+                                ("Stride ATOM", "stAtom"),
+                                ("Stride TIA", "stTIA"),
+                            ]);
+
+                            move || derivative_keys.iter().map(|key| {
+                                let display_key = display_key_map.get(key).unwrap_or(key); // Get the display key or fallback to original key
+                                if let Some(value) = derivative_prices.get().get(*key) {
+                                    view! {
+                                        cx,
+                                        <div class="price-row">
+                                            <h3>{format!("{} :", display_key)}</h3>
+                                            <div class="price-display">{format!("${}", value)}</div>
+                                            <hr class="gold-line" />
+                                        </div>
+                                    }
+                                } else {
+                                    view! {
+                                        cx,
+                                        <div class="price-row">
+                                            <h3>{format!("{} :", display_key)}</h3>
+                                            <div class="price-display">"No Data"</div>
+                                        </div>
+                                    }
+                                }
+                            }).collect::<Vec<_>>()}
+                        </div>
                     </div>
-                },                
+                },                                            
                 "Vote" => view! { cx,
                     <div class="vote-section">
                         <h2>"Governance Proposals :"</h2>

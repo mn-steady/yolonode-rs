@@ -408,7 +408,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                     <div class="tools-section">
                         <h2>"Tools | Utilities :"</h2>
                         <hr class="gold-line" />
-                        <h3>"Derivative Price Converter"</h3>
+                        <h3>"Derivative Price Converter: Convert derivative liquidation points to base asset prices to be utilized in triggers or alerts"</h3>
                         <div class="calculator">
                             <div class="input-row">
                                 <label for="derivative-select">"Select Derivative:"</label>

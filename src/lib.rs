@@ -99,6 +99,28 @@ async fn fetch_batch_prices() -> Result<HashMap<String, String>, String> {
     }
 }
 
+// Function to fetch the stkd-SCRT to SCRT exchange rate
+async fn fetch_stkd_scrt_exchange_rate() -> Result<f64, String> {
+    if let Ok(js_func) = call_js_function("fetchSTKDExchangeRate") {
+        if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<Promise>()) {
+            match wasm_bindgen_futures::JsFuture::from(promise).await {
+                Ok(result) => {
+                    if let Some(rate) = result.as_f64() {
+                        Ok(rate) 
+                    } else {
+                        Err("Failed to convert result to f64".to_string())
+                    }
+                }
+                Err(err) => Err(format!("Promise resolution failed: {:?}", err)),
+            }
+        } else {
+            Err("Failed to cast JsValue to Promise".to_string())
+        }
+    } else {
+        Err("fetchSTKDExchangeRate function not found".to_string())
+    }
+}
+
 // Call specific keplr functions
 async fn get_wallet_address() -> Option<String> {
     if let Ok(js_func) = call_js_function("get_wallet_address") {
@@ -146,8 +168,9 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (prices, set_prices) = create_signal(cx, HashMap::new());
     let (governance_proposals, set_governance_proposals) = create_signal(cx, Vec::<GovernanceProposal>::new());
     let (liquidation_price, set_liquidation_price) = create_signal(cx, 1.0_f64); // Default price is 1
-    let (exchange_rate, set_exchange_rate) = create_signal(cx, 1.807799_f64); // Default rate for stkd-SCRT
     let (result, set_result) = create_signal(cx, String::new());
+    let (exchange_rate, set_exchange_rate) = create_signal(cx, 1.0_f64);
+    let (default_exchange_rate, set_default_exchange_rate) = create_signal(cx, 1.0_f64);
 
     // Auto-fetch prices on page load
     create_effect(cx, move |_| {
@@ -168,6 +191,20 @@ pub fn App(cx: Scope) -> impl IntoView {
         });
     };
 
+    // Auto-fetch STKD exhcange rate on page load
+    create_effect(cx, move |_| {
+        spawn_local(async move {
+            match fetch_stkd_scrt_exchange_rate().await {
+                Ok(rate) => {
+                    log::info!("Fetched stkd-SCRT to SCRT exchange rate: {}", rate);
+                    set_exchange_rate(rate);
+                    set_default_exchange_rate(rate); // Store as default
+                }
+                Err(err) => log::error!("Error fetching exchange rate: {}", err),
+            }
+        });
+    });
+    
     // Keplr Fumctions
     let connect_wallet = move |_| {
         set_connected.set(true);
@@ -414,30 +451,30 @@ pub fn App(cx: Scope) -> impl IntoView {
                             <div class="input-row">
                                 <label for="derivative-select">"Select Derivative:"</label>
                                 <select
-                                    id="derivative-select"
-                                    on:change=move |ev| {
-                                        if let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::HtmlSelectElement>().ok()) {
-                                            let selected_value = target.value();
-                                            log::info!("Selected Derivative: {}", selected_value);
-
-                                            match selected_value.as_str() {
-                                                "stkd-SCRT" => set_exchange_rate(1.807799),
-                                                "stAtom" => set_exchange_rate(1.496),
-                                                "stTIA" => set_exchange_rate(1.089),
-                                                _ => {
-                                                    log::warn!("Unexpected derivative: {}", selected_value);
-                                                    set_exchange_rate(1.0); // Default fallback rate
-                                                },
-                                            }
-                                        } else {
-                                            log::error!("Failed to cast event target to HtmlSelectElement");
+                                id="derivative-select"
+                                on:change=move |ev| {
+                                    if let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::HtmlSelectElement>().ok()) {
+                                        let selected_value = target.value();
+                                        log::info!("Selected Derivative: {}", selected_value);
+                            
+                                        match selected_value.as_str() {
+                                            "stkd-SCRT" => set_exchange_rate(default_exchange_rate.get()), // Reset to default rate
+                                            "stAtom" => set_exchange_rate(1.496),
+                                            "stTIA" => set_exchange_rate(1.089),
+                                            _ => {
+                                                log::warn!("Unexpected derivative: {}", selected_value);
+                                                set_exchange_rate(1.0); // Default fallback rate
+                                            },
                                         }
+                                    } else {
+                                        log::error!("Failed to cast event target to HtmlSelectElement");
                                     }
-                                >
-                                    <option value="stkd-SCRT" selected="selected">"stkd-SCRT"</option>
-                                    <option value="stAtom">"stAtom"</option>
-                                    <option value="stTIA">"stTIA"</option>
-                                </select>
+                                }
+                            >
+                                <option value="stkd-SCRT" selected="selected">"stkd-SCRT"</option>
+                                <option value="stAtom">"stAtom"</option>
+                                <option value="stTIA">"stTIA"</option>
+                            </select>                            
                             </div>
                             <div class="input-row">
                                 <label for="liquidation-price">"Liquidation Price:"</label>

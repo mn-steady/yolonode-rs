@@ -314,6 +314,22 @@ hr.gold-line {
     border-radius: 5px;
 }
 
+.tools-section h3, .tools-section p {
+    display: inline-block; /* Display elements inline */
+    vertical-align: middle; /* Align to the top */
+    margin: 0; /* Remove default margin */
+    margin-bottom: 20px; /* Adjust the value to increase or decrease the gap */
+}
+
+.tools-section h3 {
+    margin-right: 10px; /* Add space between h3 and p */
+}
+
+.tools-section p {
+    margin-left: 0; /* Ensure no left margin */
+    text-align: left; /* Align text to the left */
+}
+
 .tools-row {
     display: flex;
     justify-content: space-between;
@@ -331,7 +347,7 @@ hr.gold-line {
 .tools-row p {
     margin: 5px; 
     margin-left: 15px;
-    flex: 1; /* Align with h1 */
+    flex: 1; 
 }
 
 .vote-section {

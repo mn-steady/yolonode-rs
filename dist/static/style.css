@@ -257,6 +257,8 @@ hr.gold-line {
     margin: 0; /* Remove default margin */
     flex: 0 0 auto; /* Prevent the button from stretching */
     white-space: nowrap; /* Prevent the button text from wrapping */
+    color: #df03c1; 
+    border: 1px solid #df03c1; 
 }
 
 .price-list {

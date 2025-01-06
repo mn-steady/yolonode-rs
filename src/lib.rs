@@ -205,6 +205,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (selected_section, set_selected_section) = create_signal(cx, "Home".to_string());
     let (prices, set_prices) = create_signal(cx, HashMap::new());
     let (governance_proposals, set_governance_proposals) = create_signal(cx, Vec::<GovernanceProposal>::new());
+    let (proposals_fetched, set_proposals_fetched) = create_signal(cx, false);
     let (liquidation_price, set_liquidation_price) = create_signal(cx, 1.0_f64); // Default price is 1
     let (result, set_result) = create_signal(cx, String::new());
     let (exchange_rate, set_exchange_rate) = create_signal(cx, 1.0_f64);
@@ -262,7 +263,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         });
     });
     
-    // Keplr Fumctions
+    // Keplr Functions
     let connect_wallet = move |_| {
         set_connected.set(true);
         spawn_local(async move {
@@ -278,9 +279,10 @@ pub fn App(cx: Scope) -> impl IntoView {
         set_wallet_address.set(String::new());
     };
 
-    // Fetch governance proposals when "Vote" is selected
+    //Fetch Governance Proposals
     create_effect(cx, move |_| {
-        if selected_section.get().as_str() == "Vote" {
+        if selected_section.get().as_str() == "Vote" && !proposals_fetched.get() {
+            set_proposals_fetched(true);
             spawn_local(async move {
                 match fetch_governance_proposals().await {
                     Ok(proposals) => set_governance_proposals.set(proposals),

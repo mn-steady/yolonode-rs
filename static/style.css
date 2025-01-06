@@ -261,6 +261,16 @@ hr.gold-line {
     border: 1px solid #df03c1; 
 }
 
+.price-section .link-button:hover {
+    background-color: #df03c1; 
+    color: #101213; 
+}
+
+.price-section  .link-button.active {
+    background-color: #df03c1; 
+    color: #101213; 
+}
+
 .price-list {
     width: 100%;
 }
@@ -372,6 +382,14 @@ hr.gold-line {
 
 .vote-section h2{
     color: #03c1df; 
+}
+
+.vote-list h3{
+    color: #03c1df; 
+}
+
+.vote-list .vote-status {
+    color: #53df03; 
 }
 
 .calculator {

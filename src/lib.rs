@@ -589,7 +589,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                         <li>
                                             <h3>{format!("Proposal #{}: {}", proposal.id, proposal.content.title)}</h3>
                                             <p>{format!("Description: {}", proposal.content.description)}</p>
-                                            <p>{format!("Status: {}", proposal.status)}</p>
+                                            <p class="vote-status">{format!("Status: {}", proposal.status)}</p>
                                             <hr class="gold-line" />
                                         </li>
                                     }

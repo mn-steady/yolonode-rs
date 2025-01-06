@@ -249,6 +249,10 @@ hr.gold-line {
     gap: 10px; /* Optional: add space between items */
 }
 
+.price-section-header h2{
+    color: #03c1df; 
+}
+
 .price-section .link-button {
     margin: 0; /* Remove default margin */
     flex: 0 0 auto; /* Prevent the button from stretching */
@@ -267,7 +271,7 @@ hr.gold-line {
     overflow: hidden; /* Handle overflow */
     text-overflow: ellipsis; /* Add ellipsis for long values */
     font-weight: bold; /* Emphasize the price */
-    color: #C1DF03; /* YoloNode Yellow */
+    color: #53df03; /* YoloNode Yellow */
 }
 
 .price-row {

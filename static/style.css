@@ -321,6 +321,10 @@ hr.gold-line {
     border-radius: 5px;
 }
 
+.tools-section h2{
+    color: #03c1df; 
+}
+
 .tools-section h3, .tools-section p {
     display: inline-block; /* Display elements inline */
     vertical-align: middle; /* Align to the top */
@@ -364,6 +368,10 @@ hr.gold-line {
     color: #C1DF03; /* YoloNode Yellow */
     background-color: #101213;
     border-radius: 5px;
+}
+
+.vote-section h2{
+    color: #03c1df; 
 }
 
 .calculator {

@@ -482,8 +482,8 @@ pub fn App(cx: Scope) -> impl IntoView {
                             // Render derivative prices
                             {let derivative_keys = vec!["stkd-SCRT", "Stride ATOM", "Stride TIA"];
                             let display_key_map = HashMap::from([
-                                ("stkd-SCRT", "stkd-SCRT"),
-                                ("Stride ATOM", "stAtom"),
+                                ("stkd-SCRT", "stkdSCRT"),
+                                ("Stride ATOM", "stATOM"),
                                 ("Stride TIA", "stTIA"),
                             ]);
 

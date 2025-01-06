@@ -475,8 +475,8 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }).collect::<Vec<_>>()}
                         </div>
                         <div class="price-section-header">
-                            <h2>"Derivative Prices :"</h2>  
-                        </div>    
+                            <h2>"Derivative Prices :"</h2>
+                        </div>
                         <hr class="gold-line" />
                         <div class="price-list">
                             // Render derivative prices
@@ -486,7 +486,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 ("Stride ATOM", "stATOM"),
                                 ("Stride TIA", "stTIA"),
                             ]);
-
+                
                             move || derivative_keys.iter().map(|key| {
                                 let display_key = display_key_map.get(key).unwrap_or(key); // Get the display key or fallback to original key
                                 if let Some(value) = derivative_prices.get().get(*key) {
@@ -509,8 +509,72 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 }
                             }).collect::<Vec<_>>()}
                         </div>
-                    </div>
-                },                                            
+                        <div class="price-section-header">
+                            <h2>"Ratios :"</h2>
+                        </div>
+                        <hr class="gold-line" />
+                        <div class="price-list">
+                            {move || {
+                                // SHD/SCRT Ratio
+                                let shd_to_scrt = if let (Some(shd_price), Some(scrt_price)) = (
+                                    prices.get().get("SHD"),
+                                    prices.get().get("SCRT"),
+                                ) {
+                                    let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
+                                                scrt_price.parse::<f64>().unwrap_or(1.0);
+                                    format!("{:.4}", ratio)
+                                } else {
+                                    "No Data".to_string()
+                                };
+
+                                // SHD/stkd-SCRT Ratio
+                                let shd_to_stkd_scrt = if let (Some(shd_price), Some(stkd_scrt_price)) = (
+                                    prices.get().get("SHD"),
+                                    derivative_prices.get().get("stkd-SCRT"),
+                                ) {
+                                    let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
+                                                stkd_scrt_price.parse::<f64>().unwrap_or(1.0);
+                                    format!("{:.4}", ratio)
+                                } else {
+                                    "No Data".to_string()
+                                };
+
+                                // SHD/ATOM Ratio
+                                let shd_to_atom = if let (Some(shd_price), Some(atom_price)) = (
+                                    prices.get().get("SHD"),
+                                    prices.get().get("ATOM"), // Corrected to fetch ATOM from `prices`
+                                ) {
+                                    let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
+                                                atom_price.parse::<f64>().unwrap_or(1.0);
+                                    format!("{:.4}", ratio)
+                                } else {
+                                    "No Data".to_string()
+                                };
+
+                                view! {
+                                    cx,
+                                    <>
+                                        <div class="price-row">
+                                            <h3>"SHD/SCRT:"</h3>
+                                            <div class="price-display">{shd_to_scrt}</div>
+                                            <hr class="gold-line" />
+                                        </div>
+                                        <div class="price-row">
+                                            <h3>"SHD/STKD:"</h3>
+                                            <div class="price-display">{shd_to_stkd_scrt}</div>
+                                            <hr class="gold-line" />
+                                        </div>
+                                        <div class="price-row">
+                                            <h3>"SHD/ATOM:"</h3>
+                                            <div class="price-display">{shd_to_atom}</div>
+                                            <hr class="gold-line" />
+                                        </div>
+                                    </>
+                                }
+                            }}
+                        </div>
+                    </div>                    
+                },                                                        
                 "Vote" => view! { cx,
                     <div class="vote-section">
                         <h2>"Governance Proposals :"</h2>

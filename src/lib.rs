@@ -555,17 +555,17 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     cx,
                                     <>
                                         <div class="price-row">
-                                            <h3>"SHD/SCRT:"</h3>
+                                            <h3>"SHD/SCRT :"</h3>
                                             <div class="price-display">{shd_to_scrt}</div>
                                             <hr class="gold-line" />
                                         </div>
                                         <div class="price-row">
-                                            <h3>"SHD/STKD:"</h3>
+                                            <h3>"SHD/STKD :"</h3>
                                             <div class="price-display">{shd_to_stkd_scrt}</div>
                                             <hr class="gold-line" />
                                         </div>
                                         <div class="price-row">
-                                            <h3>"SHD/ATOM:"</h3>
+                                            <h3>"SHD/ATOM :"</h3>
                                             <div class="price-display">{shd_to_atom}</div>
                                             <hr class="gold-line" />
                                         </div>

@@ -544,7 +544,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 // SHD/ATOM Ratio
                                 let shd_to_atom = if let (Some(shd_price), Some(atom_price)) = (
                                     prices.get().get("SHD"),
-                                    prices.get().get("ATOM"), // Corrected to fetch ATOM from `prices`
+                                    prices.get().get("ATOM"),
                                 ) {
                                     let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
                                                 atom_price.parse::<f64>().unwrap_or(1.0);

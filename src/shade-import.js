@@ -166,8 +166,8 @@ async function fetchSTKDExchangeRate() {
         const derivativeInfo = await queryDerivativeScrtInfo({
             queryRouterContractAddress: "secret15mkmad8ac036v4nrpcc7nk8wyr578egt077syt",
             queryRouterCodeHash: "1c7e86ba4fdb6760e70bf08a7df7f44b53eb0b23290e3e69ca96140810d4f432",
-            contractAddress: 'secret1k6u0cy4feepm6pehnz804zmwakuwdapm69tuc4', // Replace with stkd-SCRT contract address
-            codeHash: 'f6be719b3c6feb498d3554ca0398eb6b7e7db262acb33f84a8f12106da6bbb09', // Replace with stkd-SCRT code hash
+            contractAddress: 'secret1k6u0cy4feepm6pehnz804zmwakuwdapm69tuc4', 
+            codeHash: 'f6be719b3c6feb498d3554ca0398eb6b7e7db262acb33f84a8f12106da6bbb09', 
             queryTimeSeconds: Math.floor(Date.now() / 1000), // Optional: specify the query time in seconds
         });
 

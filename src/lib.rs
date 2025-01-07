@@ -477,7 +477,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }).collect::<Vec<_>>()}
                         </div>
                         <div class="price-section-header">
-                            <h2>"Derivative Prices :"</h2>
+                            <h2>"Derivatives :"</h2>
                         </div>
                         <hr class="gold-line" />
                         <div class="price-list">

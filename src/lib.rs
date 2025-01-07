@@ -582,22 +582,30 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <h2>"Governance Proposals :"</h2>
                         <hr class="gold-line" />
                         <ul class="vote-list">
-                            {move || {
-                                let mut sorted_proposals = governance_proposals.get();
-                                sorted_proposals.sort_by(|a, b| b.id.cmp(&a.id)); // Sort by id in descending order
-                                sorted_proposals.iter().map(|proposal| {
-                                    view! {
-                                        cx,
-                                        <li>
-                                            <h3>{format!("Proposal #{}: {}", proposal.id, proposal.content.title)}</h3>
-                                            <p>{format!("Description: {}", proposal.content.description)}</p>
-                                            <p class="vote-status">{format!("Status: {}", proposal.status)}</p>
-                                            <hr class="gold-line" />
-                                        </li>
-                                    }
-                                }).collect::<Vec<_>>()
-                            }}
-                        </ul>
+                        {move || {
+                            let mut sorted_proposals = governance_proposals.get();
+                            sorted_proposals.sort_by(|a, b| b.id.cmp(&a.id)); // Sort by id in descending order
+                            sorted_proposals.iter().map(|proposal| {
+                                // Determine the status class based on the proposal status
+                                let status_class = match proposal.status.trim() {
+                                    "PROPOSAL_STATUS_PASSED" => "passed",
+                                    "PROPOSAL_STATUS_REJECTED" => "rejected",
+                                    _ => "default",
+                                };                                
+                                view! {
+                                    cx,
+                                    <li>
+                                        <h3>{format!("Proposal #{}: {}", proposal.id, proposal.content.title)}</h3>
+                                        <p>{format!("Description: {}", proposal.content.description)}</p>
+                                        <p class={format!("vote-status {}", status_class)}>
+                                            {format!("Status: {}", proposal.status)}
+                                        </p>
+                                        <hr class="gold-line" />
+                                    </li>
+                                }
+                            }).collect::<Vec<_>>()
+                        }}
+                    </ul>                    
                     </div>
                 },                
                 "Tools" => view! { cx,

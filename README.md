@@ -1,9 +1,9 @@
 # YoloNode
-A Leptos-based Rust project with Keplr wallet integration and Shade Protocol connectivity,
+A Leptos-based Rust project with Keplr and Shade Protocol API connectivity.
 
 ## Features
 - Dark background and yellow text
-- Keplr wallet connectivity
+- Keplr API connectivity
 - Shade Protocol API connectivity
 - Multiple View Sections
 

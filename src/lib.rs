@@ -553,6 +553,18 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     "No Data".to_string()
                                 };
 
+                                // SCRT/ATOM Ratio
+                                let scrt_to_atom = if let (Some(scrt_price), Some(atom_price)) = (
+                                    prices.get().get("SCRT"),
+                                    prices.get().get("ATOM"),
+                                ) {
+                                    let ratio = scrt_price.parse::<f64>().unwrap_or(0.0) /
+                                                atom_price.parse::<f64>().unwrap_or(1.0);
+                                    format!("{:.4}", ratio)
+                                } else {
+                                    "No Data".to_string()
+                                };                                
+
                                 view! {
                                     cx,
                                     <>
@@ -571,6 +583,11 @@ pub fn App(cx: Scope) -> impl IntoView {
                                             <div class="price-display">{shd_to_atom}</div>
                                             <hr class="gold-line" />
                                         </div>
+                                        <div class="price-row">
+                                            <h3>"SCRT/ATOM :"</h3>
+                                            <div class="price-display">{scrt_to_atom}</div>
+                                            <hr class="gold-line" />
+                                        </div>                                        
                                     </>
                                 }
                             }}
@@ -598,7 +615,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     <h3>{format!("Proposal #{}: {}", proposal.id, proposal.content.title)}</h3>
                                     <p>{format!("Description: {}", proposal.content.description)}</p>
                                     <p class={format!("vote-status {}", status_class)}>
-                                        {proposal.status.clone()} // Directly display the status
+                                        {proposal.status.clone()} 
                                     </p>
                                     <hr class="gold-line" />
                                 </li>

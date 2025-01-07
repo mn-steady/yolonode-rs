@@ -592,20 +592,20 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     "PROPOSAL_STATUS_REJECTED" => "rejected",
                                     _ => "default",
                                 };                                
-                                view! {
-                                    cx,
-                                    <li>
-                                        <h3>{format!("Proposal #{}: {}", proposal.id, proposal.content.title)}</h3>
-                                        <p>{format!("Description: {}", proposal.content.description)}</p>
-                                        <p class={format!("vote-status {}", status_class)}>
-                                            {format!("Status: {}", proposal.status)}
-                                        </p>
-                                        <hr class="gold-line" />
-                                    </li>
-                                }
+                            view! {
+                                cx,
+                                <li>
+                                    <h3>{format!("Proposal #{}: {}", proposal.id, proposal.content.title)}</h3>
+                                    <p>{format!("Description: {}", proposal.content.description)}</p>
+                                    <p class={format!("vote-status {}", status_class)}>
+                                        {proposal.status.clone()} // Directly display the status
+                                    </p>
+                                    <hr class="gold-line" />
+                                </li>
+                            }
                             }).collect::<Vec<_>>()
                         }}
-                    </ul>                    
+                        </ul>                    
                     </div>
                 },                
                 "Tools" => view! { cx,

@@ -1,4 +1,4 @@
-// Function to connect to Keplr wallet
+// Function to connect to wallet
 async function connectKeplrWallet() {
     if (window.keplr) {
         try {
@@ -9,11 +9,11 @@ async function connectKeplrWallet() {
                 console.log("Connected account:", accounts[0].address);
                 return accounts[0].address;
             } else {
-                console.warn("No accounts found in Keplr wallet.");
+                console.warn("No accounts found in wallet.");
                 return null;
             }
         } catch (error) {
-            console.error("Failed to connect to Keplr wallet:", error);
+            console.error("Failed to connect to wallet:", error);
             return null;
         }
     } else {
@@ -22,9 +22,9 @@ async function connectKeplrWallet() {
     }
 }
 
-// Function to disconnect Keplr wallet
+// Function to disconnect wallet
 function disconnectKeplrWallet() {
-    console.log("Keplr wallet disconnected");
+    console.log("Wallet disconnected");
 }
 
 // Function to get the wallet address
@@ -48,7 +48,7 @@ async function get_wallet_address() {
 // Function to fetch governance proposals
 async function fetchGovernanceProposals() {
     if (!window.keplr) {
-        alert("Keplr wallet not found!");
+        alert("Wallet not found! Please install Keplr or Fina wallet.");
         return [];
     }
 

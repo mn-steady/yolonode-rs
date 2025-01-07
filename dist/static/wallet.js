@@ -17,7 +17,7 @@ async function connectKeplrWallet() {
             return null;
         }
     } else {
-        alert("Keplr wallet not found!");
+        alert("Wallet not found! Please install Keplr or Fina wallet.");
         return null;
     }
 }
@@ -40,7 +40,7 @@ async function get_wallet_address() {
             return "";
         }
     } else {
-        alert("Keplr wallet not found!");
+        alert("Wallet not found! Please install Keplr or Fina wallet.");
         return "";
     }
 }

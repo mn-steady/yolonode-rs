@@ -211,6 +211,8 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (exchange_rate, set_exchange_rate) = create_signal(cx, 1.0_f64);
     let (default_exchange_rate, set_default_exchange_rate) = create_signal(cx, 1.0_f64);
     let (derivative_prices, set_derivative_prices) = create_signal(cx, HashMap::<String, String>::new());
+    let (redemption_rates, set_redemption_rates) = create_signal(cx, HashMap::<String, f64>::new());
+
 
     // Auto-fetch prices on page load
     create_effect(cx, move |_| {
@@ -262,6 +264,30 @@ pub fn App(cx: Scope) -> impl IntoView {
             }
         });
     });
+
+    //Fetch stride redemption rates
+    create_effect(cx, move |_| {
+        spawn_local(async move {
+            if let Ok(js_func) = call_js_function("fetchAllRedemptionRates") {
+                if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<js_sys::Promise>()) {
+                    match wasm_bindgen_futures::JsFuture::from(promise).await {
+                        Ok(result) => {
+                            if let Ok(rates) = result.into_serde::<HashMap<String, f64>>() {
+                                log::info!("Fetched redemption rates: {:?}", rates);
+                                set_redemption_rates(rates);
+                            } else {
+                                log::error!("Failed to deserialize redemption rates.");
+                            }
+                        }
+                        Err(err) => {
+                            log::error!("Failed to resolve fetchAllRedemptionRates promise: {:?}", err);
+                        }
+                    }
+                }
+            }
+        });
+    });
+    
     
     // Keplr Functions
     let connect_wallet = move |_| {
@@ -634,39 +660,52 @@ pub fn App(cx: Scope) -> impl IntoView {
                             <div class="input-row">
                                 <label for="derivative-select">"Select Derivative:"</label>
                                 <select
-                                id="derivative-select"
-                                on:change=move |ev| {
-                                    if let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::HtmlSelectElement>().ok()) {
-                                        let selected_value = target.value();
-                                        log::info!("Selected Derivative: {}", selected_value);
-                            
-                                        match selected_value.as_str() {
-                                            "stkd-SCRT" => set_exchange_rate(default_exchange_rate.get()), // Reset to default rate
-                                            "stAtom" => set_exchange_rate(1.496),
-                                            "stTIA" => set_exchange_rate(1.089),
-                                            _ => {
-                                                log::warn!("Unexpected derivative: {}", selected_value);
-                                                set_exchange_rate(1.0); // Default fallback rate
-                                            },
+                                    id="derivative-select"
+                                    on:change=move |ev| {
+                                        if let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::HtmlSelectElement>().ok()) {
+                                            let selected_value = target.value();
+                                            log::info!("Selected Derivative: {}", selected_value);
+                
+                                            // Map derivative names to redemption_rates keys
+                                            let key_map = HashMap::from([
+                                                ("stkd-SCRT", None), // Use default_exchange_rate
+                                                ("stAtom", Some("cosmoshub-4")),
+                                                ("stTIA", Some("stTIA")),
+                                            ]);
+                
+                                            match key_map.get(selected_value.as_str()) {
+                                                Some(Some(key)) => {
+                                                    if let Some(rate) = redemption_rates.get().get(*key) {
+                                                        let formatted_rate = (format!("{:.6}", rate)).parse::<f64>().unwrap_or(*rate);
+                                                        set_exchange_rate(formatted_rate);
+                                                    } else {
+                                                        log::warn!("No rate found for {}", selected_value);
+                                                    }
+                                                }
+                                                Some(None) => set_exchange_rate(default_exchange_rate.get()), // Default for stkd-SCRT
+                                                _ => {
+                                                    log::warn!("Unexpected derivative: {}", selected_value);
+                                                    set_exchange_rate(1.0); // Default fallback rate
+                                                }
+                                            }
+                                        } else {
+                                            log::error!("Failed to cast event target to HtmlSelectElement");
                                         }
-                                    } else {
-                                        log::error!("Failed to cast event target to HtmlSelectElement");
                                     }
-                                }
-                            >
-                                <option value="stkd-SCRT" selected="selected">"stkd-SCRT"</option>
-                                <option value="stAtom">"stAtom"</option>
-                                <option value="stTIA">"stTIA"</option>
-                            </select>                            
+                                >
+                                    <option value="stkd-SCRT" selected="selected">"stkd-SCRT"</option>
+                                    <option value="stAtom">"stAtom"</option>
+                                    <option value="stTIA">"stTIA"</option>
+                                </select>
                             </div>
                             <div class="input-row">
                                 <label for="liquidation-price">"Liquidation Price:"</label>
                                 <input
                                     id="liquidation-price"
                                     type="number"
-                                    step="0.0001"
+                                    step="0.00000001"
                                     placeholder="Enter liquidation price"
-                                    value={move || liquidation_price.get().to_string()}
+                                    value={move || format!("{:.6}", liquidation_price.get())}
                                     on:input=move |ev| {
                                         let raw_value = event_target_value(&ev);
                                         let parsed_value = raw_value.parse::<f64>().unwrap_or(0.0);
@@ -679,9 +718,9 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 <input
                                     id="exchange-rate"
                                     type="number"
-                                    step="0.0001"
+                                    step="0.00000001"
                                     placeholder="Enter exchange rate"
-                                    value={move || exchange_rate.get().to_string()}
+                                    value={move || format!("{:.6}", exchange_rate.get())}
                                     on:input=move |ev| {
                                         let raw_value = event_target_value(&ev);
                                         let parsed_value = raw_value.parse::<f64>().unwrap_or(1.0);
@@ -694,10 +733,10 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 on:click=move |_| {
                                     let price = liquidation_price.get();
                                     let rate = exchange_rate.get();
-
+                
                                     if price > 0.0 && rate > 0.0 {
                                         let base_asset_price = price / rate;
-                                        set_result(format!("${:.4}", base_asset_price));
+                                        set_result(format!("${:.6}", base_asset_price));
                                     } else if rate <= 0.0 {
                                         set_result("Invalid exchange rate. Please correct it.".to_string());
                                     } else {
@@ -713,7 +752,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             </div>
                         </div>
                     </div>
-                },                                        
+                },                                                                              
                 _ => view! { cx,
                     <div class="error-section">
                         <p>"Section not found."</p>

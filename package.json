@@ -2,9 +2,14 @@
   "dependencies": {
     "@shadeprotocol/shadejs": "^1.5.9",
     "buffer": "^6.0.3",
-    "secretjs": "^1.12.5"
+    "secretjs": "^1.12.5",
+    "stridejs": "^0.11.4"
   },
   "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0",
+    "crypto-browserify": "^3.12.1",
+    "stream-browserify": "^3.0.0",
+    "vm-browserify": "^1.1.2",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4"
   }

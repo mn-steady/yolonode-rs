@@ -1,8 +1,10 @@
 const path = require('path');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: {
         stride: './src/stride-import.js',
+        shade: './src/shade-import.js',
     },
     output: {
         filename: '[name].bundle.js',
@@ -16,4 +18,7 @@ module.exports = {
             vm: require.resolve('vm-browserify'),
         },
     },
+    plugins: [
+        new CleanWebpackPlugin(), 
+    ],
 };

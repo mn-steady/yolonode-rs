@@ -676,7 +676,14 @@ pub fn App(cx: Scope) -> impl IntoView {
                                             match key_map.get(selected_value.as_str()) {
                                                 Some(Some(key)) => {
                                                     if let Some(rate) = redemption_rates.get().get(*key) {
-                                                        let formatted_rate = (format!("{:.6}", rate)).parse::<f64>().unwrap_or(*rate);
+                                                        // Scale and format the rate
+                                                        let scaled_rate = if *key == "cosmoshub-4" {
+                                                            rate * 1e18
+                                                        } else {
+                                                            *rate
+                                                        };
+                                                        let formatted_rate = (format!("{:.6}", scaled_rate)).parse::<f64>().unwrap_or(scaled_rate);
+                                                        log::info!("Formatted rate for {}: {}", selected_value, formatted_rate);
                                                         set_exchange_rate(formatted_rate);
                                                     } else {
                                                         log::warn!("No rate found for {}", selected_value);
@@ -752,7 +759,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             </div>
                         </div>
                     </div>
-                },                                                                              
+                },                                                                                          
                 _ => view! { cx,
                     <div class="error-section">
                         <p>"Section not found."</p>

@@ -327,12 +327,12 @@ pub fn App(cx: Scope) -> impl IntoView {
                 <div class="links">
                     <button class="link-button" on:click=move |_| set_selected_section.set("Home".to_string())>"Home"</button>
                     <button class="link-button" on:click=move |_| set_selected_section.set("Prices".to_string())>"Prices"</button>
+                    <button class="link-button" on:click=move |_| set_selected_section.set("Tools".to_string())>"Tools"</button>
                     <button class="link-button" on:click=move |_| {
                         connect_wallet(());
                         set_selected_section.set("Wallet".to_string());
                     }>"Wallet"</button>
                     <button class="link-button" on:click=move |_| set_selected_section.set("Vote".to_string())>"Vote"</button>
-                    <button class="link-button" on:click=move |_| set_selected_section.set("Tools".to_string())>"Tools"</button>
                 </div>
             </div>
             <hr class="gold-line" />
@@ -604,7 +604,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                 "Wallet" => view! { cx,
                     <div class="wallet-section">
                         <div class="wallet-section-header">
-                            <h2>"Wallet Section : "</h2>
+                            <h2>"Wallet Info : "</h2>
                             {move || if is_connected.get() {
                                 view! { cx,
                                     <button class="link-button" on:click=disconnect_wallet>"Disconnect Wallet"</button>

@@ -383,6 +383,9 @@ hr.gold-line {
 
 .tools-section h2 {
     color: #03c1df;
+    margin: 0;
+    flex: 1;
+    text-align: left;
 }
 
 .tools-section h3, .tools-section p {
@@ -478,7 +481,7 @@ hr.gold-line {
 }
 
 .vote-section {
-    padding: 10px;
+    padding: 0px;
     margin-top: 0px;
     font-size: 1rem;
     color: #C1DF03;
@@ -488,6 +491,9 @@ hr.gold-line {
 
 .vote-section h2 {
     color: #03c1df;
+    margin: 0;
+    flex: 1;
+    text-align: left;
 }
 
 .vote-list {

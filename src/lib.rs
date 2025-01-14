@@ -334,6 +334,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                     }>"Wallet"</button>
                     <button class="link-button" on:click=move |_| set_selected_section.set("Vote".to_string())>"Vote"</button>
                 </div>
+                <img src="/static/YoloNode-Logo-cropped.png" alt="YoloNode Logo" class="logo" />
             </div>
             <hr class="gold-line" />
             {move || match selected_section.get().as_str() {

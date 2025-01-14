@@ -95,13 +95,21 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 0;
+    padding: 0.5rem;
     background-color: #101213;
 }
 
 .top-bar p {
     font-size: 1.2rem;
     color: #C1DF03;
+}
+
+.logo {
+    height: 3rem; 
+    width: auto; 
+    margin-left: auto; 
+    display: inline-block; 
+    vertical-align: middle; 
 }
 
 .wallet-address {
@@ -570,22 +578,30 @@ hr.gold-line {
     @media (max-width: 768px) {
         .top-bar {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
+            justify-content: space-evenly; 
+            align-items: center; 
+            flex-wrap: nowrap; 
+            gap: 10px; 
+            padding: 0.5rem; 
         }
     
         .links {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            width: 90%; 
+            flex-wrap: nowrap; 
+            justify-content: space-evenly; 
+            gap: 5px; 
+            flex-grow: 1; 
         }
     
-        .link-button {
-            flex: 1 1 auto; 
-            text-align: center;
+        .link-button, .logo {
+            flex: 1; 
+            text-align: center; 
+        }
+    
+        .logo {
+            height: 2rem; 
+            width: auto; 
+            display: inline-block; 
         }
     
         .connect-wallet {

@@ -10,6 +10,7 @@ use gloo_utils::format::JsValueSerdeExt;
 use serde::Deserialize;
 use serde::de::{self, Deserializer};
 use std::str::FromStr;
+use web_sys::MouseEvent;
 
 // Define structures to match the expected response formats
 //Batch Prices
@@ -326,33 +327,13 @@ pub fn App(cx: Scope) -> impl IntoView {
                 <div class="links">
                     <button class="link-button" on:click=move |_| set_selected_section.set("Home".to_string())>"Home"</button>
                     <button class="link-button" on:click=move |_| set_selected_section.set("Prices".to_string())>"Prices"</button>
+                    <button class="link-button" on:click=move |_| {
+                        connect_wallet(());
+                        set_selected_section.set("Wallet".to_string());
+                    }>"Wallet"</button>
                     <button class="link-button" on:click=move |_| set_selected_section.set("Vote".to_string())>"Vote"</button>
                     <button class="link-button" on:click=move |_| set_selected_section.set("Tools".to_string())>"Tools"</button>
                 </div>
-                <div class="wallet-info">
-                    {move || if is_connected.get() {
-                        view! { cx,
-                            <span class="wallet-address">"SCRT Address: " {wallet_address.get()}</span>
-                        }
-                    } else {
-                        view! { cx,
-                            <span class="wallet-address"></span>
-                        }
-                    }}
-                </div>
-                {move || if is_connected.get() {
-                    view! { cx,
-                        <button class="link-button" on:click=disconnect_wallet>
-                            "Logout Wallet"
-                        </button>
-                    }
-                    } else {
-                        view! { cx,
-                            <button class="link-button" on:click=connect_wallet>
-                                "Connect Wallet"
-                            </button>
-                        }
-                    }}
             </div>
             <hr class="gold-line" />
             {move || match selected_section.get().as_str() {
@@ -619,7 +600,40 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }}
                         </div>
                     </div>                    
-                },                                                        
+                },  
+                "Wallet" => view! { cx,
+                    <div class="wallet-section">
+                        <div class="wallet-section-header">
+                            <h2>"Wallet Section : "</h2>
+                            {move || if is_connected.get() {
+                                view! { cx,
+                                    <button class="link-button" on:click=disconnect_wallet>"Disconnect Wallet"</button>
+                                }
+                            } else {
+                                view! { cx,
+                                    <button class="link-button" on:click=move |_: MouseEvent| connect_wallet(())>"Connect Wallet"</button>
+                                }
+                            }}
+                        </div>
+                        <hr class="gold-line" />
+                        <div class="wallet-address-display">
+                            {move || if is_connected.get() {
+                                view! { cx,
+                                    <div>
+                                        <h3 class="wallet-address-label">"SCRT Address:"</h3>
+                                        <p class="wallet-address">{wallet_address.get()}</p>
+                                    </div>
+                                }
+                            } else {
+                                view! { cx,
+                                    <div>
+                                        <p class="connect-prompt">"Please connect your wallet."</p>
+                                    </div>
+                                }
+                            }}
+                        </div>
+                    </div>
+                },                                                                                                                    
                 "Vote" => view! { cx,
                     <div class="vote-section">
                         <h2>"Governance Proposals :"</h2>

@@ -1,9 +1,7 @@
-/* General styling */
-
 body {
     margin: 0;
-    background-color: #101213; /* YoloNode Black */
-    color: #C1DF03; /* YoloNode Yellow */
+    background-color: #101213;
+    color: #C1DF03;
     font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
@@ -17,17 +15,15 @@ body {
     padding-top: 0px;
 }
 
-/* Banner Styles */
 .banner {
-    background-color: #C1DF03; /* Background color */
-    text-align: center;         /* Center text */
-    padding: 10px;             /* Padding around the text */
-    font-size: 1.2rem;           /* Match font size of h3 */
-    color: #101213;              /* Text color */
-    margin: 0;                 /* Remove any margin */
+    background-color: #C1DF03;
+    text-align: center;
+    padding: 10px;
+    font-size: 1.2rem;
+    color: #101213;
+    margin: 0;
 }
 
-/* Image Section Styles */
 .image-section {
     background-image: url('/static/YoloNode-Logo-Name-Cropped.png');
     background-size: contain;
@@ -38,64 +34,61 @@ body {
     margin: 0;
     position: relative;
     padding: 0;
-    background-color: #101213; /* Black background color */
+    background-color: #101213;
 }
 
 .yellow-button {
-    background-color: #C1DF03; /* Yellow background */
-    color: #101213; /* Text color */
-    padding: 10px 20px; /* Button padding */
-    border: none; /* Remove default border */
-    border-radius: 5px; /* Rounded corners */
-    font-size: 1.2rem; /* Font size for the buttons */
-    font-weight: bold; /* Make the text bold */
-    cursor: pointer; /* Pointer cursor on hover */
-    margin: 10px; /* Add space between buttons */
+    background-color: #C1DF03;
+    color: #101213;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 10px;
     text-align: center;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Button shadow for depth */
-    text-decoration: none; /* Remove underline from the link */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
 }
 
 .yellow-button:hover {
-    background-color: #c5f103; /* Slightly lighter yellow on hover */
+    background-color: #c5f103;
 }
 
-/* Black Button Styles */
 .black-button {
-    background-color: #101213; /* Black background */
-    color: #C1DF03; /* Yellow text */
-    padding: 10px 20px; /* Button padding */
-    border: none; /* Remove default border */
-    border-radius: 5px; /* Rounded corners */
-    font-size: 1.2rem; /* Font size for the button */
-    font-weight: bold; /* Make the text bold */
-    cursor: pointer; /* Pointer cursor on hover */
-    margin: 10px; /* Add space between buttons */
+    background-color: #101213;
+    color: #C1DF03;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 10px;
     text-align: center;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Button shadow for depth */
-    text-decoration: none; /* Remove underline from the link */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
 }
 
-/* Black Button hover effect */
 .black-button:hover {
-    background-color: #1c1f1d; /* Slightly lighter black on hover */
+    background-color: #1c1f1d;
 }
 
-/* Button container styles to position buttons at the bottom */
 .button-container {
-    position: absolute; /* Absolute positioning to place at the bottom of the image */
-    bottom: 20px; /* Place the buttons near the bottom */
-    left: 50%; /* Horizontally center */
-    transform: translateX(-50%); /* Adjust position based on width */
-    display: flex; /* Use flexbox to align buttons */
-    justify-content: center; /* Center buttons */
-    flex-wrap: wrap; /* Wrap buttons on mobile */
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .main-image {
-    max-width: 100%; /* Make sure the image doesn't exceed the container width */
-    height: auto; /* Maintain aspect ratio */
-    object-fit: contain; /* Ensure the image fits within its container without being cut off */
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
 }
 
 .top-bar {
@@ -103,18 +96,12 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 0;
-    background-color: #101213; /* YoloNode Black */
+    background-color: #101213;
 }
 
 .top-bar p {
-    font-size: 1.2rem; /* Match font size of wallet-address */
-    color: #C1DF03; /* Ensure text is YoloNode Black */
-}
-
-.top-bar .wallet-info {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Adjust spacing between the wallet address and button */
+    font-size: 1.2rem;
+    color: #C1DF03;
 }
 
 .wallet-address {
@@ -124,7 +111,7 @@ body {
 
 hr.gold-line {
     border: none;
-    border-top: 2px solid #C1DF03; /* YoloNode Yellow */
+    border-top: 2px solid #C1DF03;
     margin: 10px 0;
 }
 
@@ -142,133 +129,129 @@ hr.gold-line {
 
 .link-button {
     background: none;
-    border: 1px solid #C1DF03; /* YoloNode Yellow */
-    border-radius: 5px; /* Rounded corners */
-    color: #C1DF03; /* YoloNode Yellow */
+    border: 1px solid #C1DF03;
+    border-radius: 5px;
+    color: #C1DF03;
     padding: 0.3rem;
     cursor: pointer;
     font-size: 1rem;
 }
 
 .link-button:hover {
-    background-color: #C1DF03; /* YoloNode Yellow */
-    color: #101213; /* YoloNode Black */
+    background-color: #C1DF03;
+    color: #101213;
 }
 
 .link-button.active {
-    background-color: #C1DF03; /* Active yellow background */
-    color: #101213; /* Contrasting black text */
-    font-weight: bold; /* Emphasize text */
-    border: none; /* Remove the border */
+    background-color: #C1DF03;
+    color: #101213;
+    font-weight: bold;
+    border: none;
 }
 
-/* Content within Main Section */
 .main-section .content {
     width: 100%;
     text-align: center;
-    padding: 20px; /* Padding inside each content section */
+    padding: 20px;
     box-sizing: border-box;
-    background-color: #C1DF03; /* Ensure the background color persists */
+    background-color: #C1DF03;
 }
 
 .main-section h1 {
-    font-size: 2rem; /* Large font size for h1 */
-    margin: 10px 0; /* Margin around heading */
-    color: #101213; /* YoloNode Black */
+    font-size: 2rem;
+    margin: 10px 0;
+    color: #101213;
 }
 
 .main-section h2 {
-    font-size: 1.75rem; /* Slightly smaller font size for h2 */
+    font-size: 1.75rem;
     margin: 8px 0;
-    color: #101213; /* YoloNode Black */
+    color: #101213;
 }
 
 .main-section h3 {
-    font-size: 1.5rem; /* Medium size for h3 */
+    font-size: 1.5rem;
     margin: 6px 0;
-    color: #101213; /* YoloNode Black */
+    color: #101213;
 }
 
 .main-section p {
-    font-size: 1.2rem; /* Normal text size for paragraph */
+    font-size: 1.2rem;
     margin: 6px 0;
-    line-height: 1.6; /* Improve readability */
-    text-align: center; /* Center align text */
-    color: #101213; /* YoloNode Black */
+    line-height: 1.6;
+    text-align: center;
+    color: #101213;
 }
 
-/* Custom list to match <h3> size and center the items */
 .custom-list {
-    list-style: inside; /* Remove bullet points */
-    padding-left: 0; /* Remove left padding */
-    text-align: center; /* Center the list items */
-    margin: 0; /* Remove default margin */
+    list-style: inside;
+    padding-left: 0;
+    text-align: center;
+    margin: 0;
 }
 
 .custom-list li {
-    font-size: 1.2rem; 
-    margin-bottom: 10px; /* Adds space between each list item */
-    line-height: 1.6; /* Improve readability */
-    color: #101213; /* YoloNode Black */
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    line-height: 1.6;
+    color: #101213;
 }
 
-/* Social media logo styling */
 .social-logo {
-    width: 60px; /* Adjust the size of the logo */
-    height: auto; /* Maintain aspect ratio */
-    display: inline-block; /* Keep it inline with other elements if needed */
-    margin: 10px; /* Adjust spacing around the logo */
-    cursor: pointer; /* Add pointer cursor on hover */
+    width: 60px;
+    height: auto;
+    display: inline-block;
+    margin: 10px;
+    cursor: pointer;
 }
 
-/* Optional: Add hover effect */
 .social-logo:hover {
-    opacity: 0.8; /* Slightly fade the logo on hover */
+    opacity: 0.8;
 }
 
 .price-section {
-    padding: 0px; /* Add padding for spacing */
+    padding: 0px;
     margin-top: 0px;
     font-size: 1rem;
-    color: #C1DF03; /* YoloNode Yellow */
-    background-color: #101213; /* YoloNode Black */
+    color: #C1DF03;
+    background-color: #101213;
     border-radius: 5px;
 }
 
 .price-section h2 {
-    margin: 0; /* Remove default margin */
-    flex: 1; /* Allow the heading to take up remaining space */
-    text-align: left; /* Align text to the left */
+    margin: 0;
+    flex: 1;
+    text-align: left;
 }
 
 .price-section-header {
     margin-top: 10px;
     display: flex;
-    justify-content: space-between; /* Keep items apart */
-    align-items: center; /* Vertically align items */
-    gap: 10px; /* Optional: add space between items */
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
 
-.price-section-header h2{
-    color: #03c1df; 
+.price-section-header h2 {
+    color: #03c1df;
 }
 
 .price-section .link-button {
-    margin: 0; /* Remove default margin */
-    flex: 0 0 auto; /* Prevent the button from stretching */
-    white-space: nowrap; /* Prevent the button text from wrapping */
-    color: #df03c1; 
-    border: 1px solid #df03c1; 
+    margin: 0;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    color: #df03c1;
+    border: 1px solid #df03c1;
 }
 
 .price-section .link-button:hover {
-    background-color: #df03c1; 
-    color: #101213; 
+    background-color: #df03c1;
+    color: #101213;
 }
 
-.price-section  .link-button.active {
-    background-color: #df03c1; 
-    color: #101213; 
+.price-section .link-button.active {
+    background-color: #df03c1;
+    color: #101213;
 }
 
 .price-list {
@@ -276,120 +259,187 @@ hr.gold-line {
 }
 
 .price-display {
-    flex: 0 0 120px; /* Fixed width for consistent price alignment */
-    margin: 0; /* Remove default margins */
-    text-align: right; /* Align prices to the right */
-    white-space: nowrap; /* Prevent wrapping */
-    overflow: hidden; /* Handle overflow */
-    text-overflow: ellipsis; /* Add ellipsis for long values */
-    font-weight: bold; /* Emphasize the price */
-    color: #53df03; /* YoloNode Yellow */
+    flex: 0 0 120px;
+    margin: 0;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+    color: #53df03;
 }
 
 .price-row {
     display: flex;
-    justify-content: space-between; /* Name on the left, price on the right */
-    align-items: center; /* Vertically align content */
-    padding: 10px; /* Add some padding for spacing */
-    border-bottom: 1px solid #C1DF03; /* Add a dividing line */
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #C1DF03;
 }
 
 .price-row h2 {
-    margin: 0; /* Remove default margin */
-    text-align: left; /* Keep the name aligned to the left */
-    flex: 1; /* Allow flexibility for alignment */
-    overflow: hidden; /* Handle overflow for long text */
-    text-overflow: ellipsis; /* Add ellipsis for long names */
-    white-space: nowrap; /* Prevent wrapping */
+    margin: 0;
+    text-align: left;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .price-row h3 {
-    flex: 1; /* Allow the name to take flexible space */
-    margin: 0; /* Remove default margins */
-    text-align: left; /* Left-align the names */
-    white-space: nowrap; /* Prevent wrapping */
-    overflow: hidden; /* Handle overflow */
-    text-overflow: ellipsis; /* Add ellipsis for long names */
+    flex: 1;
+    margin: 0;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .price-row p {
-    margin: 0; /* Remove default margin */
-    text-align: right; /* Align price or placeholder to the right */
-    flex: 0 0 120px; /* Fixed width for the price column */
-    min-width: 100px; /* Ensure a minimum width for "No Data" and price */
-    overflow: hidden; /* Handle overflow for long text */
-    white-space: nowrap; /* Prevent wrapping */
-    text-overflow: ellipsis; /* Add ellipsis for long text */
+    margin: 0;
+    text-align: right;
+    flex: 0 0 120px;
+    min-width: 100px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.wallet-section {
+    padding: 0px;
+    margin-top: 0px;
+    font-size: 1rem;
+    color: #C1DF03;
+    background-color: #101213;
+    border-radius: 5px;
+}
+
+.wallet-section h2 {
+    margin: 0;
+    flex: 1;
+    text-align: left;
+}
+
+.wallet-section-header {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.wallet-section-header h2 {
+    color: #03c1df;
+}
+
+.wallet-section .link-button {
+    margin: 0;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    color: #df03c1;
+    border: 1px solid #df03c1;
+}
+
+.wallet-section .link-button:hover {
+    background-color: #df03c1;
+    color: #101213;
+}
+
+.wallet-section .link-button.active {
+    background-color: #df03c1;
+    color: #101213;
+}
+
+.wallet-address-display h3 {
+    font-size: 1.25rem;
+    color: #C1DF03;
+    margin: 5px 0;
+    font-weight: bold;
+    text-align: left;
+}
+
+.wallet-address-display .wallet-address {
+    font-size: 1rem;
+    color: #53df03;
+    margin: 0;
+    text-align: left;
+}
+
+.wallet-address-display .connect-prompt {
+    font-size: 1rem;
+    color: #53df03;
+    margin: 5px 0;
+    text-align: left;
 }
 
 .tools-section {
     padding: 0px;
     margin-top: 0px;
     font-size: 1rem;
-    color: #C1DF03; /* YoloNode Yellow */
+    color: #C1DF03;
     background-color: #101213;
     border-radius: 5px;
 }
 
-.tools-section h2{
-    color: #03c1df; 
+.tools-section h2 {
+    color: #03c1df;
 }
 
 .tools-section h3, .tools-section p {
-    display: inline-block; /* Display elements inline */
-    vertical-align: middle; /* Align to the top */
-    margin: 0; /* Remove default margin */
-    margin-bottom: 20px; /* Adjust the value to increase or decrease the gap */
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+    margin-bottom: 20px;
 }
 
 .tools-section h3 {
-    margin-right: 10px; /* Add space between h3 and p */
+    margin-right: 10px;
 }
 
 .tools-section p {
-    margin-left: 0; /* Ensure no left margin */
-    text-align: left; /* Align text to the left */
+    margin-left: 0;
+    text-align: left;
 }
 
 .tools-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 0px; /* Adjust gap as needed */
-    margin: 10px 0; /* Optional: Adjust spacing around the row */
+    gap: 0px;
+    margin: 10px 0;
 }
 
 .tools-row h2 {
-    margin: 0; /* Remove default margin to keep it aligned */
-    flex: 1; /* Allow flexibility to grow/shrink */
+    margin: 0;
+    flex: 1;
     margin-right: 15px;
 }
 
 .tools-row p {
-    margin: 5px; 
+    margin: 5px;
     margin-left: 15px;
-    flex: 1; 
+    flex: 1;
 }
 
 .vote-section {
     padding: 0px;
     margin-top: 0px;
     font-size: 1rem;
-    color: #C1DF03; /* YoloNode Yellow */
+    color: #C1DF03;
     background-color: #101213;
     border-radius: 5px;
 }
 
-.vote-section h2{
-    color: #03c1df; 
+.vote-section h2 {
+    color: #03c1df;
 }
 
-.vote-list h3{
-    color: #03c1df; 
+.vote-list h3 {
+    color: #03c1df;
 }
 
 .vote-status {
-    font-weight: bold; 
+    font-weight: bold;
 }
 
 .vote-status.passed {
@@ -397,52 +447,52 @@ hr.gold-line {
 }
 
 .vote-status.rejected {
-    color: #df03c1; 
+    color: #df03c1;
 }
 
 .vote-status.default {
-    color: #C1DF03; 
+    color: #C1DF03;
 }
 
 .calculator {
     display: flex;
-    flex-direction: column; /* Stack items vertically */
-    gap: 15px; /* Add spacing between inputs */
+    flex-direction: column;
+    gap: 15px;
     padding: 20px;
-    background-color: #1a1c1d; /* Slightly lighter black */
+    background-color: #1a1c1d;
     border-radius: 10px;
-    color: #C1DF03; /* Yellow text */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+    color: #C1DF03;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .calculator .input-row {
     display: flex;
-    flex-direction: column; /* Stack label and input */
-    gap: 5px; /* Add space between label and input */
+    flex-direction: column;
+    gap: 5px;
 }
 
 .calculator .input-row label {
-    font-size: 1rem; /* Adjust label size */
+    font-size: 1rem;
 }
 
 .calculator .input-row input {
     padding: 8px;
-    border: 1px solid #C1DF03; /* Yellow border */
+    border: 1px solid #C1DF03;
     border-radius: 5px;
-    background-color: #101213; /* Dark background */
-    color: #C1DF03; /* Yellow text */
+    background-color: #101213;
+    color: #C1DF03;
     font-size: 1rem;
 }
 
 .calculator .input-row input:focus {
     outline: none;
-    border-color: #c5f103; /* Highlight on focus */
+    border-color: #c5f103;
 }
 
 .calculator .calculate-button {
     padding: 10px 20px;
-    background-color: #C1DF03; /* Yellow button */
-    color: #101213; /* Black text */
+    background-color: #C1DF03;
+    color: #101213;
     border: none;
     border-radius: 5px;
     font-size: 1.2rem;
@@ -450,7 +500,7 @@ hr.gold-line {
 }
 
 .calculator .calculate-button:hover {
-    background-color: #c5f103; /* Lighter yellow on hover */
+    background-color: #c5f103;
 }
 
 .calculator .result {
@@ -464,74 +514,60 @@ hr.gold-line {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 0px; /* Adjust gap as needed */
-    margin: 5px 0; /* Optional: Adjust spacing around the row */
+    gap: 0px;
+    margin: 5px 0;
 }
 
 .vote-row h2 {
-    margin: 0; 
+    margin: 0;
     margin-right: 15px;
-    flex: 1; /* Allow flexibility to grow/shrink */
+    flex: 1;
 }
 
 .vote-row p {
-    margin: 5px; 
+    margin: 5px;
     margin-left: 15px;
-    flex: 1; /* Align with h1 */
+    flex: 1;
 }
 
 .vote-section ul {
-    list-style-type: none; /* Removes the default bullet points */
-    padding-left: 0; /* Removes default left padding */
-    margin-left: 5px; /* Ensures alignment with other elements */
+    list-style-type: none;
+    padding-left: 0;
+    margin-left: 5px;
 }
 
-/* Mobile view adjustments */
 @media (max-width: 768px) {
     .container {
         width: 100%;
         padding: 0 10px;
     }
 
-    .top-bar {
-        display: flex;
-        flex-wrap: wrap; /* Allow wrapping */
-        justify-content: space-between; /* Spread elements horizontally */
-        align-items: center;
-        gap: 10px; /* Add horizontal and vertical spacing */
-    }
-
-    .links {
-        display: flex;
-        flex: 1; /* Take up available space */
-        gap: 10px; /* Add spacing between buttons */
-        justify-content: flex-start; /* Align buttons to the left */
-    }
-
-    .wallet-info {
-        order: 2; /* Move below buttons */
-        text-align: center;
-        font-size: 1rem;
-        width: 100%; /* Take full width */
-        margin-top: 10px; /* Add spacing above */
-    }
-
-    .connect-wallet {
-        margin-left: auto; /* Push button to the right */
-        order: 1; /* Keep this on the same row */
-        width: auto; /* Allow natural width */
-        max-width: 50%; /* Optional: Limit button width */
-        text-align: center;
-    }
-
-    .links, .connect-wallet {
-        align-self: flex-start; /* Align elements to top of their container */
-    }
-
-    .links-wallet-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
+    @media (max-width: 768px) {
+        .top-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+    
+        .links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            width: 90%; 
+        }
+    
+        .link-button {
+            flex: 1 1 auto; 
+            text-align: center;
+        }
+    
+        .connect-wallet {
+            margin: 0 auto;
+            width: auto;
+            text-align: center;
+        }
     }
 
     .wallet-address {
@@ -541,35 +577,33 @@ hr.gold-line {
     }
 
     .image-section {
-        height: 60vh; /* Adjust height slightly to add more bottom space */
-        background-size: cover; /* Ensures the logo fills the width while cropping excess height */
-        background-position: top center; /* Keeps the top part of the logo visible */
-        padding-bottom: 50px; /* Add padding to ensure buttons are not too close to the bottom */
-        margin: 0; /* Remove any margin */
+        height: 60vh;
+        background-size: cover;
+        background-position: top center;
+        padding-bottom: 50px;
+        margin: 0;
     }
 
     .main-section h1 {
         font-size: 1.5rem !important;
-      }
-      .main-section h2 {
-        font-size: 1.3rem !important;
-      }
-      .main-section h3 {
-        font-size: 1.1rem !important;
-      }
-      .main-section p, .main-section .custom-list li {
-        font-size: 1rem !important;
-        line-height: 1.4 !important;
-      }
-
-    ul.custom-list li {
-        font-size: 1rem; /* Reduce font size for list items */
-        line-height: 1.4; /* Adjust line height */
     }
 
-    .wallet-info span,
-    .wallet-info p {
-        font-size: 1rem; /* Reduce size for wallet info text */
+    .main-section h2 {
+        font-size: 1.3rem !important;
+    }
+
+    .main-section h3 {
+        font-size: 1.1rem !important;
+    }
+
+    .main-section p, .main-section .custom-list li {
+        font-size: 1rem !important;
+        line-height: 1.4 !important;
+    }
+
+    ul.custom-list li {
+        font-size: 1rem;
+        line-height: 1.4;
     }
 
     .calculator {
@@ -578,8 +612,7 @@ hr.gold-line {
     }
 
     .calculator .input-row {
-        flex-direction: column; /* Keep labels and inputs stacked */
+        flex-direction: column;
         gap: 5px;
     }
 }
-

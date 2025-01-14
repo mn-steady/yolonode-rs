@@ -1,5 +1,5 @@
 # YoloNode
-A Leptos-based Rust project with Keplr and Shade Protocol API connectivity.
+A Leptos-based Rust project with Keplr, Shade Protocol, and Stride API connectivity.
 
 ## Features
 - Dark background and yellow text

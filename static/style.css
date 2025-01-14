@@ -105,8 +105,10 @@ body {
 }
 
 .logo {
-    height: 3rem; 
+    height: auto; 
     width: auto; 
+    max-width: 45px; 
+    object-fit: contain; 
     margin-left: auto; 
     display: inline-block; 
     vertical-align: middle; 
@@ -599,8 +601,9 @@ hr.gold-line {
         }
     
         .logo {
-            height: 2rem; 
+            height: auto; 
             width: auto; 
+            max-width: 30px;
             display: inline-block; 
         }
     

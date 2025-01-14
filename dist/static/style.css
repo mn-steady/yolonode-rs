@@ -421,39 +421,6 @@ hr.gold-line {
     flex: 1;
 }
 
-.vote-section {
-    padding: 0px;
-    margin-top: 0px;
-    font-size: 1rem;
-    color: #C1DF03;
-    background-color: #101213;
-    border-radius: 5px;
-}
-
-.vote-section h2 {
-    color: #03c1df;
-}
-
-.vote-list h3 {
-    color: #03c1df;
-}
-
-.vote-status {
-    font-weight: bold;
-}
-
-.vote-status.passed {
-    color: #53df03;
-}
-
-.vote-status.rejected {
-    color: #df03c1;
-}
-
-.vote-status.default {
-    color: #C1DF03;
-}
-
 .calculator {
     display: flex;
     flex-direction: column;
@@ -510,12 +477,52 @@ hr.gold-line {
     margin-top: 10px;
 }
 
+.vote-section {
+    padding: 10px;
+    margin-top: 0px;
+    font-size: 1rem;
+    color: #C1DF03;
+    background-color: #101213;
+    border-radius: 5px;
+}
+
+.vote-section h2 {
+    color: #03c1df;
+}
+
+.vote-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    overflow: hidden;
+}
+
+.vote-list h3 {
+    color: #03c1df;
+}
+
+.vote-status {
+    font-weight: bold;
+}
+
+.vote-status.passed {
+    color: #53df03;
+}
+
+.vote-status.rejected {
+    color: #df03c1;
+}
+
+.vote-status.default {
+    color: #C1DF03;
+}
+
 .vote-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 0px;
     margin: 5px 0;
+    gap: 10px;
 }
 
 .vote-row h2 {
@@ -528,6 +535,18 @@ hr.gold-line {
     margin: 5px;
     margin-left: 15px;
     flex: 1;
+}
+
+.vote-row h2, .vote-row p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vote-row h3, .vote-row p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
 }
 
 .vote-section ul {

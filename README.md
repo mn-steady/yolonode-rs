@@ -3,8 +3,9 @@ A Leptos-based Rust project with Keplr and Shade Protocol API connectivity.
 
 ## Features
 - Dark background and yellow text
-- Keplr API connectivity
-- Shade Protocol API connectivity
+- Keplr API connectivity for signing transactions and pulling governance proposals
+- Shade Protocol API connectivity for price feeds and derivative info
+- Stride API connectivity for stride derivative info
 - Multiple View Sections
 
 ## Setup

@@ -125,6 +125,12 @@ hr.gold-line {
     margin: 10px 0;
 }
 
+hr.gold-line-top {
+    border: none;
+    border-top: 2px solid #C1DF03;
+    margin: 5px 0px 5px 0px;
+}
+
 .links-wallet-container {
     display: flex;
     justify-content: space-between;
@@ -235,7 +241,7 @@ hr.gold-line {
 }
 
 .price-section-header {
-    margin-top: 10px;
+    margin-top: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -331,7 +337,7 @@ hr.gold-line {
 }
 
 .wallet-section-header {
-    margin-top: 10px;
+    margin-top: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;

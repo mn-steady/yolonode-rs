@@ -336,7 +336,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                 </div>
                 <img src="/static/YoloNode-Logo-cropped.png" alt="YoloNode Logo" class="logo" />
             </div>
-            <hr class="gold-line" />
+            <hr class="gold-line-top" />
             {move || match selected_section.get().as_str() {
                 "Home" => view! { cx,
                     <div>

@@ -11,7 +11,7 @@ A Leptos-based Rust project with Keplr, Shade Protocol, and Stride API connectiv
 ## Setup
 1. Clone the repository and navigate to the directory.
 2. Run: ./build.sh
-3. To test Locall: python3 -m http.server --bind 127.0.0.1
+3. To test Local: python3 -m http.server --bind 127.0.0.1
 4. Push to github with pages setup
 
 ## Manual Steps if you dont want to use the build.sh

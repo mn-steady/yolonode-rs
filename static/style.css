@@ -95,7 +95,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 2px;
+    padding:  2px 2px 0px 2px;
     background-color: #101213;
 }
 

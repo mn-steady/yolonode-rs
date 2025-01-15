@@ -122,7 +122,7 @@ body {
 hr.gold-line {
     border: none;
     border-top: 2px solid #C1DF03;
-    margin: 10px 0;
+    margin: 5px 0;
 }
 
 hr.gold-line-top {
@@ -390,7 +390,7 @@ hr.gold-line-top {
 
 .tools-section {
     padding: 0px;
-    margin-top: 0px;
+    margin-top: 5px;
     font-size: 1rem;
     color: #C1DF03;
     background-color: #101213;
@@ -498,7 +498,7 @@ hr.gold-line-top {
 
 .vote-section {
     padding: 0px;
-    margin-top: 0px;
+    margin-top: 5px;
     font-size: 1rem;
     color: #C1DF03;
     background-color: #101213;

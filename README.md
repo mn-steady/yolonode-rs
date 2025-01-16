@@ -5,7 +5,7 @@ A Leptos-based Rust project with Keplr, Shade Protocol, and Stride API connectiv
 - Keplr API for wallet connectivity, signing transactions, and interacting with the user's account on the blockchain
 - Secret Network API for querying blockchain data (e.g., governance proposals) and managing signed transactions
 - Shade Protocol API for retrieving price feeds and derivative information
-- Stride API for accessing staking and liquid staking-related derivative data, such as redemption rates for host zones
+- Stride API for accessing staking and liquid staking-related derivative data (e.g. redemption rates for host zones)
 - Multiple View Sections
 - Desktop/Mobile layouts
 

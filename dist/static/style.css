@@ -118,11 +118,6 @@ body {
     vertical-align: middle; 
 }
 
-.wallet-address {
-    text-align: right;
-    font-size: 1.2rem;
-}
-
 hr.gold-line {
     border: none;
     border-top: 0.125rem solid #C1DF03; 
@@ -370,12 +365,12 @@ hr.gold-line-top {
     color: #101213;
 }
 
-.wallet-address-display h3 {
-    font-size: 1.25rem;
-    color: #C1DF03;
-    margin: 0.3125rem 0; 
-    font-weight: bold;
-    text-align: left;
+.wallet-address-display {
+    display: flex;
+    align-items: center; 
+    gap: 0.5rem; 
+    justify-content: flex-start; 
+    width: 100%; 
 }
 
 .wallet-address-display .wallet-address {
@@ -390,6 +385,13 @@ hr.gold-line-top {
     color: #53df03;
     margin: 0.3125rem 0; 
     text-align: left;
+}
+
+.wallet-address-label {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #C1DF03; 
+    white-space: nowrap; 
 }
 
 .tools-section {
@@ -626,6 +628,28 @@ hr.gold-line-top {
         font-size: 0.85rem;
         text-align: center;
         width: 100%;
+    }
+
+    .wallet-address-display {
+        display: flex;
+        flex-wrap: nowrap; 
+        align-items: center; 
+        gap: 0.5rem; 
+        width: 100%; 
+    }
+
+    .wallet-address-display .wallet-address-label {
+        font-size: 1rem; 
+        white-space: nowrap; 
+    }
+
+    .wallet-address-display .wallet-address {
+        font-size: 0.85rem; 
+        color: #53df03; 
+        overflow-wrap: anywhere; 
+        word-break: break-word; 
+        flex-shrink: 1; 
+        min-width: 0; 
     }
 
     .image-section {

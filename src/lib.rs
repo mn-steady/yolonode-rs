@@ -618,7 +618,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                         <hr class="gold-line" />
                         <div class="wallet-address-display">
-                            <span class="wallet-address-label">"SCRT Address:"</span>
+                            <span class="wallet-address-label">"SCRT :"</span>
                             {move || if is_connected.get() {
                                 view! { cx,
                                     <span class="wallet-address">{wallet_address.get()}</span>

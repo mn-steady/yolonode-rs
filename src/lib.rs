@@ -303,9 +303,27 @@ pub fn App(cx: Scope) -> impl IntoView {
     let connect_wallet = move |_| {
         log::info!("Connecting to wallet...");
     
+        // Check if Keplr is installed
         if web_sys::window().and_then(|w| w.get("keplr")).is_none() {
-            log::error!("Keplr wallet not found! Please install Keplr to connect.");
+            log::error!("Wallet not found! Please install Keplr or Fina wallet.");
+    
+            // Show a popup message to the user
+            if let Some(window) = web_sys::window() {
+                window.alert_with_message("Wallet not found! Please install Keplr or Fina wallet.").ok();
+            }
+    
             set_connected.set(false); // Ensure wallet is marked as disconnected
+            set_wallet_address.set("Not Connected".to_string()); 
+    
+            // Populate multi-chain addresses with placeholders
+            let placeholder_addresses = vec![
+                ("ATOM".to_string(), "Not Connected".to_string()),
+                ("TIA".to_string(), "Not Connected".to_string()),
+                ("OSMO".to_string(), "Not Connected".to_string()),
+                ("NOBLE".to_string(), "Not Connected".to_string()),
+            ];
+            set_multi_chain_addresses.set(placeholder_addresses);
+    
             return;
         }
     
@@ -313,10 +331,11 @@ pub fn App(cx: Scope) -> impl IntoView {
         spawn_local(async move {
             // Fetch SCRT address
             if let Some(address) = get_wallet_address().await {
-                log::info!("Fetched SCRT address");
+                log::info!("Successfully fetched SCRT address: {}", address);
                 set_wallet_address.set(address);
             } else {
                 log::warn!("Failed to fetch SCRT address");
+                set_wallet_address.set("Error fetching SCRT address".to_string());
             }
     
             // Fetch addresses for other chains
@@ -347,7 +366,7 @@ pub fn App(cx: Scope) -> impl IntoView {
             set_multi_chain_addresses.set(addr_list);
             log::info!("Fetched all multi-chain addresses successfully.");
         });
-    }; 
+    };    
 
     create_effect(cx, move |_| {
         log::info!("Updated multi-chain addresses: {:?}", multi_chain_addresses.get());
@@ -672,32 +691,36 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <hr class="gold-line" />
                         <div class="wallet-address-display">
                             <span class="wallet-address-label">"SCRT :"</span>
-                            {move || if is_connected.get() {
-                                view! { cx,
-                                    <span class="wallet-address">{wallet_address.get()}</span>
-                                }
-                            } else {
-                                view! { cx,
-                                    <span class="wallet-address">"Not Connected"</span>
+                            {move || {
+                                let addr = wallet_address.get();
+                                if addr == "Not Connected" || addr == "Error fetching SCRT address" {
+                                    view! { cx,
+                                        <span class="wallet-address">{addr.clone()}</span>
+                                    }
+                                } else if addr.is_empty() {
+                                    view! { cx,
+                                        <span class="wallet-address">"Not Connected"</span>
+                                    }
+                                } else {
+                                    view! { cx,
+                                        <span class="wallet-address">{addr.clone()}</span>
+                                    }
                                 }
                             }}
                         </div>
                         <div class="multi-chain-addresses">
-                            {move || {
-                                // log::info!("Rendering multi-chain addresses: {:?}", multi_chain_addresses.get());
-                                multi_chain_addresses.get().iter().map(|(name, addr)| {
-                                    view! {
-                                        cx,
-                                        <div class="wallet-address-display">
-                                            <span class="wallet-address-label">{format!("{} :", name)}</span>
-                                            <span class="wallet-address">{addr.clone()}</span>
-                                        </div>
-                                    }
-                                }).collect::<Vec<_>>()
-                            }}
+                            {move || multi_chain_addresses.get().iter().map(|(name, addr)| {
+                                view! {
+                                    cx,
+                                    <div class="wallet-address-display">
+                                        <span class="wallet-address-label">{format!("{} :", name)}</span>
+                                        <span class="wallet-address">{addr.clone()}</span>
+                                    </div>
+                                }
+                            }).collect::<Vec<_>>()}
                         </div>
                     </div>
-                },                                                                                                                                                         
+                },                                                                                                                                                                                    
                 "Vote" => view! { cx,
                     <div class="vote-section">
                         <h2>"Governance Proposals :"</h2>

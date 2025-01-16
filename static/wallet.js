@@ -45,6 +45,24 @@ async function get_wallet_address() {
     }
 }
 
+// Get wallet addresses for multiple chains at once
+async function getAddressForMultiChain(chainId) {
+    if (window.keplr) {
+        try {
+            await window.keplr.enable(chainId); // Enable the desired chain in Keplr
+            const offlineSigner = window.getOfflineSigner(chainId);
+            const accounts = await offlineSigner.getAccounts();
+            return accounts.length > 0 ? accounts[0].address : "";
+        } catch (error) {
+            console.error(`Failed to get address for chain ${chainId}:`, error);
+            return "";
+        }
+    } else {
+        alert("Wallet not found! Please install Keplr or Fina wallet.");
+        return "";
+    }
+}
+
 // Function to fetch governance proposals
 async function fetchGovernanceProposals() {
     if (!window.keplr) {
@@ -152,3 +170,4 @@ window.connectKeplrWallet = connectKeplrWallet;
 window.disconnectKeplrWallet = disconnectKeplrWallet;
 window.get_wallet_address = get_wallet_address;
 window.fetchGovernanceProposals = fetchGovernanceProposals;
+window.getAddressForMultiChain = getAddressForMultiChain;

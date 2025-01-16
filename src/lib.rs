@@ -39,6 +39,12 @@ struct ProposalContent {
     description: String,
 }
 
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = window, catch)]
+    async fn getAddressForMultiChain(chain_id: &str) -> Result<JsValue, JsValue>;
+}
+
 fn deserialize_string_to_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
 where
     D: Deserializer<'de>,
@@ -213,7 +219,10 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (default_exchange_rate, set_default_exchange_rate) = create_signal(cx, 1.0_f64);
     let (derivative_prices, set_derivative_prices) = create_signal(cx, HashMap::<String, String>::new());
     let (redemption_rates, set_redemption_rates) = create_signal(cx, HashMap::<String, f64>::new());
-
+    let (multi_chain_addresses, set_multi_chain_addresses) = create_signal(
+        cx,
+        vec![("".to_string(), "".to_string()); 4], // Initialize with empty addresses
+    );    
 
     // Auto-fetch prices on page load
     create_effect(cx, move |_| {
@@ -292,13 +301,57 @@ pub fn App(cx: Scope) -> impl IntoView {
     
     // Keplr Functions
     let connect_wallet = move |_| {
+        log::info!("Connecting to wallet...");
+    
+        if web_sys::window().and_then(|w| w.get("keplr")).is_none() {
+            log::error!("Keplr wallet not found! Please install Keplr to connect.");
+            set_connected.set(false); // Ensure wallet is marked as disconnected
+            return;
+        }
+    
         set_connected.set(true);
         spawn_local(async move {
+            // Fetch SCRT address
             if let Some(address) = get_wallet_address().await {
+                log::info!("Fetched SCRT address");
                 set_wallet_address.set(address);
+            } else {
+                log::warn!("Failed to fetch SCRT address");
             }
+    
+            // Fetch addresses for other chains
+            let chains = vec![
+                ("cosmoshub-4", "ATOM"),
+                ("celestia", "TIA"),
+                ("osmosis-1", "OSMO"),
+                ("noble-1", "NOBLE"),
+            ];
+    
+            let mut addr_list = vec![];
+    
+            for (chain_id, name) in chains {
+                match getAddressForMultiChain(chain_id).await {
+                    Ok(js_value) => {
+                        if let Some(addr) = js_value.as_string() {
+                            addr_list.push((name.to_string(), addr));
+                        } else {
+                            addr_list.push((name.to_string(), "Error fetching address".to_string()));
+                        }
+                    }
+                    Err(_) => {
+                        addr_list.push((name.to_string(), "Error fetching address".to_string()));
+                    }
+                }
+            }
+    
+            set_multi_chain_addresses.set(addr_list);
+            log::info!("Fetched all multi-chain addresses successfully.");
         });
-    };
+    }; 
+
+    create_effect(cx, move |_| {
+        log::info!("Updated multi-chain addresses: {:?}", multi_chain_addresses.get());
+    });    
 
     let disconnect_wallet = move |_| {
         disconnect_keplr_wallet();
@@ -629,8 +682,22 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 }
                             }}
                         </div>
+                        <div class="multi-chain-addresses">
+                            {move || {
+                                // log::info!("Rendering multi-chain addresses: {:?}", multi_chain_addresses.get());
+                                multi_chain_addresses.get().iter().map(|(name, addr)| {
+                                    view! {
+                                        cx,
+                                        <div class="wallet-address-display">
+                                            <span class="wallet-address-label">{format!("{} :", name)}</span>
+                                            <span class="wallet-address">{addr.clone()}</span>
+                                        </div>
+                                    }
+                                }).collect::<Vec<_>>()
+                            }}
+                        </div>
                     </div>
-                },                                                                                                                                
+                },                                                                                                                                                         
                 "Vote" => view! { cx,
                     <div class="vote-section">
                         <h2>"Governance Proposals :"</h2>

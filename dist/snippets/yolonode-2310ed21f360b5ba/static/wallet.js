@@ -63,6 +63,8 @@ async function getAddressForMultiChain(chainId) {
     }
 }
 
+export { getAddressForMultiChain };
+
 // Function to fetch governance proposals
 async function fetchGovernanceProposals() {
     if (!window.keplr) {

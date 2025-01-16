@@ -618,23 +618,19 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                         <hr class="gold-line" />
                         <div class="wallet-address-display">
+                            <span class="wallet-address-label">"SCRT Address:"</span>
                             {move || if is_connected.get() {
                                 view! { cx,
-                                    <div>
-                                        <h3 class="wallet-address-label">"SCRT Address:"</h3>
-                                        <p class="wallet-address">{wallet_address.get()}</p>
-                                    </div>
+                                    <span class="wallet-address">{wallet_address.get()}</span>
                                 }
                             } else {
                                 view! { cx,
-                                    <div>
-                                        <p class="connect-prompt">"Please connect your wallet."</p>
-                                    </div>
+                                    <span class="wallet-address">"Not Connected"</span>
                                 }
                             }}
                         </div>
                     </div>
-                },                                                                                                                    
+                },                                                                                                                                
                 "Vote" => view! { cx,
                     <div class="vote-section">
                         <h2>"Governance Proposals :"</h2>

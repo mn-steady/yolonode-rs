@@ -9,11 +9,9 @@ use std::collections::HashMap;
 use gloo_utils::format::JsValueSerdeExt;
 use serde::Deserialize;
 use serde::de::{self, Deserializer};
-use std::str::FromStr;
 use web_sys::MouseEvent;
 
 // Define structures to match the expected response formats
-//Batch Prices
 #[derive(Deserialize, Debug)]
 struct FetchBatchPricesResponse {
     prices: HashMap<String, String>,
@@ -27,7 +25,7 @@ struct DerivativePricesResponse {
 #[derive(Deserialize, Debug, Clone)]
 struct GovernanceProposal {
     #[serde(rename = "proposal_id", deserialize_with = "deserialize_string_to_u64")]
-    id: u64,
+    id: Option<u64>, 
     #[serde(rename = "content")]
     content: ProposalContent,
     status: String,
@@ -35,8 +33,22 @@ struct GovernanceProposal {
 
 #[derive(Deserialize, Debug, Clone)]
 struct ProposalContent {
-    title: String,
-    description: String,
+    #[serde(rename = "@type")]
+    proposal_type: Option<String>,
+    title: Option<String>,
+    description: Option<String>,
+    plan: Option<ProposalPlan>,
+    params: Option<serde_json::Value>, 
+}
+
+#[derive(Deserialize, Debug, Clone)]
+struct ProposalPlan {
+    name: Option<String>,
+    time: Option<String>,
+    #[serde(deserialize_with = "deserialize_string_to_u64")]
+    height: Option<u64>, 
+    info: Option<String>,
+    upgraded_client_state: Option<String>,
 }
 
 #[wasm_bindgen]
@@ -45,12 +57,18 @@ extern "C" {
     async fn getAddressForMultiChain(chain_id: &str) -> Result<JsValue, JsValue>;
 }
 
-fn deserialize_string_to_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
+// Custom deserializer for u64 that handles both string and numeric values
+fn deserialize_string_to_u64<'de, D>(deserializer: D) -> Result<Option<u64>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let s: String = Deserialize::deserialize(deserializer)?;
-    u64::from_str(&s).map_err(de::Error::custom)
+    let value: serde_json::Value = Deserialize::deserialize(deserializer)?;
+    match value {
+        serde_json::Value::String(s) => s.parse::<u64>().map(Some).map_err(de::Error::custom),
+        serde_json::Value::Number(num) => num.as_u64().map(Some).ok_or_else(|| de::Error::custom("Invalid u64 number")),
+        serde_json::Value::Null => Ok(None),
+        _ => Err(de::Error::custom("Invalid type for u64 field")),
+    }
 }
 
 // Function to open a mailto link with a timestamped subject
@@ -730,28 +748,73 @@ pub fn App(cx: Scope) -> impl IntoView {
                             let mut sorted_proposals = governance_proposals.get();
                             sorted_proposals.sort_by(|a, b| b.id.cmp(&a.id)); // Sort by id in descending order
                             sorted_proposals.iter().map(|proposal| {
-                                // Determine the status class based on the proposal status
-                                let status_class = match proposal.status.trim() {
-                                    "PROPOSAL_STATUS_PASSED" => "passed",
-                                    "PROPOSAL_STATUS_REJECTED" => "rejected",
-                                    _ => "default",
-                                };                                
-                            view! {
-                                cx,
-                                <li>
-                                    <h3>{format!("Proposal #{}: {}", proposal.id, proposal.content.title)}</h3>
-                                    <p>{format!("Description: {}", proposal.content.description)}</p>
-                                    <p class={format!("vote-status {}", status_class)}>
-                                        {proposal.status.clone()} 
-                                    </p>
-                                    <hr class="gold-line" />
-                                </li>
-                            }
+                                view! {
+                                    cx,
+                                    <li>
+                                        <h3>
+                                            {format!(
+                                                "Proposal #{}: {}",
+                                                proposal.id.unwrap_or(0),
+                                                proposal.content.title.clone()
+                                                    .or_else(|| match proposal.content.proposal_type.as_deref() {
+                                                        Some(ty) if ty.contains("MsgSoftwareUpgrade") => Some("Software Upgrade".to_string()),
+                                                        Some(ty) if ty.contains("MsgUpdateParams") => Some("Update Parameters".to_string()),
+                                                        Some(other) => Some(format!("Unknown Proposal Type: {}", other)),
+                                                        None => None,
+                                                    })
+                                                    .unwrap_or("Untitled Proposal".to_string())
+                                            )}
+                                        </h3>
+                                        <p>
+                                            {if let Some(desc) = &proposal.content.description {
+                                                desc.clone() 
+                                            } else {
+                                                match proposal.content.proposal_type.as_deref() {
+                                                    Some(ty) if ty.contains("MsgSoftwareUpgrade") => {
+                                                        if let Some(plan) = &proposal.content.plan {
+                                                            format!(
+                                                                "{}\n{}\n{}\n{}\n{}",
+                                                                plan.name.clone().unwrap_or("Unknown".to_string()),
+                                                                plan.time.clone().unwrap_or("Unknown".to_string()),
+                                                                plan.height.unwrap_or(0),
+                                                                plan.info.clone().unwrap_or("None".to_string()),
+                                                                plan.upgraded_client_state.clone().unwrap_or("None".to_string())
+                                                            )
+                                                        } else {
+                                                            "No plan available.".to_string()
+                                                        }
+                                                    }
+                                                    Some(ty) if ty.contains("MsgUpdateParams") => {
+                                                        if let Some(params) = &proposal.content.params {
+                                                            format!("{:?}", params)
+                                                        } else {
+                                                            "No parameters available.".to_string()
+                                                        }
+                                                    }
+                                                    Some(other) => format!("No specific description for type: {}", other),
+                                                    None => "No description provided.".to_string(),
+                                                }
+                                            }}
+                                        </p>
+                                        <p class={format!(
+                                            "vote-status {}",
+                                            match proposal.status.trim() {
+                                                "PROPOSAL_STATUS_PASSED" => "passed",
+                                                "PROPOSAL_STATUS_REJECTED" => "rejected",
+                                                "PROPOSAL_STATUS_VOTING_PERIOD" => "voting",
+                                                _ => "default",
+                                            }
+                                        )}>
+                                            {proposal.status.clone()}
+                                        </p>
+                                        <hr class="gold-line" />
+                                    </li>
+                                }                                                                                                                                                                                                               
                             }).collect::<Vec<_>>()
                         }}
-                        </ul>                    
+                        </ul>
                     </div>
-                },                
+                },                              
                 "Tools" => view! { cx,
                     <div class="tools-section">
                         <h2>"Derivative Price Converter :"</h2>
@@ -818,6 +881,21 @@ pub fn App(cx: Scope) -> impl IntoView {
                                         let raw_value = event_target_value(&ev);
                                         let parsed_value = raw_value.parse::<f64>().unwrap_or(0.0);
                                         set_liquidation_price(parsed_value);
+                                    }
+                                    on:keypress=move |ev| {
+                                        if ev.key() == "Enter" {
+                                            let price = liquidation_price.get();
+                                            let rate = exchange_rate.get();
+
+                                            if price > 0.0 && rate > 0.0 {
+                                                let base_asset_price = price / rate;
+                                                set_result(format!("${:.6}", base_asset_price));
+                                            } else if rate <= 0.0 {
+                                                set_result("Invalid exchange rate. Please correct it.".to_string());
+                                            } else {
+                                                set_result("Please enter valid inputs.".to_string());
+                                            }
+                                        }
                                     }
                                 />
                             </div>

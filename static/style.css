@@ -541,6 +541,10 @@ hr.gold-line-top {
     color: #df03c1;
 }
 
+.vote-status.voting {
+    color: #df8f03;
+}
+
 .vote-status.default {
     color: #C1DF03;
 }

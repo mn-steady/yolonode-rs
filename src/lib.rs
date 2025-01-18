@@ -241,6 +241,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         cx,
         vec![("".to_string(), "".to_string()); 4], // Initialize with empty addresses
     );    
+    let (selected_derivative, set_selected_derivative) = create_signal(cx, "stkd-SCRT".to_string());
 
     // Auto-fetch prices on page load
     create_effect(cx, move |_| {
@@ -415,6 +416,22 @@ pub fn App(cx: Scope) -> impl IntoView {
             });
         }
     });    
+
+    //Selected derivative signal
+    create_effect(cx, move |_| {
+        if selected_section.get().as_str() == "Tools" {
+            // Reset to default derivative and exchange rate
+            let default_derivative = "stkd-SCRT";
+            set_selected_derivative.set(default_derivative.to_string());
+            set_exchange_rate(default_exchange_rate.get());
+    
+            log::info!(
+                "Reset to default: derivative = {}, exchange rate = {}",
+                default_derivative,
+                default_exchange_rate.get()
+            );
+        }
+    });      
 
     // UI with views
     view! {
@@ -836,38 +853,43 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 <label for="derivative-select">"Select Derivative:"</label>
                                 <select
                                     id="derivative-select"
+                                    value={selected_derivative} // Bind directly to the signal
                                     on:change=move |ev| {
                                         if let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::HtmlSelectElement>().ok()) {
                                             let selected_value = target.value();
-                                            log::info!("Selected Derivative: {}", selected_value);
-                
-                                            // Map derivative names to redemption_rates keys
+                                            log::info!("User selected derivative: {}", selected_value);
+
+                                            // Update selected derivative state
+                                            set_selected_derivative.set(selected_value.clone());
+
+                                            // Update exchange rate based on the selected derivative
                                             let key_map = HashMap::from([
-                                                ("stkd-SCRT", None), // Use default_exchange_rate
+                                                ("stkd-SCRT", None),
                                                 ("stAtom", Some("cosmoshub-4")),
                                                 ("stTIA", Some("stTIA")),
                                             ]);
-                
+
                                             match key_map.get(selected_value.as_str()) {
                                                 Some(Some(key)) => {
                                                     if let Some(rate) = redemption_rates.get().get(*key) {
-                                                        // Scale and format the rate
                                                         let scaled_rate = if *key == "cosmoshub-4" {
                                                             rate * 1e18
                                                         } else {
                                                             *rate
                                                         };
-                                                        let formatted_rate = (format!("{:.6}", scaled_rate)).parse::<f64>().unwrap_or(scaled_rate);
-                                                        log::info!("Formatted rate for {}: {}", selected_value, formatted_rate);
-                                                        set_exchange_rate(formatted_rate);
+                                                        set_exchange_rate(scaled_rate);
+                                                        log::info!("Setting exchange rate for {}: {}", selected_value, scaled_rate);
                                                     } else {
                                                         log::warn!("No rate found for {}", selected_value);
                                                     }
                                                 }
-                                                Some(None) => set_exchange_rate(default_exchange_rate.get()), // Default for stkd-SCRT
+                                                Some(None) => {
+                                                    set_exchange_rate(default_exchange_rate.get());
+                                                    log::info!("Using default exchange rate for stkd-SCRT: {}", default_exchange_rate.get());
+                                                }
                                                 _ => {
+                                                    set_exchange_rate(1.0);
                                                     log::warn!("Unexpected derivative: {}", selected_value);
-                                                    set_exchange_rate(1.0); // Default fallback rate
                                                 }
                                             }
                                         } else {
@@ -875,7 +897,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                         }
                                     }
                                 >
-                                    <option value="stkd-SCRT" selected="selected">"stkd-SCRT"</option>
+                                    <option value="stkd-SCRT">"stkd-SCRT"</option>
                                     <option value="stAtom">"stAtom"</option>
                                     <option value="stTIA">"stTIA"</option>
                                 </select>
@@ -897,7 +919,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                         if ev.key() == "Enter" {
                                             let price = liquidation_price.get();
                                             let rate = exchange_rate.get();
-
+                
                                             if price > 0.0 && rate > 0.0 {
                                                 let base_asset_price = price / rate;
                                                 set_result(format!("${:.6}", base_asset_price));
@@ -949,7 +971,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             </div>
                         </div>
                     </div>
-                },                                                                                          
+                },                                                                                               
                 _ => view! { cx,
                     <div class="error-section">
                         <p>"Section not found."</p>

@@ -394,7 +394,14 @@ pub fn App(cx: Scope) -> impl IntoView {
         disconnect_keplr_wallet();
         set_connected.set(false);
         set_wallet_address.set(String::new());
-    };
+        // Clear all multi-chain addresses
+        set_multi_chain_addresses.set(vec![
+            ("ATOM".to_string(), "Not Connected".to_string()),
+            ("TIA".to_string(), "Not Connected".to_string()),
+            ("OSMO".to_string(), "Not Connected".to_string()),
+            ("NOBLE".to_string(), "Not Connected".to_string()),
+        ]);
+    };    
 
     //Fetch Governance Proposals
     create_effect(cx, move |_| {
@@ -726,17 +733,21 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 }
                             }}
                         </div>
-                        <div class="multi-chain-addresses">
-                            {move || multi_chain_addresses.get().iter().map(|(name, addr)| {
-                                view! {
-                                    cx,
-                                    <div class="wallet-address-display">
-                                        <span class="wallet-address-label">{format!("{} :", name)}</span>
-                                        <span class="wallet-address">{addr.clone()}</span>
-                                    </div>
-                                }
-                            }).collect::<Vec<_>>()}
-                        </div>
+                            <div class="multi-chain-addresses">
+                                {move || multi_chain_addresses.get().iter().map(|(name, addr)| {
+                                    view! {
+                                        cx,
+                                        <div class="wallet-address-display">
+                                            <span class="wallet-address-label">{format!("{} :", name)}</span>
+                                            <span class="wallet-address">{if addr.is_empty() || addr == "Not Connected" {
+                                                "Not Connected".to_string()
+                                            } else {
+                                                addr.clone()
+                                            }}</span>
+                                        </div>
+                                    }
+                                }).collect::<Vec<_>>()}
+                            </div>
                     </div>
                 },                                                                                                                                                                                    
                 "Vote" => view! { cx,

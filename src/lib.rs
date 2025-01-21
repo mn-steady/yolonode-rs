@@ -27,29 +27,20 @@ struct GovernanceProposal {
     #[serde(rename = "proposal_id", deserialize_with = "deserialize_string_to_u64")]
     id: Option<u64>, 
     #[serde(rename = "content")]
-    content: ProposalContent,
+    content: Option<ProposalContent>,
+    #[serde(rename = "messages")]
+    messages: Option<Vec<serde_json::Value>>,
     status: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 struct ProposalContent {
-    #[serde(rename = "@type")]
-    proposal_type: Option<String>,
     title: Option<String>,
     description: Option<String>,
-    plan: Option<ProposalPlan>,
-    params: Option<serde_json::Value>, 
 }
 
 #[derive(Deserialize, Debug, Clone)]
-struct ProposalPlan {
-    name: Option<String>,
-    time: Option<String>,
-    #[serde(deserialize_with = "deserialize_string_to_u64")]
-    height: Option<u64>, 
-    info: Option<String>,
-    upgraded_client_state: Option<String>,
-}
+struct ProposalPlan {}
 
 #[wasm_bindgen]
 extern "C" {
@@ -208,9 +199,19 @@ async fn fetch_governance_proposals() -> Result<Vec<GovernanceProposal>, String>
             match wasm_bindgen_futures::JsFuture::from(promise).await {
                 Ok(result) => {
                     log::info!("Raw governance proposals JSON: {:?}", result);
-                    result
-                        .into_serde::<Vec<GovernanceProposal>>()
-                        .map_err(|e| format!("Failed to deserialize governance proposals: {:?}", e))
+
+                    // Deserialize and enrich proposals
+                    match result.into_serde::<Vec<GovernanceProposal>>() {
+                        Ok(proposals) => {
+                            let enriched_proposals = enrich_proposals(proposals);
+                            log::info!("Successfully enriched proposals: {:?}", enriched_proposals);
+                            Ok(enriched_proposals)
+                        }
+                        Err(e) => {
+                            log::error!("Failed to deserialize governance proposals: {:?}", e);
+                            Err(format!("Deserialization error: {:?}", e))
+                        }
+                    }
                 }
                 Err(err) => Err(format!("Failed to resolve promise: {:?}", err)),
             }
@@ -219,6 +220,69 @@ async fn fetch_governance_proposals() -> Result<Vec<GovernanceProposal>, String>
         }
     } else {
         Err("fetchGovernanceProposals not defined".to_string())
+    }
+}
+
+fn enrich_proposals(proposals: Vec<GovernanceProposal>) -> Vec<GovernanceProposal> {
+    proposals
+        .into_iter()
+        .map(|mut proposal| {
+            if proposal.content.is_none() {
+                if let Some(messages) = &proposal.messages {
+                    let first_message = messages.get(0).unwrap_or(&serde_json::Value::Null);
+
+                    // Extract @type and map to user-friendly label
+                    let msg_type = first_message
+                        .get("@type")
+                        .and_then(|t| t.as_str())
+                        .unwrap_or("Unknown Type");
+
+                    let inferred_title = if msg_type == "/cosmos.gov.v1.MsgExecLegacyContent" {
+                        // Extract title from content for MsgExecLegacyContent
+                        first_message
+                            .get("content")
+                            .and_then(|content| content.get("title"))
+                            .and_then(|title| title.as_str())
+                            .unwrap_or("Untitled Proposal")
+                            .to_string()
+                    } else {
+                        // Use mapped message type for other cases
+                        map_message_type(msg_type).to_string()
+                    };
+
+                    let inferred_description = if msg_type == "/cosmos.gov.v1.MsgExecLegacyContent" {
+                        first_message
+                            .get("content")
+                            .and_then(|content| content.get("description"))
+                            .and_then(|desc| desc.as_str())
+                            .unwrap_or("No description available.")
+                            .to_string()
+                    } else {
+                        format!(
+                            "Details: {}",
+                            serde_json::to_string(first_message)
+                                .unwrap_or_else(|_| "No message details available.".to_string())
+                        )
+                    };
+
+                    proposal.content = Some(ProposalContent {
+                        title: Some(inferred_title),
+                        description: Some(inferred_description),
+                    });
+                }
+            }
+            proposal
+        })
+        .collect()
+}
+
+fn map_message_type(msg_type: &str) -> &str {
+    match msg_type {
+        "/ibc.core.client.v1.MsgRecoverClient" => "Recover Client",
+        "/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade" => "Software Upgrade",
+        "/cosmos.gov.v1.MsgUpdateParams" => "Update Parameters",
+        "/cosmos.gov.v1.MsgExecLegacyContent" => "Legacy Content",
+        _ => "Unknown Proposal Type",
     }
 }
 
@@ -772,77 +836,64 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <h2>"Governance Proposals :"</h2>
                         <hr class="gold-line" />
                         <ul class="vote-list">
-                        {move || {
-                            let mut sorted_proposals = governance_proposals.get();
-                            sorted_proposals.sort_by(|a, b| b.id.cmp(&a.id)); // Sort by id in descending order
-                            sorted_proposals.iter().map(|proposal| {
-                                view! {
-                                    cx,
-                                    <li>
-                                        <h3>
-                                            {format!(
-                                                "Proposal #{}: {}",
-                                                proposal.id.unwrap_or(0),
-                                                proposal.content.title.clone()
-                                                    .or_else(|| match proposal.content.proposal_type.as_deref() {
-                                                        Some(ty) if ty.contains("MsgSoftwareUpgrade") => Some("Software Upgrade".to_string()),
-                                                        Some(ty) if ty.contains("MsgUpdateParams") => Some("Update Parameters".to_string()),
-                                                        Some(other) => Some(format!("Unknown Proposal Type: {}", other)),
-                                                        None => None,
-                                                    })
-                                                    .unwrap_or("Untitled Proposal".to_string())
-                                            )}
-                                        </h3>
-                                        <p>
-                                            {if let Some(desc) = &proposal.content.description {
-                                                desc.clone() 
-                                            } else {
-                                                match proposal.content.proposal_type.as_deref() {
-                                                    Some(ty) if ty.contains("MsgSoftwareUpgrade") => {
-                                                        if let Some(plan) = &proposal.content.plan {
-                                                            format!(
-                                                                "{}\n{}\n{}\n{}\n{}",
-                                                                plan.name.clone().unwrap_or("Unknown".to_string()),
-                                                                plan.time.clone().unwrap_or("Unknown".to_string()),
-                                                                plan.height.unwrap_or(0),
-                                                                plan.info.clone().unwrap_or("None".to_string()),
-                                                                plan.upgraded_client_state.clone().unwrap_or("None".to_string())
-                                                            )
-                                                        } else {
-                                                            "No plan available.".to_string()
-                                                        }
-                                                    }
-                                                    Some(ty) if ty.contains("MsgUpdateParams") => {
-                                                        if let Some(params) = &proposal.content.params {
-                                                            format!("{:?}", params)
-                                                        } else {
-                                                            "No parameters available.".to_string()
-                                                        }
-                                                    }
-                                                    Some(other) => format!("No specific description for type: {}", other),
-                                                    None => "No description provided.".to_string(),
+                            {move || {
+                                governance_proposals.get().iter().map(|proposal| {
+                                    let title = proposal
+                                        .content
+                                        .as_ref()
+                                        .and_then(|content| content.title.clone())
+                                        .unwrap_or_else(|| "Untitled Proposal".to_string());
+                
+                                    let description = proposal
+                                        .content
+                                        .as_ref()
+                                        .and_then(|content| content.description.clone());
+                
+                                    let formatted_details = proposal
+                                        .messages
+                                        .as_ref()
+                                        .map(|messages| {
+                                            messages.iter().map(|msg| {
+                                                let json_pretty = serde_json::to_string_pretty(msg).unwrap_or_else(|_| "Invalid JSON".to_string());
+                                                view! {
+                                                    cx,
+                                                    <pre class="formatted-json">{json_pretty}</pre>
                                                 }
-                                            }}
-                                        </p>
-                                        <p class={format!(
-                                            "vote-status {}",
-                                            match proposal.status.trim() {
-                                                "PROPOSAL_STATUS_PASSED" => "passed",
-                                                "PROPOSAL_STATUS_REJECTED" => "rejected",
-                                                "PROPOSAL_STATUS_VOTING_PERIOD" => "voting",
-                                                _ => "default",
-                                            }
-                                        )}>
-                                            {proposal.status.clone()}
-                                        </p>
-                                        <hr class="gold-line" />
-                                    </li>
-                                }                                                                                                                                                                                                               
-                            }).collect::<Vec<_>>()
-                        }}
+                                            }).collect::<Vec<_>>()
+                                        })
+                                        .unwrap_or_else(|| vec![view! { cx, <pre class="formatted-json">"No details available."</pre> }]);
+                
+                                    let should_show_details_text = description.as_ref().map_or(true, |desc| !desc.contains("{\"@type\":"));
+                
+                                    view! {
+                                        cx,
+                                        <li>
+                                            <h3>{format!("Proposal #{}: {}", proposal.id.unwrap_or(0), title)}</h3>
+                                            {should_show_details_text.then(|| {
+                                                description.as_ref().map(|desc| view! { cx, <p>{desc.clone()}</p> })
+                                            })}
+                                            <div class="details-section">
+                                                {formatted_details}
+                                            </div>
+                                            <p class={format!(
+                                                "vote-status {}",
+                                                match proposal.status.trim() {
+                                                    "PROPOSAL_STATUS_PASSED" => "passed",
+                                                    "PROPOSAL_STATUS_REJECTED" => "rejected",
+                                                    "PROPOSAL_STATUS_VOTING_PERIOD" => "voting",
+                                                    _ => "default",
+                                                }
+                                            )}>
+                                                {proposal.status.clone()}
+                                            </p>
+                                            <hr class="gold-line" />
+                                        </li>
+                                    }
+                                }).collect::<Vec<_>>()
+                            }}
                         </ul>
                     </div>
-                },                              
+                },                                                         
                 "Tools" => view! { cx,
                     <div class="tools-section">
                         <h2>"Derivative Price Converter :"</h2>

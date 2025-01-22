@@ -11,8 +11,6 @@ use serde::Deserialize;
 use serde::de::{self, Deserializer};
 use web_sys::MouseEvent;
 
-const VOTING_PERIOD_STATUS: &str = "PROPOSAL_STATUS_VOTING_PERIOD";
-
 // Define structures to match the expected response formats
 #[derive(Deserialize, Debug)]
 struct FetchBatchPricesResponse {
@@ -842,6 +840,13 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <ul class="vote-list">
                             {move || {
                                 governance_proposals.get().iter().map(|proposal| {
+                                    let display_status = match proposal.status.trim() {
+                                        "PROPOSAL_STATUS_PASSED" => "Proposal Passed",
+                                        "PROPOSAL_STATUS_REJECTED" => "Proposal Rejected",
+                                        "PROPOSAL_STATUS_VOTING_PERIOD" => "Voting Period",
+                                        _ => "Unknown Status",
+                                    };
+                
                                     let title = proposal
                                         .content
                                         .as_ref()
@@ -888,29 +893,53 @@ pub fn App(cx: Scope) -> impl IntoView {
                                                     _ => "default",
                                                 }
                                             )}>
-                                                <span>{proposal.status.clone()}</span>
-                                                {if proposal.status.trim() == VOTING_PERIOD_STATUS {
+                                                <span class="status-text">{display_status}</span>
+                                                {if proposal.status.trim() == "PROPOSAL_STATUS_VOTING_PERIOD" {
                                                     if let Some(expiration_time) = &proposal.expiration_time {
                                                         let now = js_sys::Date::now();
                                                         let expiration = js_sys::Date::parse(expiration_time);
-                                            
+                
                                                         if expiration.is_nan() {
-                                                            view! { cx, <span class="expiration-text">" | Expires: Invalid expiration time"</span> }
+                                                            view! {
+                                                                cx,
+                                                                <span>
+                                                                    <span class="separator">" | "</span>
+                                                                    <span class="expiration-text">"Expires: Invalid expiration time"</span>
+                                                                </span>
+                                                            }
                                                         } else {
                                                             let remaining_hours = (expiration - now) / (1000.0 * 60.0 * 60.0);
                                                             if remaining_hours > 0.0 {
-                                                                view! { cx, <span class="expiration-text">{format!(" | Expires: {:.1} hours", remaining_hours)}</span> }
+                                                                view! {
+                                                                    cx,
+                                                                    <span>
+                                                                        <span class="separator">" | "</span>
+                                                                        <span class="expiration-text">{format!("Expires in {:.1} hours", remaining_hours)}</span>
+                                                                    </span>
+                                                                }
                                                             } else {
-                                                                view! { cx, <span class="expiration-text">" | Expires: Expired"</span> }
+                                                                view! {
+                                                                    cx,
+                                                                    <span>
+                                                                        <span class="separator">" | "</span>
+                                                                        <span class="expiration-text">"Expires: Expired"</span>
+                                                                    </span>
+                                                                }
                                                             }
-                                                        }
+                                                        }                                                        
                                                     } else {
-                                                        view! { cx, <span class="expiration-text">" | Expires: Not available"</span> }
+                                                        view! {
+                                                            cx,
+                                                            <span>
+                                                                <span class="separator">" | "</span>
+                                                                <span class="expiration-text">"Not available"</span>
+                                                            </span>
+                                                        }
                                                     }
                                                 } else {
-                                                    view! { cx, <span></span> } 
+                                                    view! { cx, <span></span> }
                                                 }}
-                                            </p>                                                                                      
+                                            </p>
                                             <hr class="gold-line" />
                                         </li>
                                     }
@@ -918,7 +947,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }}
                         </ul>
                     </div>
-                },                                                                                                             
+                },                                                                                                                           
                 "Tools" => view! { cx,
                     <div class="tools-section">
                         <h2>"Derivative Price Converter :"</h2>

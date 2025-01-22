@@ -545,29 +545,43 @@ hr.gold-line-top {
 }
 
 .vote-status {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.3rem;
     font-weight: bold;
-    color: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vote-status .status-text {
+    font-weight: bold;
+}
+
+.vote-status.passed .status-text {
+    color: #53df03; 
+}
+
+.vote-status.rejected .status-text {
+    color: #df03c1; 
+}
+
+.vote-status.voting .status-text {
+    color: #df8f03; 
+}
+
+.vote-status.default .status-text {
+    color: #C1DF03;
+}
+
+.vote-status .separator {
+    color: #C1DF03; 
 }
 
 .vote-status .expiration-text {
-    color: #C1DF03; 
-    font-weight: bold; 
-}
-
-.vote-status.passed {
-    color: #53df03;
-}
-
-.vote-status.rejected {
-    color: #df03c1;
-}
-
-.vote-status.voting {
-    color: #df8f03;
-}
-
-.vote-status.default {
-    color: #C1DF03;
+    color: #53df03; 
+    font-weight: bold;
 }
 
 .vote-row {
@@ -720,5 +734,21 @@ hr.gold-line-top {
     .formatted-json {
         font-size: 0.75rem; 
         padding: 0.3125rem; 
+    }
+
+    .vote-status {
+        flex-wrap: wrap; 
+        justify-content: flex-start; 
+    }
+
+    .vote-status .status-text,
+    .vote-status .separator,
+    .vote-status .expiration-text {
+        flex: none; 
+    }
+
+    .expiration-text {
+        white-space: nowrap;
+        font-size: 0.85rem; 
     }
 }

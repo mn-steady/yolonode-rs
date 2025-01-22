@@ -546,6 +546,12 @@ hr.gold-line-top {
 
 .vote-status {
     font-weight: bold;
+    color: inherit;
+}
+
+.vote-status .expiration-text {
+    color: #C1DF03; 
+    font-weight: bold; 
 }
 
 .vote-status.passed {

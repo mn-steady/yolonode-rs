@@ -107,33 +107,31 @@ async function fetchGovernanceProposals() {
                         title: "No content available",
                         description: "No description available",
                     };
-
+                
                     if (proposal.content) {
-                        // Extract `title` and `description` if `content` exists
                         contentDetails = {
                             title: proposal.content.title || "Untitled Proposal",
-                            description:
-                                proposal.content.description || "No description available",
+                            description: proposal.content.description || "No description available",
                         };
                     } else if (proposal.messages && proposal.messages.length > 0) {
-                        // Infer details from the first message in `messages`
                         const firstMessage = proposal.messages[0];
                         contentDetails = {
                             title: `Message Type: ${firstMessage["@type"] || "Unknown"}`,
                             description: `Details: ${JSON.stringify(firstMessage)}`,
                         };
-                    } else {
-                        console.warn("Unexpected proposal structure:", proposal);
                     }
-
+                
                     return {
                         proposal_id: proposal.proposal_id || proposal.id || "Unknown",
                         title: contentDetails.title,
                         description: contentDetails.description,
                         status: proposal.status,
-                        ...proposal, // Include other fields
-                    };
-                });
+                        expiration_time: proposal.voting_end_time 
+                            ? new Date(proposal.voting_end_time).toISOString() 
+                            : null, 
+                        ...proposal,
+                    };                    
+                });                
 
                 proposals = [...proposals, ...processedProposals];
                 nextKey = response.pagination?.next_key;

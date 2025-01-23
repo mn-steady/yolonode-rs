@@ -8,14 +8,32 @@
     <base href="/"> <!-- Needed for GitHub Pages deploy with domain name -->
     <link rel="stylesheet" href="./static/style.css">
     <link rel="icon" type="image/png" href="./static/YoloNode-Logo-cropped-circle-plain.png">
-<link rel="modulepreload" href="/yolonode-c58e2d9f9d79bd30.js" crossorigin="anonymous" integrity="sha384-DcaEdEkP70uPsk86S0Q2w0cXRHY3as3ckUflaY9RoVUrYbBdn0VCqmIW+6i0tqWV"><link rel="modulepreload" href="/snippets/leptos_reactive-f7acfdcc44aba8c4/inline0.js" crossorigin="anonymous" integrity="sha384-d8yvubxSuBtBulKXqV75Cat9GIXWqR6k5Bgu7yCoAeqNsM97ASkJwvRGESa4d7HR"><link rel="preload" href="/yolonode-c58e2d9f9d79bd30_bg.wasm" crossorigin="anonymous" integrity="sha384-l1J2Sbio5Z6mcPStBX27cie2fNBEVJrpTACauTeOefbScDxPd5JRIT5zeVk13xXR" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="/yolonode-d51baa170242683d.js" crossorigin="anonymous" integrity="sha384-EAbKWRDw21OfRGRwz8f7RyS7BjhCcYarGPUuFyhp6dSKJHA+UNs3YsoEnHGRyNjN"><link rel="modulepreload" href="/snippets/leptos_reactive-f7acfdcc44aba8c4/inline0.js" crossorigin="anonymous" integrity="sha384-d8yvubxSuBtBulKXqV75Cat9GIXWqR6k5Bgu7yCoAeqNsM97ASkJwvRGESa4d7HR"><link rel="preload" href="/yolonode-d51baa170242683d_bg.wasm" crossorigin="anonymous" integrity="sha384-FcfTQBpGNfBn0T8MXiFE8yTptX31/rDhjq1tlmdilqLEetT2aYOgIGOaeOC+VYvA" as="fetch" type="application/wasm"></head>
 <body>
     <div id="app"></div>
+
+    <!-- Wallet Error Modal -->
+    <div id="wallet-error-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <p>Wallet not found! Please install
+                <a href="https://www.keplr.app/" target="_blank" style="color: #03a9f4; text-decoration: underline;">Keplr</a> or
+                <a href="https://fina.cash/" target="_blank" style="color: #03a9f4; text-decoration: underline;">Fina</a> wallet.
+            </p>
+            <button id="close-modal" class="close-modal">Close</button>
+        </div>
+    </div>
 
     <!-- Load shade.bundle.js as a standard script -->
     <script src="./static/lib/shade.bundle.js"></script>
     <script src="./static/wallet.js"></script>
     <script src="./static/lib/stride.bundle.js"></script>
+
+    <!-- JavaScript for modal behavior -->
+    <script>
+        document.getElementById("close-modal").addEventListener("click", function() {
+            document.getElementById("wallet-error-modal").style.display = "none";
+        });
+    </script>
 
     <!-- Initialize the Rust WASM module -->
     <script type="module">
@@ -24,8 +42,8 @@
     </script>    
 
 <script type="module">
-import init, * as bindings from '/yolonode-c58e2d9f9d79bd30.js';
-const wasm = await init({ module_or_path: '/yolonode-c58e2d9f9d79bd30_bg.wasm' });
+import init, * as bindings from '/yolonode-d51baa170242683d.js';
+const wasm = await init({ module_or_path: '/yolonode-d51baa170242683d_bg.wasm' });
 
 
 window.wasmBindings = bindings;

@@ -1,23 +1,41 @@
+// Function to show custom modal
+function showModal(message) {
+    const modal = document.getElementById("wallet-error-modal");
+    const modalMessage = document.getElementById("wallet-error-message");
+    if (modal && modalMessage) {
+        modalMessage.textContent = message;
+        modal.style.display = "flex";
+    }
+}
+
+// Function to hide custom modal
+function hideModal() {
+    const modal = document.getElementById("wallet-error-modal");
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
 // Function to connect to wallet
 async function connectKeplrWallet() {
-    if (window.keplr) {
-        try {
-            await window.keplr.enable("secret-4");
-            const offlineSigner = window.getOfflineSigner("secret-4");
-            const accounts = await offlineSigner.getAccounts();
-            if (accounts.length > 0) {
-                console.log("Connected account:", accounts[0].address);
-                return accounts[0].address;
-            } else {
-                console.warn("No accounts found in wallet.");
-                return null;
-            }
-        } catch (error) {
-            console.error("Failed to connect to wallet:", error);
+    if (!window.keplr) {
+        console.error("Wallet not found! Please install Keplr or Fina wallet.");
+        return null; // Prevent proceeding if wallet is not available
+    }
+
+    try {
+        await window.keplr.enable("secret-4");
+        const offlineSigner = window.getOfflineSigner("secret-4");
+        const accounts = await offlineSigner.getAccounts();
+        if (accounts.length > 0) {
+            console.log("Connected account:", accounts[0].address);
+            return accounts[0].address;
+        } else {
+            console.warn("No accounts found in wallet.");
             return null;
         }
-    } else {
-        alert("Wallet not found! Please install Keplr or Fina wallet.");
+    } catch (error) {
+        console.error("Failed to connect to wallet:", error);
         return null;
     }
 }
@@ -25,23 +43,24 @@ async function connectKeplrWallet() {
 // Function to disconnect wallet
 function disconnectKeplrWallet() {
     console.log("Wallet disconnected");
+    hideModal(); // Hide the modal if it's visible
 }
 
 // Function to get the wallet address
 async function get_wallet_address() {
-    if (window.keplr) {
-        try {
-            await window.keplr.enable("secret-4");
-            const offlineSigner = window.getOfflineSigner("secret-4");
-            const accounts = await offlineSigner.getAccounts();
-            return accounts.length > 0 ? accounts[0].address : "";
-        } catch (error) {
-            console.error("Failed to get wallet address:", error);
-            return "";
-        }
-    } else {
-        alert("Wallet not found! Please install Keplr or Fina wallet.");
-        return "";
+    if (!window.keplr) {
+        console.warn("Wallet not found during get_wallet_address.");
+        return null; // Avoid showing modal directly here
+    }
+
+    try {
+        await window.keplr.enable("secret-4");
+        const offlineSigner = window.getOfflineSigner("secret-4");
+        const accounts = await offlineSigner.getAccounts();
+        return accounts.length > 0 ? accounts[0].address : null;
+    } catch (error) {
+        console.error("Failed to get wallet address:", error);
+        return null;
     }
 }
 
@@ -58,7 +77,7 @@ async function getAddressForMultiChain(chainId) {
             return "";
         }
     } else {
-        alert("Wallet not found! Please install Keplr or Fina wallet.");
+        showModal("Wallet not found! Please install Keplr or Fina wallet.");
         return "";
     }
 }
@@ -66,7 +85,7 @@ async function getAddressForMultiChain(chainId) {
 // Function to fetch governance proposals
 async function fetchGovernanceProposals() {
     if (!window.keplr) {
-        alert("Wallet not found! Please install Keplr or Fina wallet.");
+        showModal("Wallet not found! Please install Keplr or Fina wallet.");
         return [];
     }
 

@@ -583,6 +583,16 @@ hr.gold-line-top {
     color: #03c1df;
 }
 
+.proposal-number {
+    color: #03c1df; 
+    font-weight: bold;
+}
+
+.proposal-title {
+    color: #03c1df; 
+    font-weight: bold;
+}
+
 .vote-status {
     display: flex;
     flex-direction: row;
@@ -607,7 +617,7 @@ hr.gold-line-top {
 }
 
 .vote-status.voting .status-text {
-    color: #df8f03; 
+    color: #53df03; 
 }
 
 .vote-status.default .status-text {
@@ -619,7 +629,7 @@ hr.gold-line-top {
 }
 
 .vote-status .expiration-text {
-    color: #53df03; 
+    color: #df03c1; 
     font-weight: bold;
 }
 
@@ -788,6 +798,5 @@ hr.gold-line-top {
 
     .expiration-text {
         white-space: nowrap;
-        font-size: 0.85rem; 
     }
 }

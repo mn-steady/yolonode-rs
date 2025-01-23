@@ -9,7 +9,6 @@ use std::collections::HashMap;
 use gloo_utils::format::JsValueSerdeExt;
 use serde::Deserialize;
 use serde::de::{self, Deserializer};
-use web_sys::MouseEvent;
 
 // Define structures to match the expected response formats
 #[derive(Deserialize, Debug)]
@@ -247,6 +246,15 @@ fn enrich_proposals(proposals: Vec<GovernanceProposal>) -> Vec<GovernanceProposa
                             .and_then(|title| title.as_str())
                             .unwrap_or("Untitled Proposal")
                             .to_string()
+                    } else if msg_type == "/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade" {
+                        // Extract name for software upgrades
+                        let base_title = map_message_type(msg_type).to_string();
+                        let version = first_message
+                            .get("plan")
+                            .and_then(|plan| plan.get("name"))
+                            .and_then(|name| name.as_str())
+                            .unwrap_or("Unknown");
+                        format!("{} {}", base_title, version)
                     } else {
                         // Use mapped message type for other cases
                         map_message_type(msg_type).to_string()
@@ -260,11 +268,8 @@ fn enrich_proposals(proposals: Vec<GovernanceProposal>) -> Vec<GovernanceProposa
                             .unwrap_or("No description available.")
                             .to_string()
                     } else {
-                        format!(
-                            "Details: {}",
-                            serde_json::to_string(first_message)
-                                .unwrap_or_else(|_| "No message details available.".to_string())
-                        )
+                        // Use empty description for all non-legacy proposals
+                        "".to_string()
                     };
 
                     proposal.content = Some(ProposalContent {
@@ -818,13 +823,22 @@ pub fn App(cx: Scope) -> impl IntoView {
                     <div class="wallet-section">
                         <div class="wallet-section-header">
                             <h2>"Wallet Info : "</h2>
-                            {move || if is_connected.get() {
-                                view! { cx,
-                                    <button class="link-button" on:click=disconnect_wallet>"Disconnect Wallet"</button>
+                            {move || {
+                                // Ensure the correct state of the connect/disconnect button
+                                if wallet_address.get() != "Not Connected" && !wallet_address.get().is_empty() {
+                                    set_connected.set(true);
+                                } else {
+                                    set_connected.set(false);
                                 }
-                            } else {
-                                view! { cx,
-                                    <button class="link-button" on:click=move |_: MouseEvent| connect_wallet(())>"Connect Wallet"</button>
+                
+                                if is_connected.get() {
+                                    view! { cx,
+                                        <button class="link-button" on:click=disconnect_wallet>"Disconnect Wallet"</button>
+                                    }
+                                } else {
+                                    view! { cx,
+                                        <button class="link-button" on:click=move |_| connect_wallet(())>"Connect Wallet"</button>
+                                    }
                                 }
                             }}
                         </div>
@@ -833,34 +847,26 @@ pub fn App(cx: Scope) -> impl IntoView {
                             <span class="wallet-address-label">"SCRT :"</span>
                             {move || {
                                 let addr = wallet_address.get();
-                                if addr == "Not Connected" || addr == "Error fetching SCRT address" {
-                                    view! { cx,
-                                        <span class="wallet-address">{addr.clone()}</span>
-                                    }
-                                } else if addr.is_empty() {
-                                    view! { cx,
-                                        <span class="wallet-address">"Not Connected"</span>
-                                    }
+                                if addr == "Not Connected" || addr == "Error fetching SCRT address" || addr.is_empty() {
+                                    view! { cx, <span class="wallet-address">"Not Connected"</span> }
                                 } else {
-                                    view! { cx,
-                                        <span class="wallet-address">{addr.clone()}</span>
-                                    }
+                                    view! { cx, <span class="wallet-address">{addr.clone()}</span> }
                                 }
                             }}
                         </div>
-                            <div class="multi-chain-addresses">
-                                {move || multi_chain_addresses.get().iter().map(|(name, addr)| {
-                                    view! {
-                                        cx,
-                                        <div class="wallet-address-display">
-                                            <span class="wallet-address-label">{format!("{} :", name)}</span>
-                                            <span class="wallet-address">{if addr.is_empty() { "Not Connected".to_string() } else { addr.clone() }}</span>
-                                        </div>
-                                    }
-                                }).collect::<Vec<_>>()}
-                            </div>
+                        <div class="multi-chain-addresses">
+                            {move || multi_chain_addresses.get().iter().map(|(name, addr)| {
+                                view! {
+                                    cx,
+                                    <div class="wallet-address-display">
+                                        <span class="wallet-address-label">{format!("{} :", name)}</span>
+                                        <span class="wallet-address">{addr.clone()}</span>
+                                    </div>
+                                }
+                            }).collect::<Vec<_>>()}
+                        </div>
                     </div>
-                },                                                                                                                                                                                    
+                },                                                                                                                                                                                              
                 "Vote" => view! { cx,
                     <div class="vote-section">
                         <h2>"Governance Proposals :"</h2>
@@ -905,7 +911,10 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     view! {
                                         cx,
                                         <li>
-                                            <h3>{format!("Proposal #{}: {}", proposal.id.unwrap_or(0), title)}</h3>
+                                            <h3>
+                                                <span class="proposal-number">{format!("Proposal #{}: ", proposal.id.unwrap_or(0))}</span>
+                                                <span class="proposal-title">{title}</span>
+                                            </h3>
                                             {should_show_details_text.then(|| {
                                                 description.as_ref().map(|desc| view! { cx, <p>{desc.clone()}</p> })
                                             })}
@@ -936,13 +945,20 @@ pub fn App(cx: Scope) -> impl IntoView {
                                                                 </span>
                                                             }
                                                         } else {
-                                                            let remaining_hours = (expiration - now) / (1000.0 * 60.0 * 60.0);
-                                                            if remaining_hours > 0.0 {
+                                                            let remaining_ms = expiration - now;
+                                                            if remaining_ms > 0.0 {
+                                                                let remaining_days = (remaining_ms / (1000.0 * 60.0 * 60.0 * 24.0)) as i64;
+                                                                let remaining_hours = ((remaining_ms % (1000.0 * 60.0 * 60.0 * 24.0)) / (1000.0 * 60.0 * 60.0)) as i64;
+                
+                                                                let time_string = format!(
+                                                                    "Expires in {}d {}h",
+                                                                    remaining_days, remaining_hours
+                                                                );
                                                                 view! {
                                                                     cx,
                                                                     <span>
                                                                         <span class="separator">" | "</span>
-                                                                        <span class="expiration-text">{format!("Expires in {:.1} hours", remaining_hours)}</span>
+                                                                        <span class="expiration-text">{time_string}</span>
                                                                     </span>
                                                                 }
                                                             } else {
@@ -954,7 +970,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                                                     </span>
                                                                 }
                                                             }
-                                                        }                                                        
+                                                        }
                                                     } else {
                                                         view! {
                                                             cx,
@@ -975,7 +991,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }}
                         </ul>
                     </div>
-                },                                                                                                                           
+                },                                                                                                                                          
                 "Tools" => view! { cx,
                     <div class="tools-section">
                         <h2>"Derivative Price Converter :"</h2>

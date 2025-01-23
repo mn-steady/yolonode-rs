@@ -12,10 +12,28 @@
 <body>
     <div id="app"></div>
 
+    <!-- Wallet Error Modal -->
+    <div id="wallet-error-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <p>Wallet not found! Please install
+                <a href="https://www.keplr.app/" target="_blank" style="color: #03a9f4; text-decoration: underline;">Keplr</a> or
+                <a href="https://fina.cash/" target="_blank" style="color: #03a9f4; text-decoration: underline;">Fina</a> wallet.
+            </p>
+            <button id="close-modal" class="close-modal">Close</button>
+        </div>
+    </div>
+
     <!-- Load shade.bundle.js as a standard script -->
     <script src="./static/lib/shade.bundle.js"></script>
     <script src="./static/wallet.js"></script>
     <script src="./static/lib/stride.bundle.js"></script>
+
+    <!-- JavaScript for modal behavior -->
+    <script>
+        document.getElementById("close-modal").addEventListener("click", function() {
+            document.getElementById("wallet-error-modal").style.display = "none";
+        });
+    </script>
 
     <!-- Initialize the Rust WASM module -->
     <script type="module">

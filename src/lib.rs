@@ -383,75 +383,107 @@ pub fn App(cx: Scope) -> impl IntoView {
         });
     });
     
-    
     // Keplr Functions
     let connect_wallet = move |_| {
         log::info!("Connecting to wallet...");
     
         // Check if Keplr is installed
-        if web_sys::window().and_then(|w| w.get("keplr")).is_none() {
-            log::error!("Wallet not found! Please install Keplr or Fina wallet.");
+        let is_keplr_installed = web_sys::window()
+            .and_then(|w| w.get("keplr"))
+            .is_some();
     
-            // Show a popup message to the user
-            if let Some(window) = web_sys::window() {
-                window.alert_with_message("Wallet not found! Please install Keplr or Fina wallet.").ok();
+        if !is_keplr_installed {
+            log::warn!("Wallet not found! Please install Keplr or Fina wallet.");
+    
+            // Show error modal
+            if let Some(document) = web_sys::window().and_then(|w| w.document()) {
+                if let Some(modal) = document.get_element_by_id("wallet-error-modal") {
+                    modal.set_attribute("style", "display: flex;").ok();
+                }
             }
     
-            set_connected.set(false); // Ensure wallet is marked as disconnected
-            set_wallet_address.set("Not Connected".to_string()); 
+            set_connected.set(false);
+            set_wallet_address.set("Not Connected".to_string());
     
-            // Populate multi-chain addresses with placeholders
-            let placeholder_addresses = vec![
+            // Ensure placeholder multi-chain addresses include asset names
+            set_multi_chain_addresses.set(vec![
                 ("ATOM".to_string(), "Not Connected".to_string()),
                 ("TIA".to_string(), "Not Connected".to_string()),
                 ("OSMO".to_string(), "Not Connected".to_string()),
                 ("NOBLE".to_string(), "Not Connected".to_string()),
-            ];
-            set_multi_chain_addresses.set(placeholder_addresses);
-    
+            ]);
             return;
         }
     
-        set_connected.set(true);
-        spawn_local(async move {
-            // Fetch SCRT address
-            if let Some(address) = get_wallet_address().await {
-                log::info!("Successfully fetched SCRT address: {}", address);
-                set_wallet_address.set(address);
-            } else {
-                log::warn!("Failed to fetch SCRT address");
-                set_wallet_address.set("Error fetching SCRT address".to_string());
+        // Hide error modal since wallet is installed
+        if let Some(document) = web_sys::window().and_then(|w| w.document()) {
+            if let Some(modal) = document.get_element_by_id("wallet-error-modal") {
+                modal.set_attribute("style", "display: none;").ok();
             }
+        }
     
-            // Fetch addresses for other chains
-            let chains = vec![
-                ("cosmoshub-4", "ATOM"),
-                ("celestia", "TIA"),
-                ("osmosis-1", "OSMO"),
-                ("noble-1", "NOBLE"),
-            ];
+        // Attempt wallet connection
+        spawn_local(async move {
+            if let Some(address) = get_wallet_address().await {
+                log::info!("Successfully connected. SCRT address: {}", address);
+                set_wallet_address.set(address);
     
-            let mut addr_list = vec![];
+                // Fetch multi-chain addresses
+                let chains = vec![
+                    ("cosmoshub-4", "ATOM"),
+                    ("celestia", "TIA"),
+                    ("osmosis-1", "OSMO"),
+                    ("noble-1", "NOBLE"),
+                ];
     
-            for (chain_id, name) in chains {
-                match getAddressForMultiChain(chain_id).await {
-                    Ok(js_value) => {
-                        if let Some(addr) = js_value.as_string() {
+                let mut addr_list = vec![];
+                for (chain_id, name) in chains {
+                    match getAddressForMultiChain(chain_id).await {
+                        Ok(js_value) => {
+                            let addr = js_value.as_string().unwrap_or("Error fetching address".to_string());
                             addr_list.push((name.to_string(), addr));
-                        } else {
-                            addr_list.push((name.to_string(), "Error fetching address".to_string()));
                         }
-                    }
-                    Err(_) => {
-                        addr_list.push((name.to_string(), "Error fetching address".to_string()));
+                        Err(_) => addr_list.push((name.to_string(), "Error fetching address".to_string())),
                     }
                 }
-            }
+                set_multi_chain_addresses.set(addr_list);
+            } else {
+                log::warn!("Failed to fetch SCRT address.");
+                set_wallet_address.set("Error fetching SCRT address".to_string());
     
-            set_multi_chain_addresses.set(addr_list);
-            log::info!("Fetched all multi-chain addresses successfully.");
+                // Populate placeholders for multi-chain addresses
+                set_multi_chain_addresses.set(vec![
+                    ("ATOM".to_string(), "Not Connected".to_string()),
+                    ("TIA".to_string(), "Not Connected".to_string()),
+                    ("OSMO".to_string(), "Not Connected".to_string()),
+                    ("NOBLE".to_string(), "Not Connected".to_string()),
+                ]);
+            }
         });
-    };    
+    };     
+    
+    // Show modal in "Vote" view if wallet isn't connected and cannot connect
+    create_effect(cx, move |_| {
+        if selected_section.get().as_str() == "Vote" {
+            if !is_connected.get() {
+                // Attempt to connect wallet before showing error
+                spawn_local(async move {
+                    if let Some(address) = get_wallet_address().await {
+                        log::info!("Wallet connected successfully: {}", address);
+                        set_connected.set(true);
+                        set_wallet_address.set(address);
+                    } else {
+                        log::warn!("Wallet connection failed. Showing error modal.");
+                        if let Some(document) = web_sys::window().and_then(|w| w.document()) {
+                            if let Some(modal) = document.get_element_by_id("wallet-error-modal") {
+                                modal.set_attribute("style", "display: flex;").ok();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    });
 
     create_effect(cx, move |_| {
         log::info!("Updated multi-chain addresses: {:?}", multi_chain_addresses.get());
@@ -822,11 +854,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                         cx,
                                         <div class="wallet-address-display">
                                             <span class="wallet-address-label">{format!("{} :", name)}</span>
-                                            <span class="wallet-address">{if addr.is_empty() || addr == "Not Connected" {
-                                                "Not Connected".to_string()
-                                            } else {
-                                                addr.clone()
-                                            }}</span>
+                                            <span class="wallet-address">{if addr.is_empty() { "Not Connected".to_string() } else { addr.clone() }}</span>
                                         </div>
                                     }
                                 }).collect::<Vec<_>>()}

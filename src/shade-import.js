@@ -1,25 +1,7 @@
 // src/shade-import.js
-import { queryPrice, batchQueryIndividualPrices } from '@shadeprotocol/shadejs';
+import { batchQueryIndividualPrices } from '@shadeprotocol/shadejs';
 import { queryDerivativeScrtInfo } from '@shadeprotocol/shadejs';
-import { SecretNetworkClient } from 'secretjs';
-import { Buffer } from 'buffer';
-window.Buffer = Buffer;
-
-// Attach SecretNetworkClient to `window` for global access
-window.SecretNetworkClient = SecretNetworkClient;
-
-// Default LCD endpoint
-const DEFAULT_LCD_ENDPOINT = "https://rpc.ankr.com/http/scrt_cosmos";
-
-// Function to create SecretNetworkClient with a configurable LCD endpoint
-function createSecretClient(endpoint = DEFAULT_LCD_ENDPOINT) {
-    console.log("Creating SecretNetworkClient with endpoint:", endpoint);
-
-    return new SecretNetworkClient({
-        url: endpoint,
-        chainId: "secret-4",
-    });
-}
+import { DEFAULT_LCD_ENDPOINT } from './secret-import';
 
 // Function to fetch multiple prices individually but in a batch  
 // This is a less efficient version of the multi-price query in the oracle contract, 
@@ -161,44 +143,22 @@ window.fetchDerivativePrices = async function (
 };
 
 //Fetch STKD Exchange Rate
-async function fetchSTKDExchangeRate() {
+window.fetchSTKDExchangeRate = async function () {
     try {
         const derivativeInfo = await queryDerivativeScrtInfo({
             queryRouterContractAddress: "secret15mkmad8ac036v4nrpcc7nk8wyr578egt077syt",
             queryRouterCodeHash: "1c7e86ba4fdb6760e70bf08a7df7f44b53eb0b23290e3e69ca96140810d4f432",
-            contractAddress: 'secret1k6u0cy4feepm6pehnz804zmwakuwdapm69tuc4', 
-            codeHash: 'f6be719b3c6feb498d3554ca0398eb6b7e7db262acb33f84a8f12106da6bbb09', 
-            queryTimeSeconds: Math.floor(Date.now() / 1000), // Optional: specify the query time in seconds
+            contractAddress: "secret1k6u0cy4feepm6pehnz804zmwakuwdapm69tuc4",
+            codeHash: "f6be719b3c6feb498d3554ca0398eb6b7e7db262acb33f84a8f12106da6bbb09",
+            queryTimeSeconds: Math.floor(Date.now() / 1000),
         });
 
-        const exchangeRate = derivativeInfo.exchangeRate;
-        console.log('stkd-SCRT to SCRT Exchange Rate:', exchangeRate);
-        return exchangeRate;
+        console.log("stkd-SCRT Exchange Rate:", derivativeInfo.exchangeRate);
+        return derivativeInfo.exchangeRate;
     } catch (error) {
-        console.error('Error fetching stkd-SCRT to SCRT exchange rate:', error);
+        console.error("Error fetching stkd-SCRT to SCRT exchange rate:", error);
         throw error;
     }
-}
-
-// Attach fetchSTKDExchangeRate to `window` for global access
-window.fetchSTKDExchangeRate = fetchSTKDExchangeRate;
-
-// Calculator price convertor function
-function calculate_liquidation_price() {
-    const liquidationPriceInput = document.getElementById("liquidation-price");
-    const exchangeRateInput = document.getElementById("exchange-rate");
-    const resultElement = document.getElementById("base-asset-price");
-
-    const liquidationPrice = parseFloat(liquidationPriceInput.value);
-    const exchangeRate = parseFloat(exchangeRateInput.value);
-
-    if (isNaN(liquidationPrice) || isNaN(exchangeRate) || exchangeRate <= 0) {
-        resultElement.textContent = "Please enter valid inputs.";
-        return;
-    }
-
-    const baseAssetPrice = liquidationPrice / exchangeRate;
-    resultElement.textContent = `$${baseAssetPrice.toFixed(4)}`;
-}
+};
 
 

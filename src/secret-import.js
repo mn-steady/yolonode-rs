@@ -7,7 +7,7 @@ window.Buffer = Buffer;
 window.SecretNetworkClient = SecretNetworkClient;
 
 // Default LCD endpoint
-const DEFAULT_LCD_ENDPOINT = "https://rpc.ankr.com/http/scrt_cosmos";
+export const DEFAULT_LCD_ENDPOINT = "https://rpc.ankr.com/http/scrt_cosmos"; 
 
 export function createSecretClient(endpoint = DEFAULT_LCD_ENDPOINT) {
     console.log("Creating SecretNetworkClient with endpoint:", endpoint);
@@ -19,4 +19,4 @@ export function createSecretClient(endpoint = DEFAULT_LCD_ENDPOINT) {
 
 window.createSecretClient = createSecretClient;
 
-console.log('secret-import.js loaded');
+console.log("secret-import.js loaded");

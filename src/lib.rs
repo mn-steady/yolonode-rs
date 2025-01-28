@@ -878,9 +878,9 @@ pub fn App(cx: Scope) -> impl IntoView {
                                         "PROPOSAL_STATUS_PASSED" => "Proposal Passed",
                                         "PROPOSAL_STATUS_REJECTED" => "Proposal Rejected",
                                         "PROPOSAL_STATUS_VOTING_PERIOD" => "Voting Period",
+                                        "PROPOSAL_STATUS_FAILED" => "Proposal Failed", 
                                         _ => "Unknown Status",
                                     };
-                
                                     let title = proposal
                                         .content
                                         .as_ref()
@@ -927,6 +927,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                                     "PROPOSAL_STATUS_PASSED" => "passed",
                                                     "PROPOSAL_STATUS_REJECTED" => "rejected",
                                                     "PROPOSAL_STATUS_VOTING_PERIOD" => "voting",
+                                                    "PROPOSAL_STATUS_FAILED" => "failed",
                                                     _ => "default",
                                                 }
                                             )}>

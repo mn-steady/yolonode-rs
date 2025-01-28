@@ -616,6 +616,10 @@ hr.gold-line-top {
     color: #df03c1; 
 }
 
+.vote-status.failed .status-text {
+    color: #df03c1; 
+}
+
 .vote-status.voting .status-text {
     color: #53df03; 
 }

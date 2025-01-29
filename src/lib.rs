@@ -880,6 +880,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                         "PROPOSAL_STATUS_REJECTED" => "Proposal Rejected",
                                         "PROPOSAL_STATUS_FAILED" => "Proposal Failed",
                                         "PROPOSAL_STATUS_VOTING_PERIOD" => "Voting Period",
+                                        "PROPOSAL_STATUS_DEPOSIT_PERIOD" => "Deposit Period",
                                         _ => "Unknown Status",
                                     };
                 
@@ -897,12 +898,21 @@ pub fn App(cx: Scope) -> impl IntoView {
                                         "".to_string()
                                     };
                 
-                                    // Static expiration display for "Voting Period"
-                                    let voting_expiration_text = if proposal.status.trim() == "PROPOSAL_STATUS_VOTING_PERIOD" {
+                                    // Expiration text handling for "Voting Period" and "Deposit Period"
+                                    let time_expiration_text = if ["PROPOSAL_STATUS_VOTING_PERIOD", "PROPOSAL_STATUS_DEPOSIT_PERIOD"].contains(&proposal.status.trim()) {
                                         proposal.expiration_time.as_ref().map(|time| {
                                             let date = js_sys::Date::new(&JsValue::from_str(time));
                                             if date.get_time().is_finite() {
-                                                format!("Expires {}", date.to_locale_date_string("en-US", &JsValue::undefined()))
+                                                let now = js_sys::Date::now();
+                                                let remaining_ms = date.get_time() - now;
+                                                
+                                                if remaining_ms > 0.0 {
+                                                    let remaining_days = (remaining_ms / (1000.0 * 60.0 * 60.0 * 24.0)) as i64;
+                                                    let remaining_hours = ((remaining_ms % (1000.0 * 60.0 * 60.0 * 24.0)) / (1000.0 * 60.0 * 60.0)) as i64;
+                                                    format!("Expires in {}d {}h", remaining_days, remaining_hours)
+                                                } else {
+                                                    "Expired".to_string()
+                                                }
                                             } else {
                                                 "Invalid Expiration Date".to_string()
                                             }
@@ -956,16 +966,17 @@ pub fn App(cx: Scope) -> impl IntoView {
                                                     "PROPOSAL_STATUS_REJECTED" => "rejected",
                                                     "PROPOSAL_STATUS_FAILED" => "failed",
                                                     "PROPOSAL_STATUS_VOTING_PERIOD" => "voting",
+                                                    "PROPOSAL_STATUS_DEPOSIT_PERIOD" => "deposit",
                                                     _ => "default",
                                                 }
                                             )}>
                                                 <span class="status-text">{display_status}</span>
-                                                {if proposal.status.trim() == "PROPOSAL_STATUS_VOTING_PERIOD" {
+                                                {if ["PROPOSAL_STATUS_VOTING_PERIOD", "PROPOSAL_STATUS_DEPOSIT_PERIOD"].contains(&proposal.status.trim()) {
                                                     view! {
                                                         cx,
                                                         <span>
                                                             <span class="separator">" | "</span>
-                                                            <span class="expiration-text">{voting_expiration_text}</span>
+                                                            <span class="expiration-text">{time_expiration_text}</span>
                                                         </span>
                                                     }
                                                 } else if !expiration_text.is_empty() {
@@ -987,7 +998,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }}
                         </ul>
                     </div>
-                },                                                                                                                                                                                         
+                },                                                                                                                                                                                                                                             
                 "Tools" => view! { cx,
                     <div class="tools-section">
                         <h2>"Derivative Price Converter :"</h2>

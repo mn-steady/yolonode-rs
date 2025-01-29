@@ -874,13 +874,44 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <ul class="vote-list">
                             {move || {
                                 governance_proposals.get().iter().map(|proposal| {
+                                    // Map the status to a user-friendly string
                                     let display_status = match proposal.status.trim() {
                                         "PROPOSAL_STATUS_PASSED" => "Proposal Passed",
                                         "PROPOSAL_STATUS_REJECTED" => "Proposal Rejected",
+                                        "PROPOSAL_STATUS_FAILED" => "Proposal Failed",
                                         "PROPOSAL_STATUS_VOTING_PERIOD" => "Voting Period",
-                                        "PROPOSAL_STATUS_FAILED" => "Proposal Failed", 
                                         _ => "Unknown Status",
                                     };
+                
+                                    // Expiration text handling for "Passed", "Rejected", and "Failed" proposals
+                                    let expiration_text = if ["PROPOSAL_STATUS_PASSED", "PROPOSAL_STATUS_REJECTED", "PROPOSAL_STATUS_FAILED"].contains(&proposal.status.trim()) {
+                                        proposal.expiration_time.as_ref().map(|time| {
+                                            let date = js_sys::Date::new(&JsValue::from_str(time));
+                                            if date.get_time().is_finite() {
+                                                format!("Ended {}", date.to_locale_date_string("en-US", &JsValue::undefined()))
+                                            } else {
+                                                "Invalid End Date".to_string()
+                                            }
+                                        }).unwrap_or_else(|| "No End Date".to_string())
+                                    } else {
+                                        "".to_string()
+                                    };
+                
+                                    // Static expiration display for "Voting Period"
+                                    let voting_expiration_text = if proposal.status.trim() == "PROPOSAL_STATUS_VOTING_PERIOD" {
+                                        proposal.expiration_time.as_ref().map(|time| {
+                                            let date = js_sys::Date::new(&JsValue::from_str(time));
+                                            if date.get_time().is_finite() {
+                                                format!("Expires {}", date.to_locale_date_string("en-US", &JsValue::undefined()))
+                                            } else {
+                                                "Invalid Expiration Date".to_string()
+                                            }
+                                        }).unwrap_or_else(|| "No Expiration Date".to_string())
+                                    } else {
+                                        "".to_string()
+                                    };
+                
+                                    // Title and description handling
                                     let title = proposal
                                         .content
                                         .as_ref()
@@ -892,6 +923,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                         .as_ref()
                                         .and_then(|content| content.description.clone());
                 
+                                    // Convert proposal details (JSON) into formatted text
                                     let formatted_details = proposal
                                         .messages
                                         .as_ref()
@@ -906,80 +938,43 @@ pub fn App(cx: Scope) -> impl IntoView {
                                         })
                                         .unwrap_or_else(|| vec![view! { cx, <pre class="formatted-json">"No details available."</pre> }]);
                 
-                                    let should_show_details_text = description.as_ref().map_or(true, |desc| !desc.contains("{\"@type\":"));
-                
                                     view! {
                                         cx,
-                                        <li>
+                                        <li class="vote-item">
                                             <h3>
                                                 <span class="proposal-number">{format!("Proposal #{}: ", proposal.id.unwrap_or(0))}</span>
                                                 <span class="proposal-title">{title}</span>
                                             </h3>
-                                            {should_show_details_text.then(|| {
-                                                description.as_ref().map(|desc| view! { cx, <p>{desc.clone()}</p> })
-                                            })}
+                                            {description.as_ref().map(|desc| view! { cx, <p>{desc.clone()}</p> })}
                                             <div class="details-section">
-                                                {formatted_details}
+                                                {formatted_details} 
                                             </div>
                                             <p class={format!(
                                                 "vote-status {}",
                                                 match proposal.status.trim() {
                                                     "PROPOSAL_STATUS_PASSED" => "passed",
                                                     "PROPOSAL_STATUS_REJECTED" => "rejected",
-                                                    "PROPOSAL_STATUS_VOTING_PERIOD" => "voting",
                                                     "PROPOSAL_STATUS_FAILED" => "failed",
+                                                    "PROPOSAL_STATUS_VOTING_PERIOD" => "voting",
                                                     _ => "default",
                                                 }
                                             )}>
                                                 <span class="status-text">{display_status}</span>
                                                 {if proposal.status.trim() == "PROPOSAL_STATUS_VOTING_PERIOD" {
-                                                    if let Some(expiration_time) = &proposal.expiration_time {
-                                                        let now = js_sys::Date::now();
-                                                        let expiration = js_sys::Date::parse(expiration_time);
-                
-                                                        if expiration.is_nan() {
-                                                            view! {
-                                                                cx,
-                                                                <span>
-                                                                    <span class="separator">" | "</span>
-                                                                    <span class="expiration-text">"Expires: Invalid expiration time"</span>
-                                                                </span>
-                                                            }
-                                                        } else {
-                                                            let remaining_ms = expiration - now;
-                                                            if remaining_ms > 0.0 {
-                                                                let remaining_days = (remaining_ms / (1000.0 * 60.0 * 60.0 * 24.0)) as i64;
-                                                                let remaining_hours = ((remaining_ms % (1000.0 * 60.0 * 60.0 * 24.0)) / (1000.0 * 60.0 * 60.0)) as i64;
-                
-                                                                let time_string = format!(
-                                                                    "Expires in {}d {}h",
-                                                                    remaining_days, remaining_hours
-                                                                );
-                                                                view! {
-                                                                    cx,
-                                                                    <span>
-                                                                        <span class="separator">" | "</span>
-                                                                        <span class="expiration-text">{time_string}</span>
-                                                                    </span>
-                                                                }
-                                                            } else {
-                                                                view! {
-                                                                    cx,
-                                                                    <span>
-                                                                        <span class="separator">" | "</span>
-                                                                        <span class="expiration-text">"Expires: Expired"</span>
-                                                                    </span>
-                                                                }
-                                                            }
-                                                        }
-                                                    } else {
-                                                        view! {
-                                                            cx,
-                                                            <span>
-                                                                <span class="separator">" | "</span>
-                                                                <span class="expiration-text">"Not available"</span>
-                                                            </span>
-                                                        }
+                                                    view! {
+                                                        cx,
+                                                        <span>
+                                                            <span class="separator">" | "</span>
+                                                            <span class="expiration-text">{voting_expiration_text}</span>
+                                                        </span>
+                                                    }
+                                                } else if !expiration_text.is_empty() {
+                                                    view! {
+                                                        cx,
+                                                        <span>
+                                                            <span class="separator">" | "</span>
+                                                            <span class="expiration-text">{expiration_text}</span>
+                                                        </span>
                                                     }
                                                 } else {
                                                     view! { cx, <span></span> }
@@ -992,7 +987,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }}
                         </ul>
                     </div>
-                },                                                                                                                                          
+                },                                                                                                                                                                                         
                 "Tools" => view! { cx,
                     <div class="tools-section">
                         <h2>"Derivative Price Converter :"</h2>

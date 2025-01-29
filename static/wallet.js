@@ -126,7 +126,7 @@ async function fetchGovernanceProposals() {
                         title: "No content available",
                         description: "No description available",
                     };
-                
+
                     if (proposal.content) {
                         contentDetails = {
                             title: proposal.content.title || "Untitled Proposal",
@@ -139,18 +139,31 @@ async function fetchGovernanceProposals() {
                             description: `Details: ${JSON.stringify(firstMessage)}`,
                         };
                     }
-                
+
+                    let formattedEndDate = "";
+                    if (proposal.voting_end_time) {
+                        const endDate = new Date(proposal.voting_end_time);
+                        formattedEndDate = endDate.toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                        });
+                    }
+
+                    let statusText = proposal.status;
+                    if (["Failed", "Passed", "Rejected"].includes(proposal.status) && formattedEndDate) {
+                        statusText += ` | Ended ${formattedEndDate}`;
+                    }
+
                     return {
                         proposal_id: proposal.proposal_id || proposal.id || "Unknown",
                         title: contentDetails.title,
                         description: contentDetails.description,
-                        status: proposal.status,
-                        expiration_time: proposal.voting_end_time 
-                            ? new Date(proposal.voting_end_time).toISOString() 
-                            : null, 
+                        status: statusText, 
+                        expiration_time: formattedEndDate,
                         ...proposal,
-                    };                    
-                });                
+                    };
+                });
 
                 proposals = [...proposals, ...processedProposals];
                 nextKey = response.pagination?.next_key;

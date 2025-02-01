@@ -83,14 +83,14 @@ async function getAddressForMultiChain(chainId) {
 }
 
 // Function to fetch governance proposals
-async function fetchGovernanceProposals() {
+async function fetchGovernanceProposals(limit = 50) {
     if (!window.keplr) {
         showModal("Wallet not found! Please install Keplr or Fina wallet.");
         return [];
     }
 
     try {
-        console.log("Fetching governance proposals...");
+        console.log("Fetching latest governance proposals...");
 
         await window.keplr.enable("secret-4");
         const signer = window.getOfflineSigner("secret-4");
@@ -109,18 +109,33 @@ async function fetchGovernanceProposals() {
             walletAddress,
         });
 
-        let proposals = [];
+        let allProposals = [];
         let nextKey = null;
+        let latestProposalId = null;
 
+        // Step 1: Fetch the latest proposal ID
+        const latestProposalResponse = await client.query.gov.proposals({
+            "pagination.limit": 1, // Fetch only the latest proposal
+            "pagination.reverse": true, // Fetch newest first
+        });
+
+        if (latestProposalResponse?.proposals?.length > 0) {
+            latestProposalId = parseInt(latestProposalResponse.proposals[0].proposal_id);
+            console.log(`Latest Proposal ID: ${latestProposalId}`);
+        } else {
+            console.error("Unable to fetch the latest proposal.");
+            return [];
+        }
+
+        // Step 2: Fetch proposals in descending order using pagination
         do {
             const response = await client.query.gov.proposals({
-                "pagination.key": nextKey || undefined,
-                "pagination.limit": 50,
+                "pagination.key": nextKey || undefined, // Use pagination key
+                "pagination.limit": 50, // Fetch 50 at a time
+                "pagination.reverse": true, // Fetch newest first
             });
 
-            console.log("Raw response:", response);
-
-            if (response && response.proposals) {
+            if (response?.proposals?.length > 0) {
                 const processedProposals = response.proposals.map((proposal) => {
                     let contentDetails = {
                         title: "No content available",
@@ -159,26 +174,37 @@ async function fetchGovernanceProposals() {
                         proposal_id: proposal.proposal_id || proposal.id || "Unknown",
                         title: contentDetails.title,
                         description: contentDetails.description,
-                        status: statusText, 
+                        status: statusText,
                         expiration_time: formattedEndDate,
+                        submit_time: proposal.submit_time,
                         ...proposal,
                     };
                 });
 
-                proposals = [...proposals, ...processedProposals];
-                nextKey = response.pagination?.next_key;
+                allProposals = [...allProposals, ...processedProposals];
 
-                console.log(
-                    `Fetched ${response.proposals.length} proposals, total: ${proposals.length}`
-                );
+                nextKey = response.pagination?.next_key;
+                console.log(`Fetched ${response.proposals.length} proposals, total so far: ${allProposals.length}`);
+
+                // Stop if we fetched up to the limit
+                if (
+                    allProposals.length >= limit ||
+                    parseInt(allProposals[allProposals.length - 1].proposal_id) <= (latestProposalId - limit)
+                ) {
+                    break;
+                }
             } else {
-                console.warn("No proposals found or response is empty.");
+                console.warn("No more proposals or empty response.");
                 break;
             }
         } while (nextKey);
 
-        proposals.sort((a, b) => new Date(b.submit_time) - new Date(a.submit_time));
-        return proposals.slice(0, 100);
+        // Step 3: Sort proposals by `submit_time` (newest first)
+        allProposals.sort((a, b) => new Date(b.submit_time) - new Date(a.submit_time));
+
+        // Return only the most recent proposals up to the limit
+        console.log(`Final list of ${limit} governance proposals:`, allProposals.slice(0, limit));
+        return allProposals.slice(0, limit);
     } catch (error) {
         console.error("Error fetching governance proposals:", error);
         return [];

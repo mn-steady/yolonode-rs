@@ -284,12 +284,16 @@ fn enrich_proposals(proposals: Vec<GovernanceProposal>) -> Vec<GovernanceProposa
 }
 
 fn map_message_type(msg_type: &str) -> &str {
-    match msg_type {
-        "/ibc.core.client.v1.MsgRecoverClient" => "Recover Client",
-        "/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade" => "Software Upgrade",
-        "/cosmos.gov.v1.MsgUpdateParams" => "Update Parameters",
-        "/cosmos.gov.v1.MsgExecLegacyContent" => "Legacy Content",
-        _ => "Unknown Proposal Type",
+    if msg_type.ends_with("MsgUpdateParams") {
+        "Update Parameters"
+    } else if msg_type.ends_with("MsgSoftwareUpgrade") {
+        "Software Upgrade"
+    } else if msg_type.ends_with("MsgExecLegacyContent") {
+        "Legacy Content"
+    } else if msg_type.ends_with("MsgRecoverClient") {
+        "Recover Client"
+    } else {
+        "Unknown Proposal Type"
     }
 }
 

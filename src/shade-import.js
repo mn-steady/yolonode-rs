@@ -100,3 +100,102 @@ window.fetchSTKDExchangeRate = async function () {
         throw error;
     }
 };
+
+// Fetch all Shade Swap pools though GraphQL
+window.fetchAllShadeSwapPools = async function () {
+    const GRAPHQL_ENDPOINT = "https://prodv1.securesecrets.org/graphql";
+    const query = `
+        query {
+            pools {
+                id
+                token0Id
+                token1Id
+            }
+        }
+    `;
+
+    try {
+        console.log("Fetching Shade Swap pools...");
+
+        const response = await fetch(GRAPHQL_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query }),
+        });
+
+        const json = await response.json();
+        console.log("GraphQL Response:", json); // Log the full response
+
+        if (json.errors) {
+            console.error("GraphQL Errors:", json.errors);
+            return [];
+        }
+
+        const pools = json?.data?.pools || [];
+        console.log("Fetched Pools:", pools); // Log the fetched pools
+
+        return pools;
+    } catch (error) {
+        console.error("Error fetching Shade Swap pools:", error);
+        return [];
+    }
+};
+
+// Fetch dSHD price through GraphQL
+window.fetchDSHDPrice = async function () {
+    const GRAPHQL_ENDPOINT = "https://prodv1.securesecrets.org/graphql";
+    const DSHD_ID = "563526c3-2187-4f3a-a41b-813f599bf59c"; 
+
+    const query = `
+        query {
+            prices(query: { ids: ["${DSHD_ID}"] }) {
+                id
+                value
+            }
+        }
+    `;
+
+    try {
+        console.log("Fetching dSHD price...");
+
+        const response = await fetch(GRAPHQL_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query }),
+        });
+
+        const json = await response.json();
+        console.log("GraphQL Response for dSHD:", json);
+
+        if (json.errors) {
+            console.error("GraphQL Errors:", json.errors);
+            return { error: "Failed to fetch dSHD price" };
+        }
+
+        const priceData = json?.data?.prices?.[0];
+
+        if (priceData && priceData.value) {
+            const formattedPrice = parseFloat(priceData.value).toFixed(6);
+            console.log(`dSHD: ${formattedPrice}`);
+            return { price: formattedPrice };
+        } else {
+            console.warn("No price data found for dSHD");
+            return { error: "No price data available" };
+        }
+    } catch (error) {
+        console.error("Error fetching dSHD price:", error);
+        return { error: "Request failed" };
+    }
+};
+
+// Fetch all Shade Swap Pools on page load
+(async () => {
+    console.log("Initializing Shade Swap Pool Fetcher...");
+    await window.fetchAllShadeSwapPools();
+})();
+
+// Fetch dSHD Price
+(async () => {
+    const dSHDPrice = await window.fetchDSHDPrice();
+    console.log("Fetched dSHD Price:", dSHDPrice);
+})();

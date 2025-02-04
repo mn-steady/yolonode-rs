@@ -8,9 +8,6 @@ fetchGovernanceProposals().then(price => console.log("Governance Proposals:", pr
 
 window.fetchGovernanceProposals().then(console.log).catch(console.error);
 
-
-log::info!("Selected Derivative: {}")
-
 fetchAllRedemptionRates()
     .then(rates => console.log('All Redemption Rates:', rates))
     .catch(err => console.error('Error:', err));
@@ -22,6 +19,31 @@ fetchRedemptionRates()
 fetchRedemptionRateForTIA()
     .then(rate => console.log('Redemption Rate for TIA:', rate))
     .catch(err => console.error('Error:', err));
+
+#Graph QL
+https://prodv1.securesecrets.org/graphql #Endpoint
+
+#Query Tokens
+query {
+  tokens {
+    id
+    name
+    symbol
+    description
+    logoPath
+    PriceToken {
+      priceId
+    }
+  }
+}
+
+#Query Price of specific token
+query {
+  prices(query: { ids: ["563526c3-2187-4f3a-a41b-813f599bf59c"] }) {
+    id
+    value
+  }
+}
 
 ##Test Voting From console
 #Connect Wallet 

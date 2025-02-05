@@ -12,11 +12,6 @@ use serde::de::{self, Deserializer};
 
 // Define structures to match the expected response formats
 #[derive(Deserialize, Debug)]
-struct FetchBatchPricesResponse {
-    prices: HashMap<String, String>,
-}
-
-#[derive(Deserialize, Debug)]
 struct DerivativePricesResponse {
     prices: HashMap<String, String>,
 }
@@ -87,40 +82,6 @@ fn event_target_value(ev: &web_sys::Event) -> String {
         .unwrap_or_default()
 }
 
-
-//Function for fetching individual prices in a batch query
-async fn fetch_batch_prices() -> Result<HashMap<String, String>, String> {
-    if let Ok(js_func) = call_js_function("fetchBatchPrices") {
-        if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<js_sys::Promise>()) {
-            match wasm_bindgen_futures::JsFuture::from(promise).await {
-                Ok(result) => {
-                    log::info!("Raw result from fetchBatchPrices: {:?}", result);
-
-                    // Deserialize the JsValue into FetchBatchPricesResponse
-                    match result.into_serde::<FetchBatchPricesResponse>() {
-                        Ok(response) => {
-                            log::info!("Deserialized response: {:?}", response);
-                            Ok(response.prices) // Extract and return only the prices
-                        }
-                        Err(e) => {
-                            log::error!("Failed to deserialize response: {:?}", e);
-                            Err(format!("Failed to deserialize response: {:?}", e))
-                        }
-                    }
-                }
-                Err(err) => {
-                    log::error!("Promise resolution failed: {:?}", err);
-                    Err("Failed to resolve the promise".to_string())
-                }
-            }
-        } else {
-            Err("Failed to cast JsValue to Promise".to_string())
-        }
-    } else {
-        Err("fetchBatchPrices not defined".to_string())
-    }
-}
-
 //Function for fetching derivative prices individually in a batch query
 async fn fetch_derivative_prices() -> Result<HashMap<String, String>, String> {
     if let Ok(js_func) = call_js_function("fetchDerivativePrices") {
@@ -151,6 +112,39 @@ async fn fetch_derivative_prices() -> Result<HashMap<String, String>, String> {
         }
     } else {
         Err("fetchDerivativePrices not defined".to_string())
+    }
+}
+
+// Function for fetching all token prices via GraphQL
+async fn fetch_all_token_prices_with_names() -> Result<HashMap<String, String>, String> {
+    if let Ok(js_func) = call_js_function("fetchAllTokenPricesWithNames") {
+        if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<js_sys::Promise>()) {
+            match wasm_bindgen_futures::JsFuture::from(promise).await {
+                Ok(result) => {
+                    log::info!("Raw result from fetchAllTokenPricesWithNames: {:?}", result);
+
+                    // Deserialize the JsValue into a HashMap
+                    match result.into_serde::<HashMap<String, String>>() {
+                        Ok(response) => {
+                            log::info!("Deserialized response: {:?}", response);
+                            Ok(response) // Extract and return only the prices
+                        }
+                        Err(e) => {
+                            log::error!("Failed to deserialize response: {:?}", e);
+                            Err(format!("Failed to deserialize response: {:?}", e))
+                        }
+                    }
+                }
+                Err(err) => {
+                    log::error!("Promise resolution failed: {:?}", err);
+                    Err("Failed to resolve the promise".to_string())
+                }
+            }
+        } else {
+            Err("Failed to cast JsValue to Promise".to_string())
+        }
+    } else {
+        Err("fetchAllTokenPricesWithNames not defined".to_string())
     }
 }
 
@@ -317,16 +311,19 @@ pub fn App(cx: Scope) -> impl IntoView {
         vec![("".to_string(), "".to_string()); 4], // Initialize with empty addresses
     );    
     let (selected_derivative, set_selected_derivative) = create_signal(cx, "stkd-SCRT".to_string());
+    let ordered_keys = create_rw_signal(cx, vec![
+        "WBTC.axl", "WETH", "SHD", "SCRT", "ATOM", "AMBER", "TIA", "ANDR", "FINA", "SILK"]);
+    let derivative_keys = create_rw_signal(cx, vec!["dSHD", "stkdSCRT", "stATOM", "stTIA"]);
 
     // Auto-fetch prices on page load
     create_effect(cx, move |_| {
         spawn_local(async move {
-            match fetch_batch_prices().await {
-                Ok(data) => set_prices(data),
+            match fetch_all_token_prices_with_names().await {
+                Ok(data) => set_prices(data), 
                 Err(err) => log::error!("Error fetching prices on load: {}", err),
             }
         });
-    });  
+    });
 
     // Fetch derivative prices on page load
     create_effect(cx, move |_| {
@@ -341,19 +338,27 @@ pub fn App(cx: Scope) -> impl IntoView {
     // Fetch all prices button function
     let fetch_all_prices = move |_| {
         spawn_local(async move {
-            // Fetch batch prices
-            match fetch_batch_prices().await {
-                Ok(batch_data) => set_prices(batch_data),
-                Err(err) => log::error!("Failed to fetch batch prices: {:?}", err),
-            }
-    
-            // Fetch derivative prices
-            match fetch_derivative_prices().await {
-                Ok(derivative_data) => set_derivative_prices(derivative_data),
-                Err(err) => log::error!("Failed to fetch derivative prices: {:?}", err),
+            match fetch_all_token_prices_with_names().await {
+                Ok(data) => {
+                    log::info!("Updated Prices: {:?}", data); 
+                    set_prices(data.clone());  
+                }                
+                Err(err) => log::error!("Failed to fetch token prices: {:?}", err),
             }
         });
-    };  
+    };   
+    
+    // Define Token Key Map
+    let display_key_map = create_rw_signal(cx, HashMap::from([
+        ("WBTC.axl", "BTC"),       
+        ("WETH", "ETH"),           
+        ("stkdSCRT", "stkd-SCRT"), 
+        ("stATOM", "stATOM"),
+        ("stTIA", "stTIA"),   
+        ("dSHD", "dSHD"),  
+        ("ANDR", "ANDR"),
+        ("FINA", "FINA"),      
+    ]));    
 
     // Auto-fetch STKD exhcange rate on page load
     create_effect(cx, move |_| {
@@ -682,74 +687,84 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                         <hr class="gold-line" />
                         <div class="price-list">
-                            // Render regular prices
-                            {let ordered_keys = vec!["BTC", "ETH", "SHD", "SCRT", "ATOM", "TIA", "SILK"];
-                            move || ordered_keys.iter().map(|key| {
-                                if let Some(value) = prices.get().get(*key) {
-                                    view! {
-                                        cx,
-                                        <div class="price-row">
-                                            <h3>{format!("{} :", key)}</h3>
-                                            <div class="price-display">{format!("${}", value)}</div>
-                                            <hr class="gold-line" />
-                                        </div>
+                            {move || {
+                                let prices = prices.get();
+                                let map = display_key_map.get(); 
+                                
+                                ordered_keys.get().iter().map(move |key| {
+                                    let display_key = map.get(*key).unwrap_or(key); 
+
+                                    if let Some(value) = prices.get(*key) {
+                                        view! {
+                                            cx,
+                                            <div class="price-row">
+                                                <h3>{format!("{} :", display_key)}</h3>
+                                                <div class="price-display">{format!("${}", value)}</div>
+                                                <hr class="gold-line" />
+                                            </div>
+                                        }
+                                    } else {
+                                        view! {
+                                            cx,
+                                            <div class="price-row">
+                                                <h3>{format!("{} :", display_key)}</h3>
+                                                <div class="price-display">"No Data"</div>
+                                            </div>
+                                        }
                                     }
-                                } else {
-                                    view! {
-                                        cx,
-                                        <div class="price-row">
-                                            <h3>{format!("{} :", key)}</h3>
-                                            <div class="price-display">"No Data"</div>
-                                        </div>
-                                    }
-                                }
-                            }).collect::<Vec<_>>()}
+                                }).collect::<Vec<_>>()
+                            }}
                         </div>
+
+                        // ✅ Derivative Prices Section
                         <div class="price-section-header">
                             <h2>"Derivatives :"</h2>
                         </div>
                         <hr class="gold-line" />
                         <div class="price-list">
-                            // Render derivative prices
-                            {let derivative_keys = vec!["stkd-SCRT", "Stride ATOM", "Stride TIA"];
-                            let display_key_map = HashMap::from([
-                                ("stkd-SCRT", "stkdSCRT"),
-                                ("Stride ATOM", "stATOM"),
-                                ("Stride TIA", "stTIA"),
-                            ]);
-                
-                            move || derivative_keys.iter().map(|key| {
-                                let display_key = display_key_map.get(key).unwrap_or(key); // Get the display key or fallback to original key
-                                if let Some(value) = derivative_prices.get().get(*key) {
-                                    view! {
-                                        cx,
-                                        <div class="price-row">
-                                            <h3>{format!("{} :", display_key)}</h3>
-                                            <div class="price-display">{format!("${}", value)}</div>
-                                            <hr class="gold-line" />
-                                        </div>
+                            {move || {
+                                let prices = prices.get();
+                                let map = display_key_map.get();
+                                
+                                derivative_keys.get().iter().map(move |key| {
+                                    let display_key = map.get(*key).unwrap_or(key); 
+
+                                    if let Some(value) = prices.get(*key) {
+                                        view! {
+                                            cx,
+                                            <div class="price-row">
+                                                <h3>{format!("{} :", display_key)}</h3>
+                                                <div class="price-display">{format!("${}", value)}</div>
+                                                <hr class="gold-line" />
+                                            </div>
+                                        }
+                                    } else {
+                                        view! {
+                                            cx,
+                                            <div class="price-row">
+                                                <h3>{format!("{} :", display_key)}</h3>
+                                                <div class="price-display">"No Data"</div>
+                                            </div>
+                                        }
                                     }
-                                } else {
-                                    view! {
-                                        cx,
-                                        <div class="price-row">
-                                            <h3>{format!("{} :", display_key)}</h3>
-                                            <div class="price-display">"No Data"</div>
-                                        </div>
-                                    }
-                                }
-                            }).collect::<Vec<_>>()}
+                                }).collect::<Vec<_>>()
+                            }}
                         </div>
+                
+                        // ✅ Price Ratios Section
                         <div class="price-section-header">
                             <h2>"Ratios :"</h2>
                         </div>
                         <hr class="gold-line" />
                         <div class="price-list">
                             {move || {
+                                let prices = prices.get();
+                                let derivative_prices = derivative_prices.get();
+                
                                 // SHD/SCRT Ratio
                                 let shd_to_scrt = if let (Some(shd_price), Some(scrt_price)) = (
-                                    prices.get().get("SHD"),
-                                    prices.get().get("SCRT"),
+                                    prices.get("SHD"),
+                                    prices.get("SCRT"),
                                 ) {
                                     let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
                                                 scrt_price.parse::<f64>().unwrap_or(1.0);
@@ -757,11 +772,11 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 } else {
                                     "No Data".to_string()
                                 };
-
+                
                                 // SHD/stkd-SCRT Ratio
                                 let shd_to_stkd_scrt = if let (Some(shd_price), Some(stkd_scrt_price)) = (
-                                    prices.get().get("SHD"),
-                                    derivative_prices.get().get("stkd-SCRT"),
+                                    prices.get("SHD"),
+                                    derivative_prices.get("stkd-SCRT"),
                                 ) {
                                     let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
                                                 stkd_scrt_price.parse::<f64>().unwrap_or(1.0);
@@ -769,11 +784,11 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 } else {
                                     "No Data".to_string()
                                 };
-
+                
                                 // SHD/ATOM Ratio
                                 let shd_to_atom = if let (Some(shd_price), Some(atom_price)) = (
-                                    prices.get().get("SHD"),
-                                    prices.get().get("ATOM"),
+                                    prices.get("SHD"),
+                                    prices.get("ATOM"),
                                 ) {
                                     let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
                                                 atom_price.parse::<f64>().unwrap_or(1.0);
@@ -781,19 +796,19 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 } else {
                                     "No Data".to_string()
                                 };
-
+                
                                 // SCRT/ATOM Ratio
                                 let scrt_to_atom = if let (Some(scrt_price), Some(atom_price)) = (
-                                    prices.get().get("SCRT"),
-                                    prices.get().get("ATOM"),
+                                    prices.get("SCRT"),
+                                    prices.get("ATOM"),
                                 ) {
                                     let ratio = scrt_price.parse::<f64>().unwrap_or(0.0) /
                                                 atom_price.parse::<f64>().unwrap_or(1.0);
                                     format!("{:.4}", ratio)
                                 } else {
                                     "No Data".to_string()
-                                };                                
-
+                                };
+                
                                 view! {
                                     cx,
                                     <>
@@ -816,13 +831,13 @@ pub fn App(cx: Scope) -> impl IntoView {
                                             <h3>"SCRT/ATOM :"</h3>
                                             <div class="price-display">{scrt_to_atom}</div>
                                             <hr class="gold-line" />
-                                        </div>                                        
+                                        </div>
                                     </>
                                 }
                             }}
                         </div>
-                    </div>                    
-                },  
+                    </div>
+                },                                                      
                 "Wallet" => view! { cx,
                     <div class="wallet-section">
                         <div class="wallet-section-header">

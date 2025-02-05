@@ -20,8 +20,8 @@ fetchRedemptionRateForTIA()
     .then(rate => console.log('Redemption Rate for TIA:', rate))
     .catch(err => console.error('Error:', err));
 
-#Graph QL
-https://prodv1.securesecrets.org/graphql #Endpoint
+#Graph QL Endpoint
+https://prodv1.securesecrets.org/graphql 
 
 #Query Tokens
 query {
@@ -44,6 +44,8 @@ query {
     value
   }
 }
+
+fetchAllTokenPricesWithNames();
 
 ##Test Voting From console
 #Connect Wallet 

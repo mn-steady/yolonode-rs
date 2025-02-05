@@ -115,7 +115,7 @@ window.fetchAllShadeSwapPools = async function () {
     `;
 
     try {
-        console.log("Fetching Shade Swap pools...");
+        console.log("🚀 Fetching Shade Swap pools...");
 
         const response = await fetch(GRAPHQL_ENDPOINT, {
             method: "POST",
@@ -188,14 +188,115 @@ window.fetchDSHDPrice = async function () {
     }
 };
 
-// Fetch all Shade Swap Pools on page load
+// Fetch all token prices through GraphQL
+window.fetchAllTokenPricesWithNames = async function () {
+    const GRAPHQL_ENDPOINT = "https://prodv1.securesecrets.org/graphql";
+
+    // Step 1: Fetch All Tokens
+    const tokensQuery = {
+        operationName: "getTokens",
+        query: `
+            query getTokens {
+                tokens {
+                    id
+                    name
+                    symbol
+                    description
+                    logoPath
+                    PriceToken {
+                        priceId
+                    }
+                }
+            }
+        `,
+        variables: {}
+    };
+
+    try {
+        console.log("🔍 Fetching token details...");
+
+        const tokensResponse = await fetch(GRAPHQL_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(tokensQuery),
+        });
+
+        const tokensJson = await tokensResponse.json();
+        if (tokensJson.errors) {
+            console.error("❌ GraphQL Errors (Tokens):", tokensJson.errors);
+            return;
+        }
+
+        const tokens = tokensJson?.data?.tokens || [];
+        console.log("✅ Tokens Loaded:", tokens.length);
+
+        // Step 2: Extract Token IDs for Price Query
+        const tokenIds = tokens
+            .filter(token => token.PriceToken.length > 0) // Only tokens with prices
+            .map(token => token.PriceToken[0].priceId);
+
+        if (tokenIds.length === 0) {
+            console.warn("⚠️ No tokens with valid prices found.");
+            return;
+        }
+
+        // Step 3: Fetch Prices Using Token IDs
+        console.log("📊 Fetching token prices...");
+        const pricesQuery = {
+            operationName: "getPrices",
+            query: `
+                query getPrices($ids: [String!]) {
+                    prices(query: { ids: $ids }) {
+                        id
+                        value
+                    }
+                }
+            `,
+            variables: { ids: tokenIds }
+        };
+
+        const pricesResponse = await fetch(GRAPHQL_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(pricesQuery),
+        });
+
+        const pricesJson = await pricesResponse.json();
+        if (pricesJson.errors) {
+            console.error("❌ GraphQL Errors (Prices):", pricesJson.errors);
+            return;
+        }
+
+        const priceData = pricesJson?.data?.prices || [];
+
+        // Step 4: Map Prices to Tokens
+        const priceMap = new Map(priceData.map(price => [price.id, price.value]));
+
+        const formattedPrices = {};
+        tokens.forEach(token => {
+            const priceId = token.PriceToken[0]?.priceId;
+            if (priceId && priceMap.has(priceId)) {
+                formattedPrices[token.symbol] = priceMap.get(priceId)?.toFixed(6) || "No Data";
+            }
+        });
+
+        console.log("✅ Final Token Prices:", formattedPrices);
+        return formattedPrices;
+
+    } catch (error) {
+        console.error("❌ Error fetching token prices:", error);
+    }
+};
+
+// Fetch all Shadeswap Pools on page load
 (async () => {
-    console.log("Initializing Shade Swap Pool Fetcher...");
+    console.log("🚀 Initializing Shadeswap Pool Fetcher...");
     await window.fetchAllShadeSwapPools();
 })();
 
-// Fetch dSHD Price
+// Fetch all tokens and prices on page load
 (async () => {
-    const dSHDPrice = await window.fetchDSHDPrice();
-    console.log("Fetched dSHD Price:", dSHDPrice);
+    console.log("🚀 Fetching all token prices...");
+    await window.fetchAllTokenPricesWithNames(); 
 })();
+

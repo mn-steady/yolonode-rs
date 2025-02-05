@@ -19,4 +19,4 @@ export function createSecretClient(endpoint = DEFAULT_LCD_ENDPOINT) {
 
 window.createSecretClient = createSecretClient;
 
-console.log("secret-import.js loaded");
+console.log("✅ secret-import.js loaded");

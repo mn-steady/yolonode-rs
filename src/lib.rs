@@ -450,18 +450,23 @@ pub fn App(cx: Scope) -> impl IntoView {
         });
     });
 
-    //Fetch stride redemption rates
+    // Fetch stride redemption rates
     create_effect(cx, move |_| {
         spawn_local(async move {
             if let Ok(js_func) = call_js_function("fetchAllRedemptionRates") {
-                if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<js_sys::Promise>()) {
+                if let Ok(promise) = js_func.call0(&web_sys::window().unwrap())
+                    .and_then(|val| val.dyn_into::<js_sys::Promise>())
+                {
                     match wasm_bindgen_futures::JsFuture::from(promise).await {
                         Ok(result) => {
-                            if let Ok(rates) = result.into_serde::<HashMap<String, f64>>() {
-                                // log::info!("✅ Fetched Stride redemption rates: {:?}", rates);
-                                set_redemption_rates(rates);
-                            } else {
-                                log::error!("❌ Failed to deserialize redemption rates.");
+                            match result.into_serde::<HashMap<String, f64>>() {
+                                Ok(rates) => {
+                                    log::info!("✅ Fetched Stride redemption rates: {:?}", rates);
+                                    set_redemption_rates(rates);
+                                }
+                                Err(e) => {
+                                    log::error!("❌ Failed to deserialize redemption rates: {:?}", e);
+                                }
                             }
                         }
                         Err(err) => {

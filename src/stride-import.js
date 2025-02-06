@@ -51,24 +51,28 @@ export async function fetchRedemptionRates() {
 // Fetch redemption rate for Celestia
 export async function fetchRedemptionRateForTIA() {
     try {
-        const apiUrl = 'https://stride-api.polkachu.com/Stride-Labs/stride/staketia/host_zone';
+        const apiUrl = "https://stride-api.polkachu.com/Stride-Labs/stride/stakeibc/host_zone";
         const response = await fetch(apiUrl);
         if (!response.ok) {
             throw new Error(`Failed to fetch data: ${response.statusText}`);
         }
 
         const data = await response.json();
-        const redemptionRateRaw = data.host_zone?.last_redemption_rate;
-        if (!redemptionRateRaw) {
-            throw new Error('❌ Last redemption rate not found in API response');
+        console.log("🔍 Full API Response for TIA (New Endpoint):", data);
+
+        const celestiaZone = data.host_zone.find(zone => zone.chain_id === "celestia");
+
+        if (!celestiaZone || !celestiaZone.last_redemption_rate) {
+            console.warn("⚠️ last_redemption_rate is missing for TIA. Using fallback.");
+            return 1.0; 
         }
 
-        const redemptionRate = parseFloat(redemptionRateRaw);
-        console.log('📊 Redemption Rate for TIA:', redemptionRate);
+        const redemptionRate = parseFloat(celestiaZone.last_redemption_rate);
+        console.log("📊 Redemption Rate for TIA (New API):", redemptionRate);
         return redemptionRate;
     } catch (error) {
-        console.error('❌ Error fetching redemption rate for TIA:', error);
-        throw error;
+        console.error("❌ Error fetching redemption rate for TIA:", error);
+        return 1.0; 
     }
 }
 
@@ -80,17 +84,17 @@ export async function fetchAllRedemptionRates() {
             fetchRedemptionRateForTIA(),
         ]);
 
-        // Combine rates into one object
-        const allRates = {
-            ...hostZoneRates,
-            stTIA: tiaRate,
-        };
+        if (tiaRate !== null) {
+            hostZoneRates["stTIA"] = tiaRate;
+        } else {
+            console.warn("⚠️ Skipping TIA rate because it was not found.");
+        }
 
-        console.log('📊 All Redemption Rates:', allRates);
-        return allRates;
+        console.log("📊 All Redemption Rates:", hostZoneRates);
+        return hostZoneRates;
     } catch (error) {
-        console.error('❌ Error fetching all redemption rates:', error);
-        throw error;
+        console.error("❌ Error fetching all redemption rates:", error);
+        return {};
     }
 }
 

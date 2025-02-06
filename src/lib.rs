@@ -441,7 +441,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         spawn_local(async move {
             match fetch_stkd_scrt_exchange_rate().await {
                 Ok(rate) => {
-                    log::info!("✅ Fetched stkd-SCRT to SCRT exchange rate: {}", rate);
+                    // log::info!("✅ Fetched stkd-SCRT to SCRT exchange rate: {}", rate);
                     set_exchange_rate(rate);
                     set_default_exchange_rate(rate); // Store as default
                 }

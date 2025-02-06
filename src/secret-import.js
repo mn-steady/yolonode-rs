@@ -10,7 +10,7 @@ window.SecretNetworkClient = SecretNetworkClient;
 export const DEFAULT_LCD_ENDPOINT = "https://rpc.ankr.com/http/scrt_cosmos"; 
 
 export function createSecretClient(endpoint = DEFAULT_LCD_ENDPOINT) {
-    console.log("Creating SecretNetworkClient with endpoint:", endpoint);
+    console.log("🚀 Creating SecretNetworkClient with endpoint:", endpoint);
     return new SecretNetworkClient({
         url: endpoint,
         chainId: "secret-4",

@@ -19,20 +19,20 @@ window.fetchBatchPrices = async function (
         lcdEndpoint = DEFAULT_LCD_ENDPOINT,
     } = options;
 
-    console.log("Using LCD endpoint:", lcdEndpoint);
+    console.log("🚀 Using LCD endpoint:", lcdEndpoint);
 
     // Ensure the LCD endpoint is valid
     if (!lcdEndpoint) {
-        throw new Error("LCD endpoint is not defined. Please provide a valid endpoint.");
+        throw new Error("❌ LCD endpoint is not defined. Please provide a valid endpoint.");
     }
 
     // Create Secret Network client
     let client;
     try {
         client = createSecretClient(lcdEndpoint);
-        console.log("Secret client created:", client);
+        console.log("✅ Secret client created:", client);
     } catch (error) {
-        console.error("Error creating Secret client:", error);
+        console.error("❌ Error creating Secret client:", error);
         return { prices: {}, error: "Failed to create Secret client" };
     }
 
@@ -56,9 +56,9 @@ window.fetchBatchPrices = async function (
             if (priceData[key]?.rate) {
                 try {
                     formattedPrices[key] = (parseFloat(priceData[key].rate) / DECIMALS).toFixed(4);
-                    console.log(`Formatted ${key} Price:`, formattedPrices[key]);
+                    console.log(`📊 Formatted ${key} Price:`, formattedPrices[key]);
                 } catch (formatError) {
-                    console.error(`Error formatting price for ${key}:`, formatError);
+                    console.error(`❌ Error formatting price for ${key}:`, formatError);
                     formattedPrices[key] = "Error Formatting";
                 }
             } else {
@@ -69,7 +69,7 @@ window.fetchBatchPrices = async function (
 
         return { prices: formattedPrices, fetchedAt: new Date().toISOString() };
     } catch (error) {
-        console.error("Error fetching batch prices:", error);
+        console.error("❌ Error fetching batch prices:", error);
         return { prices: {}, error: "Failed to fetch batch prices" };
     }
 };
@@ -93,15 +93,15 @@ window.fetchSTKDExchangeRate = async function () {
             queryTimeSeconds: Math.floor(Date.now() / 1000),
         });
 
-        console.log("stkd-SCRT Exchange Rate:", derivativeInfo.exchangeRate);
+        console.log("📊 stkd-SCRT Exchange Rate:", derivativeInfo.exchangeRate);
         return derivativeInfo.exchangeRate;
     } catch (error) {
-        console.error("Error fetching stkd-SCRT to SCRT exchange rate:", error);
+        console.error("❌ Error fetching stkd-SCRT to SCRT exchange rate:", error);
         throw error;
     }
 };
 
-// Fetch all Shade Swap pools though GraphQL
+// Fetch all ShadeSwap pools though GraphQL
 window.fetchAllShadeSwapPools = async function () {
     const GRAPHQL_ENDPOINT = "https://prodv1.securesecrets.org/graphql";
     const query = `
@@ -115,7 +115,7 @@ window.fetchAllShadeSwapPools = async function () {
     `;
 
     try {
-        console.log("🚀 Fetching Shade Swap pools...");
+        console.log("🔍 Fetching ShadeSwap pools...");
 
         const response = await fetch(GRAPHQL_ENDPOINT, {
             method: "POST",
@@ -124,19 +124,18 @@ window.fetchAllShadeSwapPools = async function () {
         });
 
         const json = await response.json();
-        console.log("GraphQL Response:", json); // Log the full response
 
         if (json.errors) {
-            console.error("GraphQL Errors:", json.errors);
+            console.error("❌ GraphQL Errors:", json.errors);
             return [];
         }
 
         const pools = json?.data?.pools || [];
-        console.log("Fetched Pools:", pools); // Log the fetched pools
+        console.log("✅ Fetched Pools:", pools); 
 
         return pools;
     } catch (error) {
-        console.error("Error fetching Shade Swap pools:", error);
+        console.error("❌ Error fetching ShadeSwap pools:", error);
         return [];
     }
 };
@@ -156,7 +155,7 @@ window.fetchDSHDPrice = async function () {
     `;
 
     try {
-        console.log("Fetching dSHD price...");
+        console.log("🚀 Fetching dSHD price...");
 
         const response = await fetch(GRAPHQL_ENDPOINT, {
             method: "POST",
@@ -165,10 +164,10 @@ window.fetchDSHDPrice = async function () {
         });
 
         const json = await response.json();
-        console.log("GraphQL Response for dSHD:", json);
+        console.log("✅ GraphQL Response for dSHD:", json);
 
         if (json.errors) {
-            console.error("GraphQL Errors:", json.errors);
+            console.error("❌ GraphQL Errors:", json.errors);
             return { error: "Failed to fetch dSHD price" };
         }
 
@@ -183,7 +182,7 @@ window.fetchDSHDPrice = async function () {
             return { error: "No price data available" };
         }
     } catch (error) {
-        console.error("Error fetching dSHD price:", error);
+        console.error("❌ Error fetching dSHD price:", error);
         return { error: "Request failed" };
     }
 };
@@ -241,7 +240,7 @@ window.fetchAllTokenPricesWithNames = async function () {
         }
 
         // Step 3: Fetch Prices Using Token IDs
-        console.log("📊 Fetching token prices...");
+        console.log("🔍 Fetching token prices...");
         const pricesQuery = {
             operationName: "getPrices",
             query: `
@@ -280,7 +279,7 @@ window.fetchAllTokenPricesWithNames = async function () {
             }
         });
 
-        console.log("✅ Final Token Prices:", formattedPrices);
+        console.log("📊 Final Token Prices:", formattedPrices);
         return formattedPrices;
 
     } catch (error) {
@@ -288,15 +287,9 @@ window.fetchAllTokenPricesWithNames = async function () {
     }
 };
 
-// Fetch all Shadeswap Pools on page load
+// Fetch all ShadeSwap Pools on page load
 (async () => {
-    console.log("🚀 Initializing Shadeswap Pool Fetcher...");
+    console.log("🚀 Initializing ShadeSwap Pool Fetcher...");
     await window.fetchAllShadeSwapPools();
-})();
-
-// Fetch all tokens and prices on page load
-(async () => {
-    console.log("🚀 Fetching all token prices...");
-    await window.fetchAllTokenPricesWithNames(); 
 })();
 

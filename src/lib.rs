@@ -11,6 +11,14 @@ use serde::Deserialize;
 use serde::de::{self, Deserializer};
 
 // Define structures to match the expected response formats
+
+/* 
+#[derive(Deserialize, Debug)]
+struct FetchBatchPricesResponse {
+    prices: HashMap<String, String>,
+} 
+*/
+
 #[derive(Deserialize, Debug)]
 struct DerivativePricesResponse {
     prices: HashMap<String, String>,
@@ -82,22 +90,23 @@ fn event_target_value(ev: &web_sys::Event) -> String {
         .unwrap_or_default()
 }
 
-//Function for fetching derivative prices individually in a batch query
-async fn fetch_derivative_prices() -> Result<HashMap<String, String>, String> {
-    if let Ok(js_func) = call_js_function("fetchDerivativePrices") {
-        if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<Promise>()) {
+//Function for fetching individual prices in a batch query
+/* 
+async fn fetch_batch_prices() -> Result<HashMap<String, String>, String> {
+    if let Ok(js_func) = call_js_function("fetchBatchPrices") {
+        if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<js_sys::Promise>()) {
             match wasm_bindgen_futures::JsFuture::from(promise).await {
                 Ok(result) => {
-                    log::info!("Raw result from fetchDerivativePrices: {:?}", result);
+                    log::info!("Raw result from fetchBatchPrices: {:?}", result);
 
-                    // Deserialize the JsValue into DerivativePricesResponse
-                    match result.into_serde::<DerivativePricesResponse>() {
+                    // Deserialize the JsValue into FetchBatchPricesResponse
+                    match result.into_serde::<FetchBatchPricesResponse>() {
                         Ok(response) => {
-                            log::info!("Deserialized derivative prices: {:?}", response);
-                            Ok(response.prices)
+                            log::info!("Deserialized response: {:?}", response);
+                            Ok(response.prices) // Extract and return only the prices
                         }
                         Err(e) => {
-                            log::error!("Failed to deserialize derivative prices: {:?}", e);
+                            log::error!("Failed to deserialize response: {:?}", e);
                             Err(format!("Failed to deserialize response: {:?}", e))
                         }
                     }
@@ -111,9 +120,44 @@ async fn fetch_derivative_prices() -> Result<HashMap<String, String>, String> {
             Err("Failed to cast JsValue to Promise".to_string())
         }
     } else {
+        Err("fetchBatchPrices not defined".to_string())
+    }
+}
+*/
+
+//Function for fetching derivative prices individually in a batch query
+async fn fetch_derivative_prices() -> Result<HashMap<String, String>, String> {
+    if let Ok(js_func) = call_js_function("fetchDerivativePrices") {
+        if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<Promise>()) {
+            match wasm_bindgen_futures::JsFuture::from(promise).await {
+                Ok(result) => {
+                    // log::info!("Raw result from fetchDerivativePrices: {:?}", result);
+
+                    // Deserialize the JsValue into DerivativePricesResponse
+                    match result.into_serde::<DerivativePricesResponse>() {
+                        Ok(response) => {
+                            // log::info!("Deserialized derivative prices: {:?}", response);
+                            Ok(response.prices)
+                        }
+                        Err(e) => {
+                            log::error!("Failed to deserialize derivative prices: {:?}", e);
+                            Err(format!("Failed to deserialize response: {:?}", e))
+                        }
+                    }
+                }
+                Err(err) => {
+                    log::error!("❌ Promise resolution failed: {:?}", err);
+                    Err("Failed to resolve the promise".to_string())
+                }
+            }
+        } else {
+            Err("Failed to cast JsValue to Promise".to_string())
+        }
+    } else {
         Err("fetchDerivativePrices not defined".to_string())
     }
 }
+
 
 // Function for fetching all token prices via GraphQL
 async fn fetch_all_token_prices_with_names() -> Result<HashMap<String, String>, String> {
@@ -121,12 +165,12 @@ async fn fetch_all_token_prices_with_names() -> Result<HashMap<String, String>, 
         if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<js_sys::Promise>()) {
             match wasm_bindgen_futures::JsFuture::from(promise).await {
                 Ok(result) => {
-                    log::info!("Raw result from fetchAllTokenPricesWithNames: {:?}", result);
+                    // log::info!("Raw result from fetchAllTokenPricesWithNames: {:?}", result);
 
                     // Deserialize the JsValue into a HashMap
                     match result.into_serde::<HashMap<String, String>>() {
                         Ok(response) => {
-                            log::info!("Deserialized response: {:?}", response);
+                            // log::info!("Deserialized response: {:?}", response);
                             Ok(response) // Extract and return only the prices
                         }
                         Err(e) => {
@@ -136,7 +180,7 @@ async fn fetch_all_token_prices_with_names() -> Result<HashMap<String, String>, 
                     }
                 }
                 Err(err) => {
-                    log::error!("Promise resolution failed: {:?}", err);
+                    log::error!("❌ Promise resolution failed: {:?}", err);
                     Err("Failed to resolve the promise".to_string())
                 }
             }
@@ -193,17 +237,17 @@ async fn fetch_governance_proposals() -> Result<Vec<GovernanceProposal>, String>
         if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<Promise>()) {
             match wasm_bindgen_futures::JsFuture::from(promise).await {
                 Ok(result) => {
-                    log::info!("Raw governance proposals JSON: {:?}", result);
+                    log::info!("✅ Raw governance proposals JSON: {:?}", result);
 
                     // Deserialize and enrich proposals
                     match result.into_serde::<Vec<GovernanceProposal>>() {
                         Ok(proposals) => {
                             let enriched_proposals = enrich_proposals(proposals);
-                            log::info!("Successfully enriched proposals: {:?}", enriched_proposals);
+                            log::info!("✅ Successfully enriched proposals: {:?}", enriched_proposals);
                             Ok(enriched_proposals)
                         }
                         Err(e) => {
-                            log::error!("Failed to deserialize governance proposals: {:?}", e);
+                            log::error!("❌ Failed to deserialize governance proposals: {:?}", e);
                             Err(format!("Deserialization error: {:?}", e))
                         }
                     }
@@ -320,7 +364,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         spawn_local(async move {
             match fetch_all_token_prices_with_names().await {
                 Ok(data) => set_prices(data), 
-                Err(err) => log::error!("Error fetching prices on load: {}", err),
+                Err(err) => log::error!("❌ Error fetching prices on load: {}", err),
             }
         });
     });
@@ -330,7 +374,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         spawn_local(async move {
             match fetch_derivative_prices().await {
                 Ok(data) => set_derivative_prices(data),
-                Err(err) => log::error!("Error fetching derivative prices on load: {}", err),
+                Err(err) => log::error!("❌ Error fetching derivative prices on load: {}", err),
             }
         });
     });    
@@ -340,10 +384,10 @@ pub fn App(cx: Scope) -> impl IntoView {
         spawn_local(async move {
             match fetch_all_token_prices_with_names().await {
                 Ok(data) => {
-                    log::info!("Updated Prices: {:?}", data); 
+                    log::info!("✅ Updated Prices: {:?}", data); 
                     set_prices(data.clone());  
                 }                
-                Err(err) => log::error!("Failed to fetch token prices: {:?}", err),
+                Err(err) => log::error!("❌ Failed to fetch token prices: {:?}", err),
             }
         });
     };   
@@ -365,11 +409,11 @@ pub fn App(cx: Scope) -> impl IntoView {
         spawn_local(async move {
             match fetch_stkd_scrt_exchange_rate().await {
                 Ok(rate) => {
-                    log::info!("Fetched stkd-SCRT to SCRT exchange rate: {}", rate);
+                    log::info!("✅ Fetched stkd-SCRT to SCRT exchange rate: {}", rate);
                     set_exchange_rate(rate);
                     set_default_exchange_rate(rate); // Store as default
                 }
-                Err(err) => log::error!("Error fetching exchange rate: {}", err),
+                Err(err) => log::error!("❌ Error fetching exchange rate: {}", err),
             }
         });
     });
@@ -382,14 +426,14 @@ pub fn App(cx: Scope) -> impl IntoView {
                     match wasm_bindgen_futures::JsFuture::from(promise).await {
                         Ok(result) => {
                             if let Ok(rates) = result.into_serde::<HashMap<String, f64>>() {
-                                log::info!("Fetched redemption rates: {:?}", rates);
+                                // log::info!("✅ Fetched Stride redemption rates: {:?}", rates);
                                 set_redemption_rates(rates);
                             } else {
-                                log::error!("Failed to deserialize redemption rates.");
+                                log::error!("❌ Failed to deserialize redemption rates.");
                             }
                         }
                         Err(err) => {
-                            log::error!("Failed to resolve fetchAllRedemptionRates promise: {:?}", err);
+                            log::error!("❌ Failed to resolve fetchAllRedemptionRates promise: {:?}", err);
                         }
                     }
                 }
@@ -399,7 +443,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     
     // Keplr Functions
     let connect_wallet = move |_| {
-        log::info!("Connecting to wallet...");
+        log::info!("🚀 Connecting to wallet...");
     
         // Check if Keplr is installed
         let is_keplr_installed = web_sys::window()
@@ -407,7 +451,7 @@ pub fn App(cx: Scope) -> impl IntoView {
             .is_some();
     
         if !is_keplr_installed {
-            log::warn!("Wallet not found! Please install Keplr or Fina wallet.");
+            log::warn!("❌ Wallet not found! Please install Keplr or Fina wallet.");
     
             // Show error modal
             if let Some(document) = web_sys::window().and_then(|w| w.document()) {
@@ -439,7 +483,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         // Attempt wallet connection
         spawn_local(async move {
             if let Some(address) = get_wallet_address().await {
-                log::info!("Successfully connected. SCRT address: {}", address);
+                log::info!("✅ Successfully connected. SCRT address: {}", address);
                 set_wallet_address.set(address);
     
                 // Fetch multi-chain addresses
@@ -462,7 +506,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                 }
                 set_multi_chain_addresses.set(addr_list);
             } else {
-                log::warn!("Failed to fetch SCRT address.");
+                log::warn!("❌ Failed to fetch SCRT address.");
                 set_wallet_address.set("Error fetching SCRT address".to_string());
     
                 // Populate placeholders for multi-chain addresses
@@ -483,11 +527,11 @@ pub fn App(cx: Scope) -> impl IntoView {
                 // Attempt to connect wallet before showing error
                 spawn_local(async move {
                     if let Some(address) = get_wallet_address().await {
-                        log::info!("Wallet connected successfully: {}", address);
+                        log::info!("✅ Wallet connected successfully: {}", address);
                         set_connected.set(true);
                         set_wallet_address.set(address);
                     } else {
-                        log::warn!("Wallet connection failed. Showing error modal.");
+                        log::warn!("❌ Wallet connection failed. Showing error modal.");
                         if let Some(document) = web_sys::window().and_then(|w| w.document()) {
                             if let Some(modal) = document.get_element_by_id("wallet-error-modal") {
                                 modal.set_attribute("style", "display: flex;").ok();
@@ -500,7 +544,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     });
 
     create_effect(cx, move |_| {
-        log::info!("Updated multi-chain addresses: {:?}", multi_chain_addresses.get());
+        log::info!("✅ Updated multi-chain addresses: {:?}", multi_chain_addresses.get());
     });    
 
     let disconnect_wallet = move |_| {
@@ -523,7 +567,7 @@ pub fn App(cx: Scope) -> impl IntoView {
             spawn_local(async move {
                 match fetch_governance_proposals().await {
                     Ok(proposals) => set_governance_proposals.set(proposals),
-                    Err(err) => log::error!("Error fetching governance proposals: {}", err),
+                    Err(err) => log::error!("❌ Error fetching governance proposals: {}", err),
                 }
             });
         }
@@ -538,7 +582,7 @@ pub fn App(cx: Scope) -> impl IntoView {
             set_exchange_rate(default_exchange_rate.get());
     
             log::info!(
-                "Reset to default: derivative = {}, exchange rate = {}",
+                "✅ Reset to default: derivative = {}, exchange rate = {}",
                 default_derivative,
                 default_exchange_rate.get()
             );
@@ -1032,7 +1076,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     on:change=move |ev| {
                                         if let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::HtmlSelectElement>().ok()) {
                                             let selected_value = target.value();
-                                            log::info!("User selected derivative: {}", selected_value);
+                                            log::info!("📊 User selected derivative: {}", selected_value);
 
                                             // Update selected derivative state
                                             set_selected_derivative.set(selected_value.clone());
@@ -1053,22 +1097,22 @@ pub fn App(cx: Scope) -> impl IntoView {
                                                             *rate
                                                         };
                                                         set_exchange_rate(scaled_rate);
-                                                        log::info!("Setting exchange rate for {}: {}", selected_value, scaled_rate);
+                                                        log::info!("✅ Setting exchange rate for {}: {}", selected_value, scaled_rate);
                                                     } else {
-                                                        log::warn!("No rate found for {}", selected_value);
+                                                        log::warn!("❌ No rate found for {}", selected_value);
                                                     }
                                                 }
                                                 Some(None) => {
                                                     set_exchange_rate(default_exchange_rate.get());
-                                                    log::info!("Using default exchange rate for stkd-SCRT: {}", default_exchange_rate.get());
+                                                    log::info!("✅ Using default exchange rate for stkd-SCRT: {}", default_exchange_rate.get());
                                                 }
                                                 _ => {
                                                     set_exchange_rate(1.0);
-                                                    log::warn!("Unexpected derivative: {}", selected_value);
+                                                    log::warn!("❌ Unexpected derivative: {}", selected_value);
                                                 }
                                             }
                                         } else {
-                                            log::error!("Failed to cast event target to HtmlSelectElement");
+                                            log::error!("❌ Failed to cast event target to HtmlSelectElement");
                                         }
                                     }
                                 >
@@ -1160,6 +1204,5 @@ pub fn App(cx: Scope) -> impl IntoView {
 #[wasm_bindgen(start)]
 pub fn start() {
     console_log::init_with_level(log::Level::Debug).expect("Error initializing log");
-    log::info!("Application started");
     mount_to_body(|cx| view! { cx, <App /> });
 }

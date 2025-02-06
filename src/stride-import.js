@@ -5,10 +5,10 @@ export async function initializeStrideClient() {
     const rpcEndpoint = 'https://stride-rpc.polkachu.com/';
     try {
         const client = await stride.ClientFactory.createRPCQueryClient({ rpcEndpoint });
-        console.log('Stride Client initialized:', client);
+        console.log('🚀 Stride Client initialized:', client);
         return client;
     } catch (error) {
-        console.error('Failed to initialize Stride Client:', error);
+        console.error('❌ Failed to initialize Stride Client:', error);
         throw error;
     }
 }
@@ -30,7 +30,7 @@ export async function fetchRedemptionRates() {
             nextKey = response.pagination?.nextKey ? new Uint8Array(response.pagination.nextKey) : null;
         } while (nextKey && nextKey.length > 0);
 
-        console.log('Fetched Host Zones:', allHostZones);
+        console.log('✅ Fetched Host Zones:', allHostZones);
 
         // Redemption rates for available host zones
         const redemptionRates = allHostZones.reduce((rates, zone) => {
@@ -40,10 +40,10 @@ export async function fetchRedemptionRates() {
             return rates;
         }, {});
 
-        console.log('Redemption Rates:', redemptionRates);
+        console.log('📊 Redemption Rates:', redemptionRates);
         return redemptionRates;
     } catch (error) {
-        console.error('Error fetching redemption rates:', error);
+        console.error('❌ Error fetching redemption rates:', error);
         throw error;
     }
 }
@@ -60,14 +60,14 @@ export async function fetchRedemptionRateForTIA() {
         const data = await response.json();
         const redemptionRateRaw = data.host_zone?.last_redemption_rate;
         if (!redemptionRateRaw) {
-            throw new Error('Last redemption rate not found in API response');
+            throw new Error('❌ Last redemption rate not found in API response');
         }
 
         const redemptionRate = parseFloat(redemptionRateRaw);
-        console.log('Redemption Rate for TIA:', redemptionRate);
+        console.log('📊 Redemption Rate for TIA:', redemptionRate);
         return redemptionRate;
     } catch (error) {
-        console.error('Error fetching redemption rate for TIA:', error);
+        console.error('❌ Error fetching redemption rate for TIA:', error);
         throw error;
     }
 }
@@ -86,10 +86,10 @@ export async function fetchAllRedemptionRates() {
             stTIA: tiaRate,
         };
 
-        console.log('All Redemption Rates:', allRates);
+        console.log('📊 All Redemption Rates:', allRates);
         return allRates;
     } catch (error) {
-        console.error('Error fetching all redemption rates:', error);
+        console.error('❌ Error fetching all redemption rates:', error);
         throw error;
     }
 }

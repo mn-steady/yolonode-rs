@@ -19,7 +19,7 @@ function hideModal() {
 // Function to connect to wallet
 async function connectKeplrWallet() {
     if (!window.keplr) {
-        console.error("Wallet not found! Please install Keplr or Fina wallet.");
+        console.error("❌ Wallet not found! Please install Keplr or Fina wallet.");
         return null; // Prevent proceeding if wallet is not available
     }
 
@@ -28,28 +28,28 @@ async function connectKeplrWallet() {
         const offlineSigner = window.getOfflineSigner("secret-4");
         const accounts = await offlineSigner.getAccounts();
         if (accounts.length > 0) {
-            console.log("Connected account:", accounts[0].address);
+            console.log("✅ Connected account:", accounts[0].address);
             return accounts[0].address;
         } else {
-            console.warn("No accounts found in wallet.");
+            console.warn("❌ No accounts found in wallet.");
             return null;
         }
     } catch (error) {
-        console.error("Failed to connect to wallet:", error);
+        console.error("❌ Failed to connect to wallet:", error);
         return null;
     }
 }
 
 // Function to disconnect wallet
 function disconnectKeplrWallet() {
-    console.log("Wallet disconnected");
+    console.log("✅ Wallet disconnected");
     hideModal(); // Hide the modal if it's visible
 }
 
 // Function to get the wallet address
 async function get_wallet_address() {
     if (!window.keplr) {
-        console.warn("Wallet not found during get_wallet_address.");
+        console.warn("❌ Wallet not found during get_wallet_address.");
         return null; // Avoid showing modal directly here
     }
 
@@ -59,7 +59,7 @@ async function get_wallet_address() {
         const accounts = await offlineSigner.getAccounts();
         return accounts.length > 0 ? accounts[0].address : null;
     } catch (error) {
-        console.error("Failed to get wallet address:", error);
+        console.error("❌ Failed to get wallet address:", error);
         return null;
     }
 }
@@ -73,7 +73,7 @@ async function getAddressForMultiChain(chainId) {
             const accounts = await offlineSigner.getAccounts();
             return accounts.length > 0 ? accounts[0].address : "";
         } catch (error) {
-            console.error(`Failed to get address for chain ${chainId}:`, error);
+            console.error(`❌ Failed to get address for chain ${chainId}:`, error);
             return "";
         }
     } else {
@@ -90,7 +90,7 @@ async function fetchGovernanceProposals(limit = 50) {
     }
 
     try {
-        console.log("Fetching latest governance proposals...");
+        console.log("🔍 Fetching latest governance proposals...");
 
         await window.keplr.enable("secret-4");
         const signer = window.getOfflineSigner("secret-4");
@@ -98,7 +98,7 @@ async function fetchGovernanceProposals(limit = 50) {
         const walletAddress = accounts[0]?.address;
 
         if (!walletAddress) {
-            console.error("No wallet address found.");
+            console.error("❌ No wallet address found.");
             return [];
         }
 
@@ -121,9 +121,9 @@ async function fetchGovernanceProposals(limit = 50) {
 
         if (latestProposalResponse?.proposals?.length > 0) {
             latestProposalId = parseInt(latestProposalResponse.proposals[0].proposal_id);
-            console.log(`Latest Proposal ID: ${latestProposalId}`);
+            console.log(`✅ Latest Proposal ID: ${latestProposalId}`);
         } else {
-            console.error("Unable to fetch the latest proposal.");
+            console.error("❌ Unable to fetch the latest proposal.");
             return [];
         }
 
@@ -184,7 +184,7 @@ async function fetchGovernanceProposals(limit = 50) {
                 allProposals = [...allProposals, ...processedProposals];
 
                 nextKey = response.pagination?.next_key;
-                console.log(`Fetched ${response.proposals.length} proposals, total so far: ${allProposals.length}`);
+                console.log(`🔍 Fetched ${response.proposals.length} proposals, total so far: ${allProposals.length}`);
 
                 // Stop if we fetched up to the limit
                 if (
@@ -194,7 +194,7 @@ async function fetchGovernanceProposals(limit = 50) {
                     break;
                 }
             } else {
-                console.warn("No more proposals or empty response.");
+                console.warn("❌ No more proposals or empty response.");
                 break;
             }
         } while (nextKey);
@@ -203,10 +203,10 @@ async function fetchGovernanceProposals(limit = 50) {
         allProposals.sort((a, b) => new Date(b.submit_time) - new Date(a.submit_time));
 
         // Return only the most recent proposals up to the limit
-        console.log(`Final list of ${limit} governance proposals:`, allProposals.slice(0, limit));
+        console.log(`✅ Final list of ${limit} governance proposals:`, allProposals.slice(0, limit));
         return allProposals.slice(0, limit);
     } catch (error) {
-        console.error("Error fetching governance proposals:", error);
+        console.error("❌ Error fetching governance proposals:", error);
         return [];
     }
 }

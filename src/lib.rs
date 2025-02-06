@@ -237,13 +237,13 @@ async fn fetch_governance_proposals() -> Result<Vec<GovernanceProposal>, String>
         if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<Promise>()) {
             match wasm_bindgen_futures::JsFuture::from(promise).await {
                 Ok(result) => {
-                    log::info!("✅ Raw governance proposals JSON: {:?}", result);
+                    // log::info!("Raw governance proposals JSON: {:?}", result);
 
                     // Deserialize and enrich proposals
                     match result.into_serde::<Vec<GovernanceProposal>>() {
                         Ok(proposals) => {
                             let enriched_proposals = enrich_proposals(proposals);
-                            log::info!("✅ Successfully enriched proposals: {:?}", enriched_proposals);
+                            // log::info!("✅ Successfully enriched proposals: {:?}", enriched_proposals);
                             Ok(enriched_proposals)
                         }
                         Err(e) => {
@@ -384,7 +384,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         spawn_local(async move {
             match fetch_all_token_prices_with_names().await {
                 Ok(data) => {
-                    log::info!("✅ Updated Prices: {:?}", data); 
+                    // log::info!("📊 Updated Prices: {:?}", data); 
                     set_prices(data.clone());  
                 }                
                 Err(err) => log::error!("❌ Failed to fetch token prices: {:?}", err),

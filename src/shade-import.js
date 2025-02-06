@@ -19,7 +19,7 @@ window.fetchBatchPrices = async function (
         lcdEndpoint = DEFAULT_LCD_ENDPOINT,
     } = options;
 
-    console.log("🚀 Using LCD endpoint:", lcdEndpoint);
+    // console.log("🚀 Using LCD endpoint:", lcdEndpoint);
 
     // Ensure the LCD endpoint is valid
     if (!lcdEndpoint) {

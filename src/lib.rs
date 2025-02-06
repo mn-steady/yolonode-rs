@@ -1070,56 +1070,62 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <div class="calculator">
                             <div class="input-row">
                                 <label for="derivative-select">"Select Derivative:"</label>
-                                <select
-                                    id="derivative-select"
-                                    value={selected_derivative} // Bind directly to the signal
-                                    on:change=move |ev| {
-                                        if let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::HtmlSelectElement>().ok()) {
-                                            let selected_value = target.value();
-                                            log::info!("📊 User selected derivative: {}", selected_value);
+                            <select
+                                id="derivative-select"
+                                value={selected_derivative} // Bind directly to the signal
+                                on:change=move |ev| {
+                                    if let Some(target) = ev.target().and_then(|t| t.dyn_into::<web_sys::HtmlSelectElement>().ok()) {
+                                        let selected_value = target.value();
+                                        log::info!("📊 User selected derivative: {}", selected_value);
 
-                                            // Update selected derivative state
-                                            set_selected_derivative.set(selected_value.clone());
+                                        // Update selected derivative state
+                                        set_selected_derivative.set(selected_value.clone());
 
-                                            // Update exchange rate based on the selected derivative
-                                            let key_map = HashMap::from([
-                                                ("stkd-SCRT", None),
-                                                ("stAtom", Some("cosmoshub-4")),
-                                                ("stTIA", Some("stTIA")),
-                                            ]);
+                                        // Update exchange rate based on the selected derivative
+                                        let key_map = HashMap::from([
+                                            ("stkd-SCRT", None),
+                                            ("stAtom", Some("cosmoshub-4")),
+                                            ("stTIA", Some("stTIA")),
+                                            ("stOSMO", Some("osmosis-1")),
+                                            ("stINJ", Some("injective-1")),
+                                        ]);
 
-                                            match key_map.get(selected_value.as_str()) {
-                                                Some(Some(key)) => {
-                                                    if let Some(rate) = redemption_rates.get().get(*key) {
-                                                        let scaled_rate = if *key == "cosmoshub-4" {
-                                                            rate * 1e18
-                                                        } else {
-                                                            *rate
-                                                        };
-                                                        set_exchange_rate(scaled_rate);
-                                                        log::info!("✅ Setting exchange rate for {}: {}", selected_value, scaled_rate);
+                                        match key_map.get(selected_derivative.get().as_str()) {
+                                            Some(Some(key)) => {
+                                                if let Some(rate) = redemption_rates.get().get(*key) {
+                                                    // Scale Stride derivatives by 1e18
+                                                    let scaled_rate = if *key == "cosmoshub-4" || *key == "osmosis-1" || *key == "injective-1" {
+                                                        rate * 1e18
                                                     } else {
-                                                        log::warn!("❌ No rate found for {}", selected_value);
-                                                    }
-                                                }
-                                                Some(None) => {
-                                                    set_exchange_rate(default_exchange_rate.get());
-                                                    log::info!("✅ Using default exchange rate for stkd-SCRT: {}", default_exchange_rate.get());
-                                                }
-                                                _ => {
-                                                    set_exchange_rate(1.0);
-                                                    log::warn!("❌ Unexpected derivative: {}", selected_value);
+                                                        *rate  
+                                                    };
+                                        
+                                                    set_exchange_rate(scaled_rate);
+                                                    log::info!("✅ Setting exchange rate for {}: {}", selected_derivative.get(), scaled_rate);
+                                                } else {
+                                                    log::warn!("❌ No rate found for {}", selected_derivative.get());
                                                 }
                                             }
-                                        } else {
-                                            log::error!("❌ Failed to cast event target to HtmlSelectElement");
-                                        }
+                                            Some(None) => {
+                                                set_exchange_rate(default_exchange_rate.get());
+                                                log::info!("✅ Using default exchange rate for stkd-SCRT: {}", default_exchange_rate.get());
+                                            }
+                                            _ => {
+                                                set_exchange_rate(1.0);
+                                                log::warn!("❌ Unexpected derivative: {}", selected_derivative.get());
+                                            }
+                                        }                                        
+                                    } else {
+                                        log::error!("❌ Failed to cast event target to HtmlSelectElement");
                                     }
-                                >
-                                    <option value="stkd-SCRT">"stkd-SCRT"</option>
-                                    <option value="stAtom">"stAtom"</option>
-                                    <option value="stTIA">"stTIA"</option>
-                                </select>
+                                }
+                            >
+                                <option value="stkd-SCRT">"stkd-SCRT"</option>
+                                <option value="stAtom">"stAtom"</option>
+                                <option value="stTIA">"stTIA"</option>
+                                <option value="stOSMO">"stOSMO"</option>
+                                <option value="stINJ">"stINJ"</option>
+                            </select>
                             </div>
                             <div class="input-row">
                                 <label for="liquidation-price">"Liquidation Price:"</label>

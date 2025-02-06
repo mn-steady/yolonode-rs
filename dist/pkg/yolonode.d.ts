@@ -12,6 +12,7 @@ export interface InitOutput {
   readonly __wbindgen_export_2: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_export_3: WebAssembly.Table;
   readonly __wbindgen_export_4: (a: number, b: number, c: number) => void;
+  readonly __wbindgen_export_5: (a: number, b: number) => void;
   readonly __wbindgen_start: () => void;
 }
 

@@ -9,6 +9,8 @@ use std::collections::HashMap;
 use gloo_utils::format::JsValueSerdeExt;
 use serde::Deserialize;
 use serde::de::{self, Deserializer};
+use wasm_bindgen::closure::Closure;
+use web_sys::window;
 
 // Define structures to match the expected response formats
 
@@ -214,6 +216,33 @@ async fn fetch_stkd_scrt_exchange_rate() -> Result<f64, String> {
     }
 }
 
+// Function to refresh prices every 5 minutes
+fn start_price_refresh(set_prices: WriteSignal<HashMap<String, String>>) {
+    let closure = Closure::wrap(Box::new(move || {
+        spawn_local(async move {
+            match fetch_all_token_prices_with_names().await {
+                Ok(data) => {
+                    log::info!("🔄 Auto-updating prices...");
+                    set_prices(data);
+                }
+                Err(err) => log::error!("❌ Auto-refresh failed: {}", err),
+            }
+        });
+    }) as Box<dyn Fn()>);
+
+    // Set interval to run every 5 minutes (300,000 ms)
+    if let Some(window) = window() {
+        let _ = window
+            .set_interval_with_callback_and_timeout_and_arguments_0(
+                closure.as_ref().unchecked_ref(),
+                300_000, // 5 minutes in milliseconds
+            );
+    }
+
+    closure.forget(); 
+}
+
+
 // Call specific keplr functions
 async fn get_wallet_address() -> Option<String> {
     if let Ok(js_func) = call_js_function("get_wallet_address") {
@@ -359,7 +388,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         "WBTC.axl", "WETH", "SHD", "SCRT", "ATOM", "AMBER", "TIA", "ANDR", "FINA", "SILK"]);
     let derivative_keys = create_rw_signal(cx, vec!["dSHD", "stkdSCRT", "stATOM", "stTIA"]);
 
-    // Auto-fetch prices on page load
+    // Fetch prices on page load
     create_effect(cx, move |_| {
         spawn_local(async move {
             match fetch_all_token_prices_with_names().await {
@@ -368,6 +397,9 @@ pub fn App(cx: Scope) -> impl IntoView {
             }
         });
     });
+
+    // Start auto-refreshing prices every 5 minutes
+    start_price_refresh(set_prices);
 
     // Fetch derivative prices on page load
     create_effect(cx, move |_| {

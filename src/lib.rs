@@ -14,18 +14,6 @@ use web_sys::window;
 
 // Define structures to match the expected response formats
 
-/* 
-#[derive(Deserialize, Debug)]
-struct FetchBatchPricesResponse {
-    prices: HashMap<String, String>,
-} 
-*/
-
-#[derive(Deserialize, Debug)]
-struct DerivativePricesResponse {
-    prices: HashMap<String, String>,
-}
-
 #[derive(Deserialize, Debug, Clone)]
 struct GovernanceProposal {
     #[serde(rename = "proposal_id", deserialize_with = "deserialize_string_to_u64")]
@@ -91,75 +79,6 @@ fn event_target_value(ev: &web_sys::Event) -> String {
         .map(|input| input.value())
         .unwrap_or_default()
 }
-
-//Function for fetching individual prices in a batch query
-/* 
-async fn fetch_batch_prices() -> Result<HashMap<String, String>, String> {
-    if let Ok(js_func) = call_js_function("fetchBatchPrices") {
-        if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<js_sys::Promise>()) {
-            match wasm_bindgen_futures::JsFuture::from(promise).await {
-                Ok(result) => {
-                    log::info!("Raw result from fetchBatchPrices: {:?}", result);
-
-                    // Deserialize the JsValue into FetchBatchPricesResponse
-                    match result.into_serde::<FetchBatchPricesResponse>() {
-                        Ok(response) => {
-                            log::info!("Deserialized response: {:?}", response);
-                            Ok(response.prices) // Extract and return only the prices
-                        }
-                        Err(e) => {
-                            log::error!("Failed to deserialize response: {:?}", e);
-                            Err(format!("Failed to deserialize response: {:?}", e))
-                        }
-                    }
-                }
-                Err(err) => {
-                    log::error!("Promise resolution failed: {:?}", err);
-                    Err("Failed to resolve the promise".to_string())
-                }
-            }
-        } else {
-            Err("Failed to cast JsValue to Promise".to_string())
-        }
-    } else {
-        Err("fetchBatchPrices not defined".to_string())
-    }
-}
-*/
-
-//Function for fetching derivative prices individually in a batch query
-async fn fetch_derivative_prices() -> Result<HashMap<String, String>, String> {
-    if let Ok(js_func) = call_js_function("fetchDerivativePrices") {
-        if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<Promise>()) {
-            match wasm_bindgen_futures::JsFuture::from(promise).await {
-                Ok(result) => {
-                    // log::info!("Raw result from fetchDerivativePrices: {:?}", result);
-
-                    // Deserialize the JsValue into DerivativePricesResponse
-                    match result.into_serde::<DerivativePricesResponse>() {
-                        Ok(response) => {
-                            // log::info!("Deserialized derivative prices: {:?}", response);
-                            Ok(response.prices)
-                        }
-                        Err(e) => {
-                            log::error!("Failed to deserialize derivative prices: {:?}", e);
-                            Err(format!("Failed to deserialize response: {:?}", e))
-                        }
-                    }
-                }
-                Err(err) => {
-                    log::error!("❌ Promise resolution failed: {:?}", err);
-                    Err("Failed to resolve the promise".to_string())
-                }
-            }
-        } else {
-            Err("Failed to cast JsValue to Promise".to_string())
-        }
-    } else {
-        Err("fetchDerivativePrices not defined".to_string())
-    }
-}
-
 
 // Function for fetching all token prices via GraphQL
 async fn fetch_all_token_prices_with_names() -> Result<HashMap<String, String>, String> {
@@ -377,7 +296,6 @@ pub fn App(cx: Scope) -> impl IntoView {
     let (result, set_result) = create_signal(cx, String::new());
     let (exchange_rate, set_exchange_rate) = create_signal(cx, 1.0_f64);
     let (default_exchange_rate, set_default_exchange_rate) = create_signal(cx, 1.0_f64);
-    let (derivative_prices, set_derivative_prices) = create_signal(cx, HashMap::<String, String>::new());
     let (redemption_rates, set_redemption_rates) = create_signal(cx, HashMap::<String, f64>::new());
     let (multi_chain_addresses, set_multi_chain_addresses) = create_signal(
         cx,
@@ -401,16 +319,6 @@ pub fn App(cx: Scope) -> impl IntoView {
     // Start auto-refreshing prices every 5 minutes
     start_price_refresh(set_prices);
 
-    // Fetch derivative prices on page load
-    create_effect(cx, move |_| {
-        spawn_local(async move {
-            match fetch_derivative_prices().await {
-                Ok(data) => set_derivative_prices(data),
-                Err(err) => log::error!("❌ Error fetching derivative prices on load: {}", err),
-            }
-        });
-    });    
-
     // Fetch all prices button function
     let fetch_all_prices = move |_| {
         spawn_local(async move {
@@ -428,7 +336,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     let display_key_map = create_rw_signal(cx, HashMap::from([
         ("WBTC.axl", "BTC"),       
         ("WETH", "ETH"),           
-        ("stkdSCRT", "stkd-SCRT"), 
+        ("stkdSCRT", "STKD"), 
         ("stATOM", "stATOM"),
         ("stTIA", "stTIA"),   
         ("dSHD", "dSHD"),  
@@ -797,7 +705,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }}
                         </div>
 
-                        // ✅ Derivative Prices Section
+                        // Derivative Prices Section
                         <div class="price-section-header">
                             <h2>"Derivatives :"</h2>
                         </div>
@@ -832,7 +740,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }}
                         </div>
                 
-                        // ✅ Price Ratios Section
+                        // Price Ratios Section
                         <div class="price-section-header">
                             <h2>"Ratios :"</h2>
                         </div>
@@ -840,7 +748,6 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <div class="price-list">
                             {move || {
                                 let prices = prices.get();
-                                let derivative_prices = derivative_prices.get();
                 
                                 // SHD/SCRT Ratio
                                 let shd_to_scrt = if let (Some(shd_price), Some(scrt_price)) = (
@@ -856,15 +763,15 @@ pub fn App(cx: Scope) -> impl IntoView {
                 
                                 // SHD/stkd-SCRT Ratio
                                 let shd_to_stkd_scrt = if let (Some(shd_price), Some(stkd_scrt_price)) = (
-                                    prices.get("SHD"),
-                                    derivative_prices.get("stkd-SCRT"),
-                                ) {
+                                    prices.get("SHD").map(|s| s.clone()), 
+                                    prices.get("stkdSCRT").map(|s| s.clone()), 
+                                ) { 
                                     let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
                                                 stkd_scrt_price.parse::<f64>().unwrap_or(1.0);
                                     format!("{:.4}", ratio)
                                 } else {
                                     "No Data".to_string()
-                                };
+                                };                                
                 
                                 // SHD/ATOM Ratio
                                 let shd_to_atom = if let (Some(shd_price), Some(atom_price)) = (

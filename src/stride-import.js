@@ -40,7 +40,7 @@ export async function fetchRedemptionRates() {
             return rates;
         }, {});
 
-        console.log('📊 Redemption Rates:', redemptionRates);
+        // console.log('📊 Redemption Rates:', redemptionRates);
         return redemptionRates;
     } catch (error) {
         console.error('❌ Error fetching redemption rates:', error);

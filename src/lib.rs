@@ -461,7 +461,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                         Ok(result) => {
                             match result.into_serde::<HashMap<String, f64>>() {
                                 Ok(rates) => {
-                                    log::info!("✅ Fetched Stride redemption rates: {:?}", rates);
+                                    // log::info!("✅ Fetched Stride redemption rates: {:?}", rates);
                                     set_redemption_rates(rates);
                                 }
                                 Err(e) => {

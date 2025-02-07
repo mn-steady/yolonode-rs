@@ -58,7 +58,7 @@ export async function fetchRedemptionRateForTIA() {
         }
 
         const data = await response.json();
-        console.log("🔍 Full API Response for TIA (New Endpoint):", data);
+       // console.log("🔍 Full API Response for TIA :", data);
 
         const celestiaZone = data.host_zone.find(zone => zone.chain_id === "celestia");
 
@@ -68,7 +68,7 @@ export async function fetchRedemptionRateForTIA() {
         }
 
         const redemptionRate = parseFloat(celestiaZone.last_redemption_rate);
-        console.log("📊 Redemption Rate for TIA (New API):", redemptionRate);
+        console.log("📊 Redemption Rate for TIA :", redemptionRate);
         return redemptionRate;
     } catch (error) {
         console.error("❌ Error fetching redemption rate for TIA:", error);

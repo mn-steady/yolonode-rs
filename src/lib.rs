@@ -246,29 +246,38 @@ fn start_price_refresh(set_prices: WriteSignal<HashMap<String, String>>) {
 }
 
 // Auto Fetch SILK Spot every 5 mins
-fn start_silk_spot_refresh(set_silk_spot_price: WriteSignal<String>) {
+fn start_silk_spot_refresh(
+    silk_spot_price: ReadSignal<String>,
+    set_silk_spot_price: WriteSignal<String>, 
+) {
+    static mut REFRESH_STARTED: bool = false;
+
+    unsafe {
+        if REFRESH_STARTED {
+            return; 
+        }
+        REFRESH_STARTED = true;
+    }
+
     let closure = Closure::wrap(Box::new(move || {
         spawn_local(async move {
             match fetch_silk_spot_price().await {
                 Ok(price) => {
-                    log::info!("🔄 Refreshing SILK Spot Price: {}", price);
-                    set_silk_spot_price(price);
+                    let current_price = silk_spot_price.get_untracked(); 
+                    if current_price != price {
+                        log::info!("🔄 Auto Refreshing SILK Spot Price: {}", price);
+                        set_silk_spot_price.set(price);
+                    }
                 }
-                Err(err) => log::error!("❌ Refreshing failed for SILK Spot Price: {}", err),
+                Err(err) => log::error!("❌ Error auto-refreshing SILK spot price: {}", err),
             }
         });
     }) as Box<dyn Fn()>);
 
     if let Some(window) = window() {
-
-        let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
-            closure.as_ref().unchecked_ref(),
-            300_000, // 5 minutes before first execution
-        );
-
         let _ = window.set_interval_with_callback_and_timeout_and_arguments_0(
             closure.as_ref().unchecked_ref(),
-            300_000, // Refresh every 5 minutes
+            1_800_000, // 30 minutes
         );
     }
 
@@ -435,7 +444,12 @@ pub fn App(cx: Scope) -> impl IntoView {
         // Fetch SILK Spot Price (from fetchSilkPrice)
         spawn_local(async move {
             match fetch_silk_spot_price().await {
-                Ok(price) => set_silk_spot_price(price),
+                Ok(price) => {
+                    if silk_spot_price.get_untracked() != price {
+                        log::info!("🔄 Updating SILK Spot Price: {}", price);
+                        set_silk_spot_price(price);
+                    }
+                }
                 Err(err) => log::error!("❌ Error fetching SILK spot price: {}", err),
             }
         });
@@ -445,7 +459,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     start_price_refresh(set_prices);
 
     // Start auto-refreshing SILK Spot Price every 5 minutes
-    start_silk_spot_refresh(set_silk_spot_price);
+    start_silk_spot_refresh(silk_spot_price, set_silk_spot_price); 
 
     // Start auto-refreshing exchange rates and redemption rates every 30 minutes
     start_exchange_redemption_refresh(set_exchange_rate, set_redemption_rates);

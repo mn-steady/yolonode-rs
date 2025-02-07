@@ -553,6 +553,10 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).setInterval(getObject(arg1), arg2);
         return ret;
     }, arguments) };
+    imports.wbg.__wbg_setTimeout_f2fe5af8e3debeb3 = function() { return handleError(function (arg0, arg1, arg2) {
+        const ret = getObject(arg0).setTimeout(getObject(arg1), arg2);
+        return ret;
+    }, arguments) };
     imports.wbg.__wbg_set_bb8cecf6a62b9f46 = function() { return handleError(function (arg0, arg1, arg2) {
         const ret = Reflect.set(getObject(arg0), getObject(arg1), getObject(arg2));
         return ret;
@@ -640,23 +644,23 @@ function __wbg_get_imports() {
         const ret = false;
         return ret;
     };
-    imports.wbg.__wbindgen_closure_wrapper1584 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 119, __wbg_adapter_28);
+    imports.wbg.__wbindgen_closure_wrapper1608 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 120, __wbg_adapter_28);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper161 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper166 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 13, __wbg_adapter_28);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper168 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper173 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 13, __wbg_adapter_28);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper200 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper205 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 13, __wbg_adapter_28);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper527 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper551 = function(arg0, arg1, arg2) {
         const ret = makeClosure(arg0, arg1, 13, __wbg_adapter_35);
         return addHeapObject(ret);
     };

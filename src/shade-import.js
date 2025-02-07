@@ -3,6 +3,21 @@ import { batchQueryIndividualPrices } from '@shadeprotocol/shadejs';
 import { queryDerivativeScrtInfo } from '@shadeprotocol/shadejs';
 import { DEFAULT_LCD_ENDPOINT } from './secret-import';
 
+window.secretClient = null;
+
+window.getSecretClient = function (lcdEndpoint) {
+    if (!window.secretClient) {
+        try {
+            window.secretClient = createSecretClient(lcdEndpoint);
+            console.log("✅ Cached Secret client created:", window.secretClient);
+        } catch (error) {
+            console.error("❌ Error creating Secret client:", error);
+            return null;
+        }
+    }
+    return window.secretClient;
+};
+
 // Function to fetch multiple prices individually but in a batch  
 // This is a less efficient version of the multi-price query in the oracle contract, 
 // however the benefits are that an error in any single price will not cause all prices to fail. 
@@ -19,20 +34,12 @@ window.fetchBatchPrices = async function (
         lcdEndpoint = DEFAULT_LCD_ENDPOINT,
     } = options;
 
-    // console.log("🚀 Using LCD endpoint:", lcdEndpoint);
-
-    // Ensure the LCD endpoint is valid
     if (!lcdEndpoint) {
         throw new Error("❌ LCD endpoint is not defined. Please provide a valid endpoint.");
     }
 
-    // Create Secret Network client
-    let client;
-    try {
-        client = createSecretClient(lcdEndpoint);
-        console.log("✅ Secret client created:", client);
-    } catch (error) {
-        console.error("❌ Error creating Secret client:", error);
+    let client = window.getSecretClient(lcdEndpoint);
+    if (!client) {
         return { prices: {}, error: "Failed to create Secret client" };
     }
 
@@ -50,8 +57,6 @@ window.fetchBatchPrices = async function (
         });
 
         const formattedPrices = {};
-
-        // Format fetched prices
         oracleKeys.forEach((key) => {
             if (priceData[key]?.rate) {
                 try {
@@ -299,10 +304,4 @@ window.fetchAllTokenPricesWithNames = async function () {
 (async () => {
     console.log("🚀 Initializing ShadeSwap Pool Fetcher...");
     await window.fetchAllShadeSwapPools();
-})();
-
-// Fetch all ShadeSwap Pools on page load
-(async () => {
-    console.log("🔍 Fetching Silk Price...");
-    await window.fetchSilkPrice();
 })();

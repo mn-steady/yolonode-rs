@@ -80,6 +80,37 @@ fn event_target_value(ev: &web_sys::Event) -> String {
         .unwrap_or_default()
 }
 
+// Fetch Silk Spot Price
+async fn fetch_silk_spot_price() -> Result<String, String> {
+    if let Ok(js_func) = call_js_function("fetchSilkPrice") {
+        if let Ok(promise) = js_func.call0(&web_sys::window().unwrap()).and_then(|val| val.dyn_into::<js_sys::Promise>()) {
+            match wasm_bindgen_futures::JsFuture::from(promise).await {
+                Ok(result) => {
+                   // log::info!("🔍 Raw SILK Spot Price Response: {:?}", result);
+
+                    // Deserialize into a nested structure
+                    match result.into_serde::<serde_json::Value>() {
+                        Ok(response) => {
+                            if let Some(prices) = response.get("prices") {
+                                if let Some(price) = prices.get("SILK").and_then(|v| v.as_str()) {
+                                    return Ok(price.to_string());
+                                }
+                            }
+                            Err("SILK price not found in expected format".to_string())
+                        }
+                        Err(e) => Err(format!("Failed to deserialize SILK spot price: {:?}", e)),
+                    }
+                }
+                Err(err) => Err(format!("Promise resolution failed: {:?}", err)),
+            }
+        } else {
+            Err("Failed to cast JsValue to Promise".to_string())
+        }
+    } else {
+        Err("fetchSilkPrice not defined".to_string())
+    }
+}
+
 // Function for fetching all token prices via GraphQL
 async fn fetch_all_token_prices_with_names() -> Result<HashMap<String, String>, String> {
     if let Ok(js_func) = call_js_function("fetchAllTokenPricesWithNames") {
@@ -135,32 +166,114 @@ async fn fetch_stkd_scrt_exchange_rate() -> Result<f64, String> {
     }
 }
 
+// Refresh All Exchange and Redemption Rates
+fn start_exchange_redemption_refresh(
+    set_exchange_rate: WriteSignal<f64>, 
+    set_redemption_rates: WriteSignal<HashMap<String, f64>>,
+) {
+    let closure = Closure::wrap(Box::new(move || {
+        spawn_local(async move {
+            // Fetch STKD-SCRT Exchange Rate
+            match fetch_stkd_scrt_exchange_rate().await {
+                Ok(rate) => {
+                    log::info!("🔄 Refreshing STKD-SCRT Exchange Rate: {}", rate);
+                    set_exchange_rate(rate);
+                }
+                Err(err) => log::error!("❌ Refreshing failed for STKD-SCRT Exchange Rate: {}", err),
+            }
+
+            // Fetch Stride Redemption Rates
+            if let Ok(js_func) = call_js_function("fetchAllRedemptionRates") {
+                if let Ok(promise) = js_func.call0(&web_sys::window().unwrap())
+                    .and_then(|val| val.dyn_into::<js_sys::Promise>())
+                {
+                    match wasm_bindgen_futures::JsFuture::from(promise).await {
+                        Ok(result) => {
+                            match result.into_serde::<HashMap<String, f64>>() {
+                                Ok(rates) => {
+                                    log::info!("🔄 Refreshing Redemption Rates: {:?}", rates);
+                                    set_redemption_rates(rates);
+                                }
+                                Err(e) => {
+                                    log::error!("❌ Failed to deserialize redemption rates: {:?}", e);
+                                }
+                            }
+                        }
+                        Err(err) => {
+                            log::error!("❌ Failed to resolve fetchAllRedemptionRates promise: {:?}", err);
+                        }
+                    }
+                }
+            }
+        });
+    }) as Box<dyn Fn()>);
+
+    if let Some(window) = window() {
+        let _ = window
+            .set_interval_with_callback_and_timeout_and_arguments_0(
+                closure.as_ref().unchecked_ref(),
+                1_800_000, // 30 minutes
+            );
+    }
+
+    closure.forget();
+}
+
 // Function to refresh prices every 5 minutes
 fn start_price_refresh(set_prices: WriteSignal<HashMap<String, String>>) {
     let closure = Closure::wrap(Box::new(move || {
         spawn_local(async move {
             match fetch_all_token_prices_with_names().await {
                 Ok(data) => {
-                    log::info!("🔄 Auto-updating prices...");
+                    log::info!("🔄 Refreshing token prices...");
                     set_prices(data);
                 }
-                Err(err) => log::error!("❌ Auto-refresh failed: {}", err),
+                Err(err) => log::error!("❌ Refreshing failed: {}", err),
             }
         });
     }) as Box<dyn Fn()>);
 
-    // Set interval to run every 5 minutes (300,000 ms)
+    // Set interval to run every 5 minutes
     if let Some(window) = window() {
         let _ = window
             .set_interval_with_callback_and_timeout_and_arguments_0(
                 closure.as_ref().unchecked_ref(),
-                300_000, // 5 minutes in milliseconds
+                300_000, // Refresh every 5 minutes
             );
     }
 
     closure.forget(); 
 }
 
+// Auto Fetch SILK Spot every 5 mins
+fn start_silk_spot_refresh(set_silk_spot_price: WriteSignal<String>) {
+    let closure = Closure::wrap(Box::new(move || {
+        spawn_local(async move {
+            match fetch_silk_spot_price().await {
+                Ok(price) => {
+                    log::info!("🔄 Refreshing SILK Spot Price: {}", price);
+                    set_silk_spot_price(price);
+                }
+                Err(err) => log::error!("❌ Refreshing failed for SILK Spot Price: {}", err),
+            }
+        });
+    }) as Box<dyn Fn()>);
+
+    if let Some(window) = window() {
+
+        let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
+            closure.as_ref().unchecked_ref(),
+            300_000, // 5 minutes before first execution
+        );
+
+        let _ = window.set_interval_with_callback_and_timeout_and_arguments_0(
+            closure.as_ref().unchecked_ref(),
+            300_000, // Refresh every 5 minutes
+        );
+    }
+
+    closure.forget();
+}
 
 // Call specific keplr functions
 async fn get_wallet_address() -> Option<String> {
@@ -303,21 +416,39 @@ pub fn App(cx: Scope) -> impl IntoView {
     );    
     let (selected_derivative, set_selected_derivative) = create_signal(cx, "stkd-SCRT".to_string());
     let ordered_keys = create_rw_signal(cx, vec![
-        "WBTC.axl", "WETH", "SHD", "SCRT", "ATOM", "AMBER", "TIA", "ANDR", "FINA", "SILK"]);
+        "WBTC.axl", "WETH", "SHD", "SCRT", "ATOM", "AMBER", "TIA", "ANDR", "FINA"]);
     let derivative_keys = create_rw_signal(cx, vec!["dSHD", "stkdSCRT", "stATOM", "stTIA"]);
-
+    let (silk_spot_price, set_silk_spot_price) = create_signal(cx, String::from("No Data"));
+    
     // Fetch prices on page load
     create_effect(cx, move |_| {
         spawn_local(async move {
+            // Fetch SILK Peg (from batch prices)
             match fetch_all_token_prices_with_names().await {
-                Ok(data) => set_prices(data), 
-                Err(err) => log::error!("❌ Error fetching prices on load: {}", err),
+                Ok(data) => {
+                    set_prices(data.clone());  
+                }                
+                Err(err) => log::error!("❌ Failed to fetch token prices: {:?}", err),
+            }
+        });
+
+        // Fetch SILK Spot Price (from fetchSilkPrice)
+        spawn_local(async move {
+            match fetch_silk_spot_price().await {
+                Ok(price) => set_silk_spot_price(price),
+                Err(err) => log::error!("❌ Error fetching SILK spot price: {}", err),
             }
         });
     });
-
+   
     // Start auto-refreshing prices every 5 minutes
     start_price_refresh(set_prices);
+
+    // Start auto-refreshing SILK Spot Price every 5 minutes
+    start_silk_spot_refresh(set_silk_spot_price);
+
+    // Start auto-refreshing exchange rates and redemption rates every 30 minutes
+    start_exchange_redemption_refresh(set_exchange_rate, set_redemption_rates);
 
     // Fetch all prices button function
     let fetch_all_prices = move |_| {
@@ -331,6 +462,17 @@ pub fn App(cx: Scope) -> impl IntoView {
             }
         });
     };   
+
+    // Fetch SILK Spot price on load
+    create_effect(cx, move |_| {
+        spawn_local(async move {
+            match fetch_silk_spot_price().await {
+                Ok(price) => set_silk_spot_price(price),
+                Err(err) => log::error!("❌ Error fetching SILK spot price: {}", err),
+            }
+        });
+    });
+    
     
     // Define Token Key Map
     let display_key_map = create_rw_signal(cx, HashMap::from([
@@ -341,7 +483,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         ("stTIA", "stTIA"),   
         ("dSHD", "dSHD"),  
         ("ANDR", "ANDR"),
-        ("FINA", "FINA"),      
+        ("FINA", "FINA"),     
     ]));    
 
     // Auto-fetch STKD exhcange rate on page load
@@ -682,7 +824,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 
                                 ordered_keys.get().iter().map(move |key| {
                                     let display_key = map.get(*key).unwrap_or(key); 
-
+                
                                     if let Some(value) = prices.get(*key) {
                                         view! {
                                             cx,
@@ -703,8 +845,15 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     }
                                 }).collect::<Vec<_>>()
                             }}
+                
+                            // SILK Spot Price 
+                            <div class="price-row">
+                                <h3>"SILK :"</h3>
+                                <div class="price-display">{format!("${}", silk_spot_price.get())}</div>
+                                <hr class="gold-line" />
+                            </div>
                         </div>
-
+                
                         // Derivative Prices Section
                         <div class="price-section-header">
                             <h2>"Derivatives :"</h2>
@@ -717,7 +866,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 
                                 derivative_keys.get().iter().map(move |key| {
                                     let display_key = map.get(*key).unwrap_or(key); 
-
+                
                                     if let Some(value) = prices.get(*key) {
                                         view! {
                                             cx,
@@ -824,8 +973,21 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 }
                             }}
                         </div>
+
+                        // Peg Section
+                        <div class="price-section-header">
+                            <h2>"Pegs :"</h2>
+                        </div>
+                        <hr class="gold-line" />
+                        <div class="price-list">
+                            <div class="price-row">
+                                <h3>"SILK :"</h3>
+                                <div class="price-display">{format!("${}", prices.get().get("SILK").cloned().unwrap_or("No Data".to_string()))}</div>
+                                <hr class="gold-line" />
+                            </div>
+                        </div>
                     </div>
-                },                                                      
+                },                                                                   
                 "Wallet" => view! { cx,
                     <div class="wallet-section">
                         <div class="wallet-section-header">

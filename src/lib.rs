@@ -176,7 +176,7 @@ fn start_exchange_redemption_refresh(
             // Fetch STKD-SCRT Exchange Rate
             match fetch_stkd_scrt_exchange_rate().await {
                 Ok(rate) => {
-                    // log::info!("🔄 Refreshing STKD-SCRT Exchange Rate: {}", rate);
+                    log::info!("🔄 Refreshing STKD-SCRT Exchange Rate: {}", rate);
                     set_exchange_rate(rate);
                 }
                 Err(err) => log::error!("❌ Refreshing failed for STKD-SCRT Exchange Rate: {}", err),
@@ -265,7 +265,7 @@ fn start_silk_spot_refresh(
                 Ok(price) => {
                     let current_price = silk_spot_price.get_untracked(); 
                     if current_price != price {
-                        // log::info!("🔄 Auto Refreshing SILK Spot Price: {}", price);
+                        log::info!("🔄 Auto Refreshing SILK Spot Price: {}", price);
                         set_silk_spot_price.set(price);
                     }
                 }

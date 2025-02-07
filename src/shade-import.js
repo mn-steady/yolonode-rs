@@ -61,7 +61,7 @@ window.fetchBatchPrices = async function (
             if (priceData[key]?.rate) {
                 try {
                     formattedPrices[key] = (parseFloat(priceData[key].rate) / DECIMALS).toFixed(4);
-                    // console.log(`📊 Formatted ${key} Price:`, formattedPrices[key]);
+                    console.log(`📊 Formatted ${key} Price:`, formattedPrices[key]);
                 } catch (formatError) {
                     console.error(`❌ Error formatting price for ${key}:`, formatError);
                     formattedPrices[key] = "Error Formatting";

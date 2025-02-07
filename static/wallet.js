@@ -158,17 +158,29 @@ async function fetchGovernanceProposals(limit = 50) {
                     let formattedEndDate = "";
                     if (proposal.voting_end_time) {
                         const endDate = new Date(proposal.voting_end_time);
-                        formattedEndDate = endDate.toLocaleDateString("en-US", {
+                        formattedEndDate = new Intl.DateTimeFormat("en-US", {
+                            timeZone: "UTC",
                             year: "numeric",
                             month: "short",
                             day: "numeric",
-                        });
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit",
+                            hour12: false
+                        }).format(endDate);
                     }
 
+                    const now = new Date(); 
+                    const votingEndTime = new Date(proposal.voting_end_time); 
+                    const isExpired = votingEndTime < now; 
+                    
                     let statusText = proposal.status;
-                    if (["Failed", "Passed", "Rejected"].includes(proposal.status) && formattedEndDate) {
-                        statusText += ` | Ended ${formattedEndDate}`;
-                    }
+                    
+                    if (isExpired) {
+                        statusText += ` | Expired on ${votingEndTime.toLocaleString("en-US", { timeZone: "UTC" })}`;
+                    } else {
+                        statusText += ` | Expires on ${votingEndTime.toLocaleString("en-US", { timeZone: "UTC" })}`;
+                    }                    
 
                     return {
                         proposal_id: proposal.proposal_id || proposal.id || "Unknown",

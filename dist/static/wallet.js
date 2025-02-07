@@ -115,8 +115,8 @@ async function fetchGovernanceProposals(limit = 50) {
 
         // Step 1: Fetch the latest proposal ID
         const latestProposalResponse = await client.query.gov.proposals({
-            "pagination.limit": 1, // Fetch only the latest proposal
-            "pagination.reverse": true, // Fetch newest first
+            "pagination.limit": 1,
+            "pagination.reverse": true,
         });
 
         if (latestProposalResponse?.proposals?.length > 0) {
@@ -141,7 +141,7 @@ async function fetchGovernanceProposals(limit = 50) {
                         title: "No content available",
                         description: "No description available",
                     };
-
+                
                     if (proposal.content) {
                         contentDetails = {
                             title: proposal.content.title || "Untitled Proposal",
@@ -154,57 +154,35 @@ async function fetchGovernanceProposals(limit = 50) {
                             description: `Details: ${JSON.stringify(firstMessage)}`,
                         };
                     }
-
-                    let formattedEndDate = "";
+                
+                    let formattedEndDate = "Unknown";
                     if (proposal.voting_end_time) {
-                        const endDate = new Date(proposal.voting_end_time);
-                        formattedEndDate = new Intl.DateTimeFormat("en-US", {
-                            timeZone: "UTC",
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                            hour12: false
-                        }).format(endDate);
+                        try {
+                            const votingEndTime = new Date(proposal.voting_end_time);
+                
+                            if (!isNaN(votingEndTime.getTime())) {
+                                formattedEndDate = votingEndTime.toISOString().replace("T", " ").split(".")[0] + " UTC";
+                            } else {
+                                console.warn(`⚠️ Invalid voting_end_time for proposal ${proposal.proposal_id}: ${proposal.voting_end_time}`);
+                            }
+                        } catch (error) {
+                            console.error(`❌ Error parsing voting_end_time for proposal ${proposal.proposal_id}:`, error);
+                        }
                     }
-
-                    const now = new Date(); 
-                    const votingEndTime = new Date(proposal.voting_end_time); 
-                    const isExpired = votingEndTime < now; 
-                    
-                    let statusText = proposal.status;
-                    
-                    if (isExpired) {
-                        statusText += ` | Expired on ${votingEndTime.toLocaleString("en-US", { timeZone: "UTC" })}`;
-                    } else {
-                        statusText += ` | Expires on ${votingEndTime.toLocaleString("en-US", { timeZone: "UTC" })}`;
-                    }                    
-
+                
                     return {
                         proposal_id: proposal.proposal_id || proposal.id || "Unknown",
                         title: contentDetails.title,
                         description: contentDetails.description,
-                        status: statusText,
-                        expiration_time: formattedEndDate,
+                        status: proposal.status,
+                        expiration_time: formattedEndDate, 
                         submit_time: proposal.submit_time,
                         ...proposal,
                     };
-                });
+                });                
 
                 allProposals = [...allProposals, ...processedProposals];
-
                 nextKey = response.pagination?.next_key;
-                console.log(`🔍 Fetched ${response.proposals.length} proposals, total so far: ${allProposals.length}`);
-
-                // Stop if we fetched up to the limit
-                if (
-                    allProposals.length >= limit ||
-                    parseInt(allProposals[allProposals.length - 1].proposal_id) <= (latestProposalId - limit)
-                ) {
-                    break;
-                }
             } else {
                 console.warn("❌ No more proposals or empty response.");
                 break;

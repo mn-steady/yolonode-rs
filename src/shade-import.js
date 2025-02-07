@@ -82,6 +82,14 @@ window.fetchDerivativePrices = async function (
     return window.fetchBatchPrices(derivativeKeys, options);
 };
 
+// Fetch Silk price
+window.fetchSilkPrice = async function (
+    derivativeKeys = ["SILK"],
+    options = {}
+) {
+    return window.fetchBatchPrices(derivativeKeys, options);
+};
+
 //Fetch STKD Exchange Rate
 window.fetchSTKDExchangeRate = async function () {
     try {
@@ -293,3 +301,8 @@ window.fetchAllTokenPricesWithNames = async function () {
     await window.fetchAllShadeSwapPools();
 })();
 
+// Fetch all ShadeSwap Pools on page load
+(async () => {
+    console.log("🔍 Fetching Silk Price...");
+    await window.fetchSilkPrice();
+})();

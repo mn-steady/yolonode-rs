@@ -441,7 +441,7 @@ pub fn App(cx: Scope) -> impl IntoView {
             }
         });
 
-        // Fetch SILK Spot Price (from fetchSilkPrice)
+        // Fetch SILK Spot Price 
         spawn_local(async move {
             match fetch_silk_spot_price().await {
                 Ok(price) => {
@@ -475,18 +475,16 @@ pub fn App(cx: Scope) -> impl IntoView {
                 Err(err) => log::error!("❌ Failed to fetch token prices: {:?}", err),
             }
         });
-    };   
 
-    // Fetch SILK Spot price on load
-    create_effect(cx, move |_| {
+        // Fetch SILK Spot price 
         spawn_local(async move {
             match fetch_silk_spot_price().await {
                 Ok(price) => set_silk_spot_price(price),
                 Err(err) => log::error!("❌ Error fetching SILK spot price: {}", err),
             }
         });
-    });
-    
+
+    };   
     
     // Define Token Key Map
     let display_key_map = create_rw_signal(cx, HashMap::from([

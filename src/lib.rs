@@ -425,7 +425,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     );    
     let (selected_derivative, set_selected_derivative) = create_signal(cx, "stkd-SCRT".to_string());
     let ordered_keys = create_rw_signal(cx, vec![
-        "WBTC.axl", "WETH", "SHD", "SCRT", "ATOM", "AMBER", "TIA", "ANDR", "FINA"]);
+        "WBTC.axl", "WETH", "SHD", "SCRT", "ATOM", "TIA", "AMBER", "ANDR", "FINA"]);
     let derivative_keys = create_rw_signal(cx, vec!["dSHD", "stkdSCRT", "stATOM", "stTIA"]);
     let (silk_spot_price, set_silk_spot_price) = create_signal(cx, String::from("No Data"));
     
@@ -842,7 +842,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                             cx,
                                             <div class="price-row">
                                                 <h3>{format!("{} :", display_key)}</h3>
-                                                <div class="price-display">{format!("${}", value)}</div>
+                                                <div class="price-display">{format!("${:.4}", value.parse::<f64>().unwrap_or(0.0))}</div>
                                                 <hr class="gold-line" />
                                             </div>
                                         }
@@ -861,7 +861,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             // SILK Spot Price 
                             <div class="price-row">
                                 <h3>"SILK :"</h3>
-                                <div class="price-display">{format!("${}", silk_spot_price.get())}</div>
+                                <div class="price-display">{format!("${:.4}", silk_spot_price.get().parse::<f64>().unwrap_or(0.0))}</div>
                                 <hr class="gold-line" />
                             </div>
                         </div>
@@ -884,7 +884,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                             cx,
                                             <div class="price-row">
                                                 <h3>{format!("{} :", display_key)}</h3>
-                                                <div class="price-display">{format!("${}", value)}</div>
+                                                <div class="price-display">{format!("${:.4}", value.parse::<f64>().unwrap_or(0.0))}</div>
                                                 <hr class="gold-line" />
                                             </div>
                                         }
@@ -1011,7 +1011,12 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <div class="price-list">
                             <div class="price-row">
                                 <h3>"SILK :"</h3>
-                                <div class="price-display">{format!("${}", prices.get().get("SILK").cloned().unwrap_or("No Data".to_string()))}</div>
+                                <div class="price-display">
+                                    {match prices.get().get("SILK").and_then(|s| s.parse::<f64>().ok()) {
+                                        Some(price) => format!("${:.4}", price),
+                                        None => "No Data".to_string(),
+                                    }}
+                                </div>
                                 <hr class="gold-line" />
                             </div>
                         </div>

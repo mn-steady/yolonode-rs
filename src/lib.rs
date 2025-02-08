@@ -946,6 +946,18 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     "No Data".to_string()
                                 };
                 
+                                // SHD/AMBER Ratio
+                                let shd_to_amber = if let (Some(shd_price), Some(amber_price)) = (
+                                    prices.get("SHD"),
+                                    prices.get("AMBER"),
+                                ) {
+                                    let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
+                                                amber_price.parse::<f64>().unwrap_or(1.0);
+                                    format!("{:.4}", ratio)
+                                } else {
+                                    "No Data".to_string()
+                                };
+
                                 // SCRT/ATOM Ratio
                                 let scrt_to_atom = if let (Some(scrt_price), Some(atom_price)) = (
                                     prices.get("SCRT"),
@@ -976,6 +988,11 @@ pub fn App(cx: Scope) -> impl IntoView {
                                             <div class="price-display">{shd_to_atom}</div>
                                             <hr class="gold-line" />
                                         </div>
+                                        <div class="price-row">
+                                            <h3>"SHD/AMBER :"</h3>
+                                            <div class="price-display">{shd_to_amber}</div>
+                                            <hr class="gold-line" />
+                                        </div>                                        
                                         <div class="price-row">
                                             <h3>"SCRT/ATOM :"</h3>
                                             <div class="price-display">{scrt_to_atom}</div>

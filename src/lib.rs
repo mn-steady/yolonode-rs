@@ -514,6 +514,8 @@ pub fn App(cx: Scope) -> impl IntoView {
         ("stATOM", "/static/icons/s-stATOM.svg"),
         ("stTIA", "/static/icons/ssttia.svg"),
         ("SILK", "/static/icons/Silk.svg"),
+        ("OSMO", "/static/icons/sOSMO.svg"),
+        ("NOBLE", "/static/icons/noble.svg"),
     ]));    
 
     let silk_icon_path = move || icon_map.get().get("SILK").cloned();
@@ -1035,7 +1037,6 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <div class="wallet-section-header">
                             <h2>"Wallet Info : "</h2>
                             {move || {
-                                // Ensure the correct state of the connect/disconnect button
                                 if wallet_address.get() != "Not Connected" && !wallet_address.get().is_empty() {
                                     set_connected.set(true);
                                 } else {
@@ -1054,8 +1055,15 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }}
                         </div>
                         <hr class="gold-line" />
+                        
                         <div class="wallet-address-display">
-                            <span class="wallet-address-label">"SCRT :"</span>
+                            <h3>
+                                {match icon_map.get().get("SCRT") {
+                                    Some(icon_path) => view! { cx, <img src={icon_path.to_string()} class="token-icon" /> }.into_view(cx),
+                                    None => "".into_view(cx),  
+                                }}
+                                <span class="wallet-address-label">"SCRT :"</span>
+                            </h3>
                             {move || {
                                 let addr = wallet_address.get();
                                 if addr == "Not Connected" || addr == "Error fetching SCRT address" || addr.is_empty() {
@@ -1065,19 +1073,28 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 }
                             }}
                         </div>
+                
                         <div class="multi-chain-addresses">
                             {move || multi_chain_addresses.get().iter().map(|(name, addr)| {
+                                let icon_path = icon_map.get().get(name.as_str()).cloned();  // Ensuring string lookup
+                
                                 view! {
                                     cx,
                                     <div class="wallet-address-display">
-                                        <span class="wallet-address-label">{format!("{} :", name)}</span>
+                                        <h3>
+                                            {match icon_path {
+                                                Some(icon) => view! { cx, <img src={icon} class="token-icon" /> }.into_view(cx),
+                                                None => "".into_view(cx),  // Fixing mismatched return types
+                                            }}
+                                            <span class="wallet-address-label">{format!("{} :", name)}</span>
+                                        </h3>
                                         <span class="wallet-address">{addr.clone()}</span>
                                     </div>
                                 }
                             }).collect::<Vec<_>>()}
                         </div>
                     </div>
-                },                                                                                                                                                                                              
+                },                                                                                                                                                                                      
                 "Vote" => view! { cx,
                     <div class="vote-section">
                         <h2>"Governance Proposals :"</h2>

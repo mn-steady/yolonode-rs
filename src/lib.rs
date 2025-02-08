@@ -948,95 +948,55 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <div class="price-list">
                             {move || {
                                 let prices = prices.get();
-                
-                                // SHD/SCRT Ratio
-                                let shd_to_scrt = if let (Some(shd_price), Some(scrt_price)) = (
-                                    prices.get("SHD"),
-                                    prices.get("SCRT"),
-                                ) {
-                                    let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
-                                                scrt_price.parse::<f64>().unwrap_or(1.0);
-                                    format!("{:.4}", ratio)
-                                } else {
-                                    "No Data".to_string()
-                                };
-                
-                                // SHD/stkd-SCRT Ratio
-                                let shd_to_stkd_scrt = if let (Some(shd_price), Some(stkd_scrt_price)) = (
-                                    prices.get("SHD").map(|s| s.clone()), 
-                                    prices.get("stkdSCRT").map(|s| s.clone()), 
-                                ) { 
-                                    let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
-                                                stkd_scrt_price.parse::<f64>().unwrap_or(1.0);
-                                    format!("{:.4}", ratio)
-                                } else {
-                                    "No Data".to_string()
-                                };                                
-                
-                                // SHD/ATOM Ratio
-                                let shd_to_atom = if let (Some(shd_price), Some(atom_price)) = (
-                                    prices.get("SHD"),
-                                    prices.get("ATOM"),
-                                ) {
-                                    let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
-                                                atom_price.parse::<f64>().unwrap_or(1.0);
-                                    format!("{:.4}", ratio)
-                                } else {
-                                    "No Data".to_string()
-                                };
-                
-                                // SHD/AMBER Ratio
-                                let shd_to_amber = if let (Some(shd_price), Some(amber_price)) = (
-                                    prices.get("SHD"),
-                                    prices.get("AMBER"),
-                                ) {
-                                    let ratio = shd_price.parse::<f64>().unwrap_or(0.0) /
-                                                amber_price.parse::<f64>().unwrap_or(1.0);
-                                    format!("{:.4}", ratio)
-                                } else {
-                                    "No Data".to_string()
+                                let icon_map = icon_map.get(); 
+                                let get_icon = |key: &str| icon_map.get(key).map(|icon| icon.to_string());
+
+                                // Define ratio calculations
+                                let calculate_ratio = |key1: &str, key2: &str| {
+                                    if let (Some(price1), Some(price2)) = (prices.get(key1), prices.get(key2)) {
+                                        let ratio = price1.parse::<f64>().unwrap_or(0.0) / price2.parse::<f64>().unwrap_or(1.0);
+                                        format!("{:.4}", ratio)
+                                    } else {
+                                        "No Data".to_string()
+                                    }
                                 };
 
-                                // SCRT/ATOM Ratio
-                                let scrt_to_atom = if let (Some(scrt_price), Some(atom_price)) = (
-                                    prices.get("SCRT"),
-                                    prices.get("ATOM"),
-                                ) {
-                                    let ratio = scrt_price.parse::<f64>().unwrap_or(0.0) /
-                                                atom_price.parse::<f64>().unwrap_or(1.0);
-                                    format!("{:.4}", ratio)
-                                } else {
-                                    "No Data".to_string()
-                                };
-                
+                                // Define token pairs for ratio calculation
+                                let token_ratios = vec![
+                                    ("SHD", "SCRT", "SHD/SCRT"),
+                                    ("SHD", "stkdSCRT", "SHD/STKD"),
+                                    ("SHD", "ATOM", "SHD/ATOM"),
+                                    ("SHD", "AMBER", "SHD/AMBER"),
+                                    ("SCRT", "ATOM", "SCRT/ATOM"),
+                                ];
+
+                                // Generate view dynamically
                                 view! {
                                     cx,
                                     <>
-                                        <div class="price-row">
-                                            <h3>"SHD/SCRT :"</h3>
-                                            <div class="price-display">{shd_to_scrt}</div>
-                                            <hr class="gold-line" />
-                                        </div>
-                                        <div class="price-row">
-                                            <h3>"SHD/STKD :"</h3>
-                                            <div class="price-display">{shd_to_stkd_scrt}</div>
-                                            <hr class="gold-line" />
-                                        </div>
-                                        <div class="price-row">
-                                            <h3>"SHD/ATOM :"</h3>
-                                            <div class="price-display">{shd_to_atom}</div>
-                                            <hr class="gold-line" />
-                                        </div>
-                                        <div class="price-row">
-                                            <h3>"SHD/AMBER :"</h3>
-                                            <div class="price-display">{shd_to_amber}</div>
-                                            <hr class="gold-line" />
-                                        </div>                                        
-                                        <div class="price-row">
-                                            <h3>"SCRT/ATOM :"</h3>
-                                            <div class="price-display">{scrt_to_atom}</div>
-                                            <hr class="gold-line" />
-                                        </div>
+                                        {token_ratios.iter().map(|(token1, token2, label)| {
+                                            let ratio = calculate_ratio(token1, token2);
+
+                                            view! {
+                                                cx,
+                                                <div class="price-row">
+                                                    <h3>
+                                                        {match get_icon(token1) {
+                                                            Some(icon_path) => view! { cx, <img src={icon_path} class="token-icon" /> }.into_view(cx),
+                                                            None => None::<View>.into_view(cx),
+                                                        }}
+                                                        
+                                                        {match get_icon(token2) {
+                                                            Some(icon_path) => view! { cx, <img src={icon_path} class="token-icon" /> }.into_view(cx),
+                                                            None => None::<View>.into_view(cx),
+                                                        }}
+                                                        {format!(" {} :", label)}
+                                                    </h3>
+                                                    <div class="price-display">{ratio}</div>
+                                                    <hr class="gold-line" />
+                                                </div>
+                                            }
+                                        }).collect::<Vec<_>>()}
                                     </>
                                 }
                             }}

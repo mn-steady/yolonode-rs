@@ -321,12 +321,11 @@ hr.gold-line-top {
 }
 
 .token-icon {
-    width: 20px;  
-    height: 20px;
-    margin-right: 8px;  
-    vertical-align: middle; 
+    width: 1.25rem; 
+    height: 1.25rem;
+    margin-right: 0.25rem;  
+    vertical-align: middle;
 }
-
 
 .wallet-section {
     padding: 0rem;

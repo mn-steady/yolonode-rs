@@ -320,13 +320,6 @@ hr.gold-line-top {
     text-overflow: ellipsis;
 }
 
-.token-icon {
-    width: 1.25rem; 
-    height: 1.25rem;
-    margin-right: 0.25rem;  
-    vertical-align: middle;
-}
-
 .wallet-section {
     padding: 0rem;
     margin-top: 0rem;
@@ -372,19 +365,42 @@ hr.gold-line-top {
     color: #101213;
 }
 
-.wallet-address-display {
-    display: flex;
-    align-items: center; 
-    gap: 0.5rem; 
-    justify-content: flex-start; 
-    width: 100%; 
+.token-icon {
+    width: 1.4rem; 
+    height: 1.4rem;
+    flex-shrink: 0;
 }
 
-.wallet-address-display .wallet-address {
+.wallet-address {
     font-size: 1rem;
     color: #53df03;
+    overflow-wrap: anywhere; 
+    word-break: break-word; 
+    white-space: normal; 
+    flex-grow: 1;
+    min-width: 0;
+    max-width: 100%; 
+}
+
+.wallet-address-display {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
     margin: 0;
-    text-align: left;
+    padding: 0;
+    line-height: 1;
+    flex-wrap: nowrap;
+    width: 100%;
+    margin-bottom: 0.2rem;
+    overflow: hidden; 
+}
+
+.wallet-address-display h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 1rem;
 }
 
 .wallet-address-display .connect-prompt {
@@ -396,9 +412,10 @@ hr.gold-line-top {
 
 .wallet-address-label {
     font-weight: bold;
-    font-size: 1.2rem;
-    color: #C1DF03; 
-    white-space: nowrap; 
+    font-size: 1.1rem;
+    color: #C1DF03;
+    white-space: nowrap;
+    margin: 0;
 }
 
 .modal {
@@ -723,32 +740,30 @@ hr.gold-line-top {
         text-align: center;
     }
 
-    .wallet-address {
-        font-size: 0.85rem;
-        text-align: center;
-        width: 100%;
-    }
-
     .wallet-address-display {
-        display: flex;
-        flex-wrap: nowrap; 
-        align-items: center; 
-        gap: 0.5rem; 
-        width: 100%; 
+        flex-wrap: wrap; 
+        justify-content: flex-start;
+        gap: 0.2rem;
+        margin-bottom: 0.3rem;
     }
 
-    .wallet-address-display .wallet-address-label {
-        font-size: 1rem; 
-        white-space: nowrap; 
+    .wallet-address-label {
+        font-size: 1rem;
+        white-space: nowrap;
     }
 
-    .wallet-address-display .wallet-address {
-        font-size: 0.85rem; 
-        color: #53df03; 
-        overflow-wrap: anywhere; 
-        word-break: break-word; 
-        flex-shrink: 1; 
-        min-width: 0; 
+    .wallet-address {
+        font-size: 0.95rem;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        flex-shrink: 1;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .token-icon {
+        width: 1.2rem;  
+        height: 1.2rem;
     }
 
     .image-section {

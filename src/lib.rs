@@ -496,7 +496,27 @@ pub fn App(cx: Scope) -> impl IntoView {
         ("dSHD", "dSHD"),  
         ("ANDR", "ANDR"),
         ("FINA", "FINA"),     
+    ]));   
+
+    // Token Icon Key
+    let icon_map = create_rw_signal(cx, HashMap::from([
+        ("WBTC.axl", "/static/icons/wBTC.svg"),
+        ("WETH", "/static/icons/wETH.svg"),
+        ("SHD", "/static/icons/shd.svg"),
+        ("SCRT", "/static/icons/Scrt.svg"),
+        ("ATOM", "/static/icons/sATOM.svg"),
+        ("TIA", "/static/icons/stia.svg"),
+        ("AMBER", "/static/icons/amber.svg"),
+        ("ANDR", "/static/icons/sandr.svg"),
+        ("FINA", "/static/icons/fina.svg"),
+        ("stkdSCRT", "/static/icons/stkd-scrt-logo.svg"),
+        ("dSHD", "/static/icons/dSHD.svg"),
+        ("stATOM", "/static/icons/s-stATOM.svg"),
+        ("stTIA", "/static/icons/ssttia.svg"),
+        ("SILK", "/static/icons/Silk.svg"),
     ]));    
+
+    let silk_icon_path = move || icon_map.get().get("SILK").cloned();
 
     // Auto-fetch STKD exhcange rate on page load
     create_effect(cx, move |_| {
@@ -832,35 +852,48 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <div class="price-list">
                             {move || {
                                 let prices = prices.get();
-                                let map = display_key_map.get(); 
-                                
+                                let map = display_key_map.get();
+                                let icon_map = icon_map.get();  
+
                                 ordered_keys.get().iter().map(move |key| {
-                                    let display_key = map.get(*key).unwrap_or(key); 
-                
-                                    if let Some(value) = prices.get(*key) {
-                                        view! {
-                                            cx,
-                                            <div class="price-row">
-                                                <h3>{format!("{} :", display_key)}</h3>
-                                                <div class="price-display">{format!("${:.4}", value.parse::<f64>().unwrap_or(0.0))}</div>
-                                                <hr class="gold-line" />
+                                    let display_key = map.get(*key).unwrap_or(key);
+                                    let price_value = prices.get(*key).cloned().unwrap_or("No Data".to_string());
+
+                                    view! {
+                                        cx,
+                                        <div class="price-row">
+                                            <h3>
+                                                {match icon_map.get(*key) { 
+                                                    Some(icon_path) => view! {
+                                                        cx,
+                                                        <img src={icon_path.to_string()} class="token-icon" />
+                                                    }.into_view(cx),
+                                                    None => "".into_view(cx), 
+                                                }}
+                                                {format!("{} :", display_key)}
+                                            </h3>
+                                            <div class="price-display">
+                                                {match price_value.parse::<f64>().ok() {
+                                                    Some(price) => format!("${:.4}", price),
+                                                    None => "No Data".to_string(),
+                                                }}
                                             </div>
-                                        }
-                                    } else {
-                                        view! {
-                                            cx,
-                                            <div class="price-row">
-                                                <h3>{format!("{} :", display_key)}</h3>
-                                                <div class="price-display">"No Data"</div>
-                                            </div>
-                                        }
+                                            <hr class="gold-line" />
+                                        </div>
                                     }
                                 }).collect::<Vec<_>>()
                             }}
                 
                             // SILK Spot Price 
                             <div class="price-row">
-                                <h3>"SILK :"</h3>
+                                <h3>
+                                    {if let Some(icon) = silk_icon_path() {
+                                        view! { cx, <img src={icon} class="token-icon" /> }.into_view(cx)
+                                    } else {
+                                        "".into_view(cx) 
+                                    }}
+                                    " SILK :"
+                                </h3>
                                 <div class="price-display">{format!("${:.4}", silk_spot_price.get().parse::<f64>().unwrap_or(0.0))}</div>
                                 <hr class="gold-line" />
                             </div>
@@ -875,32 +908,38 @@ pub fn App(cx: Scope) -> impl IntoView {
                             {move || {
                                 let prices = prices.get();
                                 let map = display_key_map.get();
-                                
+                                let icon_map = icon_map.get();
+
                                 derivative_keys.get().iter().map(move |key| {
-                                    let display_key = map.get(*key).unwrap_or(key); 
-                
-                                    if let Some(value) = prices.get(*key) {
-                                        view! {
-                                            cx,
-                                            <div class="price-row">
-                                                <h3>{format!("{} :", display_key)}</h3>
-                                                <div class="price-display">{format!("${:.4}", value.parse::<f64>().unwrap_or(0.0))}</div>
-                                                <hr class="gold-line" />
+                                    let display_key = map.get(*key).unwrap_or(key);
+                                    let price_value = prices.get(*key).cloned().unwrap_or("No Data".to_string());
+
+                                    view! {
+                                        cx,
+                                        <div class="price-row">
+                                            <h3>
+                                                {match icon_map.get(*key) {
+                                                    Some(icon_path) => view! {
+                                                        cx,
+                                                        <img src={icon_path.to_string()} class="token-icon" />
+                                                    }.into_view(cx),
+                                                    None => "".into_view(cx), 
+                                                }}
+                                                {format!("{} :", display_key)}
+                                            </h3>
+                                            <div class="price-display">
+                                                {match price_value.parse::<f64>().ok() {
+                                                    Some(price) => format!("${:.4}", price),
+                                                    None => "No Data".to_string(),
+                                                }}
                                             </div>
-                                        }
-                                    } else {
-                                        view! {
-                                            cx,
-                                            <div class="price-row">
-                                                <h3>{format!("{} :", display_key)}</h3>
-                                                <div class="price-display">"No Data"</div>
-                                            </div>
-                                        }
+                                            <hr class="gold-line" />
+                                        </div>
                                     }
                                 }).collect::<Vec<_>>()
                             }}
                         </div>
-                
+
                         // Price Ratios Section
                         <div class="price-section-header">
                             <h2>"Ratios :"</h2>
@@ -1009,16 +1048,25 @@ pub fn App(cx: Scope) -> impl IntoView {
                         </div>
                         <hr class="gold-line" />
                         <div class="price-list">
-                            <div class="price-row">
-                                <h3>"SILK :"</h3>
-                                <div class="price-display">
-                                    {match prices.get().get("SILK").and_then(|s| s.parse::<f64>().ok()) {
-                                        Some(price) => format!("${:.4}", price),
-                                        None => "No Data".to_string(),
-                                    }}
+                                <div class="price-row">
+                                    <h3>
+                                        {match icon_map.get().get("SILK") {
+                                            Some(icon_path) => view! {
+                                                cx,
+                                                <img src={icon_path.to_string()} class="token-icon" />
+                                            }.into_view(cx),
+                                            None => "".into_view(cx), 
+                                        }}
+                                        " SILK :"
+                                    </h3>
+                                    <div class="price-display">
+                                        {match prices.get().get("SILK").and_then(|s| s.parse::<f64>().ok()) {
+                                            Some(price) => format!("${:.4}", price),
+                                            None => "No Data".to_string(),
+                                        }}
+                                    </div>
+                                    <hr class="gold-line" />
                                 </div>
-                                <hr class="gold-line" />
-                            </div>
                         </div>
                     </div>
                 },                                                                   

@@ -320,6 +320,14 @@ hr.gold-line-top {
     text-overflow: ellipsis;
 }
 
+.token-icon {
+    width: 20px;  
+    height: 20px;
+    margin-right: 8px;  
+    vertical-align: middle; 
+}
+
+
 .wallet-section {
     padding: 0rem;
     margin-top: 0rem;

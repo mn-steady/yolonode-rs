@@ -369,6 +369,8 @@ hr.gold-line-top {
     width: 1.4rem; 
     height: 1.4rem;
     flex-shrink: 0;
+    margin-right: 0.25rem;  
+    vertical-align: middle;
 }
 
 .wallet-address {

@@ -425,7 +425,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     );    
     let (selected_derivative, set_selected_derivative) = create_signal(cx, "stkd-SCRT".to_string());
     let ordered_keys = create_rw_signal(cx, vec![
-        "WBTC.axl", "WETH", "SHD", "SCRT", "ATOM", "TIA", "AMBER", "ANDR", "FINA"]);
+        "WBTC.axl", "WETH", "SHD", "SCRT", "ATOM", "TIA", "AMBER", "FINA"]);
     let derivative_keys = create_rw_signal(cx, vec!["dSHD", "stkdSCRT", "stATOM", "stTIA"]);
     let (silk_spot_price, set_silk_spot_price) = create_signal(cx, String::from("No Data"));
     

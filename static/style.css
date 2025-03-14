@@ -701,6 +701,66 @@ hr.gold-line-top {
     margin-left: 0.3125rem; 
 }
 
+.api-section {
+    padding: 0rem;
+    margin-top: 0rem;
+    font-size: 1rem;
+    color: #C1DF03;
+    background-color: #101213;
+    border-radius: 0.3125rem; 
+}
+
+.api-section h2 {
+    color: #03c1df;
+    margin: 0;
+    flex: 1;
+    text-align: left;
+    font-size: 1.75rem;
+    padding: 0;
+}
+
+.api-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.api-endpoints {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #1a1c1d;
+    border-radius: 8px;
+    color: #C1DF03;
+    font-size: 1.2rem;
+}
+
+.api-endpoint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+}
+
+.api-endpoint h3 {
+    color: #03c1df;
+    font-size: 1.5rem;
+    margin: 0;
+    width: auto;
+    flex-shrink: 0;
+}
+
+.api-endpoint p {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #53df03;
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 @media (max-width: 48rem) { 
     .container {
         width: 100%;

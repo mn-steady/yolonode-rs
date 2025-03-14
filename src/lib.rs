@@ -724,6 +724,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                         set_selected_section.set("Wallet".to_string());
                     }>"Wallet"</button>
                     <button class="link-button" on:click=move |_| set_selected_section.set("Vote".to_string())>"Vote"</button>
+                    <button class="link-button" on:click=move |_| set_selected_section.set("API".to_string())>"API"</button>
                 </div>
                 <img src="/static/YoloNode-Logo-cropped.png" alt="YoloNode Logo" class="logo" />
             </div>
@@ -1226,7 +1227,24 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }}
                         </ul>
                     </div>
-                },                                                                                                                                                                                                                                             
+                },  
+                "API" => view! { cx,
+                    <div class="api-section">
+                        <h2>"API Endpoint Info : "</h2>
+                        <hr class="gold-line" />
+
+                        <div class="api-endpoints">
+                            <div class="api-endpoint">
+                                <h3>"RPC Endpoint:"</h3>
+                                <p>"https://api.yolonode.com:26657"</p>
+                            </div>
+                            <div class="api-endpoint">
+                                <h3>"gRPC Endpoint:"</h3>
+                                <p>"https://api.yolonode.com:9091"</p>
+                            </div>
+                        </div>
+                    </div>
+                },                                                                                                                                                                                                           
                 "Tools" => view! { cx,
                     <div class="tools-section">
                         <h2>"Derivative Price Converter :"</h2>

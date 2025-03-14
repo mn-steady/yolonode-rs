@@ -7,7 +7,7 @@ window.Buffer = Buffer;
 window.SecretNetworkClient = SecretNetworkClient;
 
 // Default LCD endpoint
-export const DEFAULT_API_ENDPOINT = "https://api.yolonode.com";
+export const DEFAULT_API_ENDPOINT = "https://rpc.ankr.com/http/scrt_cosmos";
 
 export function createSecretClient(endpoint = API) {
     console.log("🚀 Creating SecretNetworkClient with endpoint:", endpoint);

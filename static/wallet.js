@@ -103,7 +103,7 @@ async function fetchGovernanceProposals(limit = 50) {
         }
 
         const client = new window.SecretNetworkClient({
-            url: "https://api.yolonode.com",
+            url: "https://rpc.ankr.com/http/scrt_cosmos",
             chainId: "secret-4",
             wallet: signer,
             walletAddress,

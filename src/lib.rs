@@ -1278,7 +1278,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <div class="api-endpoints">
                             <div class="api-endpoint">
                                 <h3>"RPC Endpoint:"</h3>
-                                <p>"https://api.yolonode.com:26657"</p>
+                                <p>"https://api.yolonode.com/rpc"</p>
                                 <pre id="rpc-status" class="formatted-json">"Status: Loading..."</pre>
                                 <pre id="rpc-response" class="formatted-json">"Loading..."</pre>
                             </div>

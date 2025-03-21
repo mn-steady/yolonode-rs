@@ -6,7 +6,7 @@ window.SecretNetworkClient = SecretNetworkClient;
 
 // API URLs
 export const DEFAULT_LCD_ENDPOINT = "https://rpc.ankr.com/http/scrt_cosmos";
-export const DEFAULT_RPC_ENDPOINT = "https://api.yolonode.com:26657";
+export const DEFAULT_RPC_ENDPOINT = "https://api.yolonode.com";
 export const DEFAULT_GRPC_ENDPOINT = "api.yolonode.com:9091"; 
 
 // Function to create a Secret Network Client
@@ -109,7 +109,7 @@ window.fetchDefaultLCDStatus = function () {
 };
 
 window.fetchDefaultRPCStatus = function () {
-    window.fetchAPIStatus("RPC", "http://api.yolonode.com:26657", "/status", "rpc-status", "rpc-response");
+    window.fetchAPIStatus("RPC", DEFAULT_RPC_ENDPOINT, "/rpc/status", "rpc-status", "rpc-response");
 };
 
 window.fetchDefaultGRPCStatus = function () {

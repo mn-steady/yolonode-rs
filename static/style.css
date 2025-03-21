@@ -735,22 +735,46 @@ hr.gold-line-top {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .api-endpoint {
     display: flex;
-    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
     gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    flex-wrap: nowrap; 
+    margin-bottom: 1rem;
+}
+
+.api-endpoint pre {
+    flex: 1 1 100%;
+    margin: 0.25rem 0 0 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-x: auto;
+    background-color: #1a1c1d;
+    border: 1px solid #C1DF03;
+    border-radius: 0.3125rem;
+    padding: 0.625rem;
+    font-family: monospace;
+    font-size: 0.875rem;
+    box-sizing: border-box;
+}
+
+.api-endpoint h3,
+.api-endpoint p,
+.api-endpoint pre {
+    align-self: stretch;
 }
 
 .api-endpoint h3 {
+    flex: 0 0 auto;
+    margin: 0;
     color: #03c1df;
     font-size: 1.3rem;
-    margin: 0;
     white-space: nowrap;
-    flex-shrink: 0; 
 }
 
 .api-endpoint p {
@@ -759,10 +783,10 @@ hr.gold-line-top {
     font-weight: bold;
     color: #53df03;
     word-break: break-word;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-    flex-grow: 1;
+    flex: 1 1 auto;
     min-width: 0;
 }
 
@@ -876,6 +900,11 @@ hr.gold-line-top {
     .formatted-json {
         font-size: 0.75rem; 
         padding: 0.3125rem; 
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;    
     }
 
     .vote-status {
@@ -894,7 +923,8 @@ hr.gold-line-top {
     }
 
     .api-endpoint {
-        flex-wrap: wrap; 
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .api-endpoint h3 {

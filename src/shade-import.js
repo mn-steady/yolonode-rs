@@ -1,7 +1,7 @@
 // src/shade-import.js
 import { batchQueryIndividualPrices } from '@shadeprotocol/shadejs';
 import { queryDerivativeScrtInfo } from '@shadeprotocol/shadejs';
-import { DEFAULT_API_ENDPOINT } from './secret-import';
+import { DEFAULT_LCD_ENDPOINT } from './secret-import';
 
 window.secretClient = null;
 
@@ -31,7 +31,7 @@ window.fetchBatchPrices = async function (
         queryRouterCodeHash = "1c7e86ba4fdb6760e70bf08a7df7f44b53eb0b23290e3e69ca96140810d4f432",
         oracleContractAddress = "secret10n2xl5jmez6r9umtdrth78k0vwmce0l5m9f5dm",
         oracleCodeHash = "32c4710842b97a526c243a68511b15f58d6e72a388af38a7221ff3244c754e91",
-        lcdEndpoint = DEFAULT_API_ENDPOINT,
+        lcdEndpoint = DEFAULT_LCD_ENDPOINT,
     } = options;
 
     if (!lcdEndpoint) {

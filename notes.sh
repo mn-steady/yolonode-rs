@@ -20,6 +20,23 @@ fetchRedemptionRateForTIA()
     .then(rate => console.log('Redemption Rate for TIA:', rate))
     .catch(err => console.error('Error:', err));
 
+
+# YoloNode RPC
+fetch("http://api.yolonode.com:26657/status", { mode: 'cors' })
+    .then(response => response.json())
+    .then(data => console.log("✅ RPC Response:", data))
+    .catch(error => console.error("❌ RPC Error:", error));
+    
+# YoloNode gRPC    
+fetch("https://api.yolonode.com/grpc-proxy", { mode: 'cors' })
+    .then(response => response.text())
+    .then(data => console.log("✅ gRPC Response:", data))
+    .catch(error => console.error("❌ gRPC Error:", error));
+
+fetch("https://api.yolonode.com/grpc-proxy")
+  .then(res => res.json())
+  .then(console.log)
+
 #Graph QL Endpoint
 https://prodv1.securesecrets.org/graphql 
 

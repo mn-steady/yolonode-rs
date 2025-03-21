@@ -42,6 +42,19 @@ extern "C" {
     async fn getAddressForMultiChain(chain_id: &str) -> Result<JsValue, JsValue>;
 }
 
+// Fetch API data
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_name = fetch_api_data)]
+    fn fetch_api_data(url: &str, element_id: &str);
+}
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = window)]
+    fn fetchDefaultLCDStatus();
+}
+
 // Custom deserializer for u64 that handles both string and numeric values
 fn deserialize_string_to_u64<'de, D>(deserializer: D) -> Result<Option<u64>, D::Error>
 where
@@ -428,6 +441,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         "WBTC.axl", "WETH", "SHD", "SCRT", "ATOM", "TIA", "AMBER", "FINA"]);
     let derivative_keys = create_rw_signal(cx, vec!["dSHD", "stkdSCRT", "stATOM", "stTIA"]);
     let (silk_spot_price, set_silk_spot_price) = create_signal(cx, String::from("No Data"));
+    let (api_fetched, set_api_fetched) = create_signal(cx, false);
     
     // Fetch prices on page load
     create_effect(cx, move |_| {
@@ -709,6 +723,34 @@ pub fn App(cx: Scope) -> impl IntoView {
             );
         }
     });      
+
+    // Fetch API statuses 
+    create_effect(cx, move |_| {
+        if selected_section.get().as_str() == "API" && !api_fetched.get() {
+            log::info!("🚀 Fetching API Statuses");
+    
+            // Delay call slightly so Leptos renders the DOM elements
+            let window = web_sys::window().expect("no global `window` exists");
+            let closure = Closure::once_into_js(move || {
+                if let Ok(js_func) = call_js_function("fetchDefaultLCDStatus") {
+                    js_func.call0(&JsValue::null()).ok();
+                }
+                if let Ok(js_func) = call_js_function("fetchDefaultRPCStatus") {
+                    js_func.call0(&JsValue::null()).ok();
+                }
+                if let Ok(js_func) = call_js_function("fetchDefaultGRPCStatus") {
+                    js_func.call0(&JsValue::null()).ok();
+                }
+            });
+    
+            let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
+                closure.as_ref().unchecked_ref(),
+                200, // 200ms delay to ensure DOM is ready
+            );
+    
+            set_api_fetched.set(true);
+        }
+    });    
 
     // UI with views
     view! {
@@ -1236,15 +1278,27 @@ pub fn App(cx: Scope) -> impl IntoView {
                         <div class="api-endpoints">
                             <div class="api-endpoint">
                                 <h3>"RPC Endpoint:"</h3>
-                                <p>"https://api.yolonode.com:26657"</p>
+                                <p>"http://api.yolonode.com:26657"</p>
+                                <pre id="rpc-status" class="formatted-json">"Status: Loading..."</pre>
+                                <pre id="rpc-response" class="formatted-json">"Loading..."</pre>
                             </div>
+
                             <div class="api-endpoint">
                                 <h3>"gRPC Endpoint:"</h3>
                                 <p>"https://api.yolonode.com:9091"</p>
+                                <pre id="grpc-status" class="formatted-json">"Status: Loading..."</pre>
+                                <pre id="grpc-response" class="formatted-json">"Loading..."</pre>
+                            </div>
+
+                            <div class="api-endpoint">
+                                <h3>"LCD Endpoint:"</h3>
+                                <p>"https://rpc.ankr.com/http/scrt_cosmos"</p>
+                                <pre id="lcd-status" class="formatted-json">"Status: Loading..."</pre>
+                                <pre id="lcd-response" class="formatted-json">"Latest Block: Loading..."</pre>
                             </div>
                         </div>
                     </div>
-                },                                                                                                                                                                                                           
+                },                                                                           
                 "Tools" => view! { cx,
                     <div class="tools-section">
                         <h2>"Derivative Price Converter :"</h2>
@@ -1395,3 +1449,4 @@ pub fn start() {
     console_log::init_with_level(log::Level::Debug).expect("Error initializing log");
     mount_to_body(|cx| view! { cx, <App /> });
 }
+

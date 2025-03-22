@@ -1020,6 +1020,7 @@ pub fn App(cx: Scope) -> impl IntoView {
 
                                 // Define token pairs for ratio calculation
                                 let token_ratios = vec![
+                                    ("WBTC.axl", "WETH", "BTC/ETH"),
                                     ("SHD", "SCRT", "SHD/SCRT"),
                                     ("SHD", "stkdSCRT", "SHD/STKD"),
                                     ("SHD", "ATOM", "SHD/ATOM"),

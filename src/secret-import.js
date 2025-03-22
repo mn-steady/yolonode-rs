@@ -22,7 +22,7 @@ window.createSecretClient = createSecretClient;
 
 // Function to fetch API status dynamically (LCD, RPC, gRPC)
 window.fetchAPIStatus = function (type, baseUrl, endpoint, statusId, responseId, attempt = 1, maxAttempts = 10) {
-    console.log(`🚀 Fetching ${type} Status (Attempt ${attempt})`);
+    console.log(`🔍 Fetching ${type} Status (Attempt ${attempt})`);
 
     // Try to find the DOM elements
     const statusElement = document.getElementById(statusId);

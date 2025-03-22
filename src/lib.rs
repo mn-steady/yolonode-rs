@@ -752,6 +752,14 @@ pub fn App(cx: Scope) -> impl IntoView {
         }
     });    
 
+    // Reset API fetch flag when leaving the API view
+    create_effect(cx, move |_| {
+        if selected_section.get().as_str() != "API" && api_fetched.get() {
+            log::info!("🔄 Left API view. Resetting API fetch flag.");
+            set_api_fetched.set(false);
+        }
+    });
+
     // UI with views
     view! {
         cx,
@@ -1280,21 +1288,21 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 <h3>"RPC Endpoint:"</h3>
                                 <p>"https://api.yolonode.com/rpc"</p>
                                 <pre id="rpc-status" class="formatted-json">"Status: Loading..."</pre>
-                                <pre id="rpc-response" class="formatted-json">"Loading..."</pre>
+                                <pre id="rpc-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
 
                             <div class="api-endpoint">
                                 <h3>"gRPC Endpoint:"</h3>
                                 <p>"https://api.yolonode.com:9091"</p>
                                 <pre id="grpc-status" class="formatted-json">"Status: Loading..."</pre>
-                                <pre id="grpc-response" class="formatted-json">"Loading..."</pre>
+                                <pre id="grpc-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
 
                             <div class="api-endpoint">
                                 <h3>"LCD Endpoint:"</h3>
                                 <p>"https://rpc.ankr.com/http/scrt_cosmos"</p>
                                 <pre id="lcd-status" class="formatted-json">"Status: Loading..."</pre>
-                                <pre id="lcd-response" class="formatted-json">"Latest Block: Loading..."</pre>
+                                <pre id="lcd-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
                         </div>
                     </div>

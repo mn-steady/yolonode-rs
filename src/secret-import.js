@@ -115,3 +115,9 @@ window.fetchDefaultRPCStatus = function () {
 window.fetchDefaultGRPCStatus = function () {
     window.fetchGRPCStatus();
 };
+
+window.fetchSaturnLCDStatus = function () {
+    window.fetchAPIStatus("LCD", "https://lcd.mainnet.secretsaturn.net", "/cosmos/base/tendermint/v1beta1/blocks/latest", "saturn-lcd-status", "saturn-lcd-response");
+};
+
+

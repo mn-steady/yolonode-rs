@@ -1023,8 +1023,9 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     ("SHD", "SCRT", "SHD/SCRT"),
                                     ("SHD", "stkdSCRT", "SHD/STKD"),
                                     ("SHD", "ATOM", "SHD/ATOM"),
-                                    ("SHD", "AMBER", "SHD/AMBER"),
-                                    ("SCRT", "ATOM", "SCRT/ATOM"),
+                                    ("AMBER", "SHD", "AMBER/SHD"),
+                                    ("AMBER", "SCRT", "AMBER/SCRT"),
+                                    ("ATOM", "SCRT", "ATOM/SCRT"),
                                 ];
 
                                 // Generate view dynamically

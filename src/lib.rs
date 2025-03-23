@@ -1339,7 +1339,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                             </div>
 
                             <div class="api-endpoint">
-                                <h3>"🪐 Secret Saturn LCD 🪐:"</h3>
+                                <h3>"🪐 Secret Saturn LCD:"</h3>
                                 <p>"https://lcd.mainnet.secretsaturn.net"</p>
                                 <pre id="saturn-lcd-status" class="formatted-json">"Status: Loading..."</pre>
                                 <pre id="saturn-lcd-response" class="formatted-json">"Response: Loading..."</pre>

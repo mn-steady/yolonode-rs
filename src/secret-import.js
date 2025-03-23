@@ -104,12 +104,16 @@ window.fetchGRPCStatus = function (attempt = 1, maxAttempts = 10) {
 };
 
 // Wrapper functions for each API type
-window.fetchDefaultLCDStatus = function () {
-    window.fetchAPIStatus("LCD", DEFAULT_LCD_ENDPOINT, "/cosmos/base/tendermint/v1beta1/blocks/latest", "lcd-status", "lcd-response");
+window.fetchDefaultGRPCStatus = function () {
+    window.fetchGRPCStatus();
 };
 
 window.fetchDefaultRPCStatus = function () {
     window.fetchAPIStatus("RPC", DEFAULT_RPC_ENDPOINT, "/rpc/status", "rpc-status", "rpc-response");
+};
+
+window.fetchDefaultLCDStatus = function () {
+    window.fetchAPIStatus("LCD", DEFAULT_LCD_ENDPOINT, "/cosmos/base/tendermint/v1beta1/blocks/latest", "lcd-status", "lcd-response");
 };
 
 window.fetchSaturnLCDStatus = function () {
@@ -120,9 +124,18 @@ window.fetchLav5LCDStatus = function () {
     window.fetchAPIStatus("LCD", "https://secretnetwork-api.lavenderfive.com:443", "/cosmos/base/tendermint/v1beta1/blocks/latest", "Lav5-lcd-status", "Lav5-lcd-response");
 };
 
-window.fetchDefaultGRPCStatus = function () {
-    window.fetchGRPCStatus();
+window.fetchSaturnRPCStatus = function () {
+    window.fetchAPIStatus("RPC", "https://rpc.mainnet.secretsaturn.net", "/status", "saturn-rpc-status", "saturn-rpc-response");
 };
+
+window.fetchLav5RPCStatus = function () {
+    window.fetchAPIStatus("RPC", "https://secretnetwork-rpc.lavenderfive.com:443", "/status", "Lav5-rpc-status", "Lav5-rpc-response");
+};
+
+// window.fetchAnkrRPCStatus = function () {
+   // window.fetchAPIStatus("RPC", "https://scrt.public-rpc.com", "/rpc/status", "ankr-rpc-status", "ankr-rpc-response");
+// };
+
 
 
 

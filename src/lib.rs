@@ -748,7 +748,17 @@ pub fn App(cx: Scope) -> impl IntoView {
                 
                 if let Ok(js_func) = call_js_function("fetchLav5LCDStatus") {
                     js_func.call0(&JsValue::null()).ok();
-                }       
+                }     
+
+                if let Ok(js_func) = call_js_function("fetchSaturnRPCStatus") {
+                    js_func.call0(&JsValue::null()).ok();
+                }
+                if let Ok(js_func) = call_js_function("fetchLav5RPCStatus") {
+                    js_func.call0(&JsValue::null()).ok();
+                }
+                /* if let Ok(js_func) = call_js_function("fetchAnkrRPCStatus") {
+                    js_func.call0(&JsValue::null()).ok();
+                }  */      
             });
     
             let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
@@ -1295,39 +1305,61 @@ pub fn App(cx: Scope) -> impl IntoView {
 
                         <div class="api-endpoints">
                             <div class="api-endpoint">
-                                <h3>"YoloNode RPC Endpoint:"</h3>
+                                <h3>"YoloNode RPC 💰:"</h3>
                                 <p>"https://api.yolonode.com/rpc"</p>
                                 <pre id="rpc-status" class="formatted-json">"Status: Loading..."</pre>
                                 <pre id="rpc-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
 
                             <div class="api-endpoint">
-                                <h3>"YoloNode gRPC Endpoint:"</h3>
+                                <h3>"YoloNode gRPC 💰:"</h3>
                                 <p>"https://api.yolonode.com:9091"</p>
                                 <pre id="grpc-status" class="formatted-json">"Status: Loading..."</pre>
                                 <pre id="grpc-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
 
-                            <div class="api-endpoint">
-                                <h3>"Ankr LCD Endpoint:"</h3>
+                            <div class="api-endpoint"> 
+                                <h3>"Ankr LCD 🚀:"</h3>
                                 <p>"https://rpc.ankr.com/http/scrt_cosmos"</p>
                                 <pre id="lcd-status" class="formatted-json">"Status: Loading..."</pre>
                                 <pre id="lcd-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
 
                             <div class="api-endpoint">
-                                <h3>"Saturn LCD Endpoint:"</h3>
+                                <h3>"Secret Saturn LCD 🪐:"</h3>
                                 <p>"https://lcd.mainnet.secretsaturn.net"</p>
                                 <pre id="saturn-lcd-status" class="formatted-json">"Status: Loading..."</pre>
                                 <pre id="saturn-lcd-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
 
                             <div class="api-endpoint">
-                                <h3>"Lavender.Five LCD Endpoint:"</h3>
+                                <h3>"Lavender.Five LCD 🐝:"</h3>
                                 <p>"https://secretnetwork-api.lavenderfive.com:443"</p>
                                 <pre id="Lav5-lcd-status" class="formatted-json">"Status: Loading..."</pre>
                                 <pre id="Lav5-lcd-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
+
+                            /* <div class="api-endpoint">
+                                <h3>"Ankr RPC 🚀:"</h3>
+                                <p>"https://scrt.public-rpc.com"</p>
+                                <pre id="ankr-rpc-status" class="formatted-json">"Status: Loading..."</pre>
+                                <pre id="ankr-rpc-response" class="formatted-json">"Response: Loading..."</pre>
+                            </div> */
+
+                            <div class="api-endpoint">
+                                <h3>"Secret Saturn RPC 🪐:"</h3>
+                                <p>"https://rpc.mainnet.secretsaturn.net"</p>
+                                <pre id="saturn-rpc-status" class="formatted-json">"Status: Loading..."</pre>
+                                <pre id="saturn-rpc-response" class="formatted-json">"Response: Loading..."</pre>
+                            </div>
+
+                            <div class="api-endpoint">
+                                <h3>"Lavender.Five RPC 🐝:"</h3>
+                                <p>"https://secretnetwork-rpc.lavenderfive.com:443"</p>
+                                <pre id="Lav5-rpc-status" class="formatted-json">"Status: Loading..."</pre>
+                                <pre id="Lav5-rpc-response" class="formatted-json">"Response: Loading..."</pre>
+                            </div>
+
                         </div>
                     </div>
                 },                                                                           

@@ -744,7 +744,11 @@ pub fn App(cx: Scope) -> impl IntoView {
 
                 if let Ok(js_func) = call_js_function("fetchSaturnLCDStatus") {
                     js_func.call0(&JsValue::null()).ok();
-                }                
+                }          
+                
+                if let Ok(js_func) = call_js_function("fetchLav5LCDStatus") {
+                    js_func.call0(&JsValue::null()).ok();
+                }       
             });
     
             let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
@@ -1316,6 +1320,13 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 <p>"https://lcd.mainnet.secretsaturn.net"</p>
                                 <pre id="saturn-lcd-status" class="formatted-json">"Status: Loading..."</pre>
                                 <pre id="saturn-lcd-response" class="formatted-json">"Response: Loading..."</pre>
+                            </div>
+
+                            <div class="api-endpoint">
+                                <h3>"Lavender.Five LCD Endpoint:"</h3>
+                                <p>"https://secretnetwork-api.lavenderfive.com:443"</p>
+                                <pre id="Lav5-lcd-status" class="formatted-json">"Status: Loading..."</pre>
+                                <pre id="Lav5-lcd-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
                         </div>
                     </div>

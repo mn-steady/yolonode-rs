@@ -112,12 +112,18 @@ window.fetchDefaultRPCStatus = function () {
     window.fetchAPIStatus("RPC", DEFAULT_RPC_ENDPOINT, "/rpc/status", "rpc-status", "rpc-response");
 };
 
+window.fetchSaturnLCDStatus = function () {
+    window.fetchAPIStatus("LCD", "https://lcd.mainnet.secretsaturn.net", "/cosmos/base/tendermint/v1beta1/blocks/latest", "saturn-lcd-status", "saturn-lcd-response");
+};
+
+window.fetchLav5LCDStatus = function () {
+    window.fetchAPIStatus("LCD", "https://secretnetwork-api.lavenderfive.com:443", "/cosmos/base/tendermint/v1beta1/blocks/latest", "Lav5-lcd-status", "Lav5-lcd-response");
+};
+
 window.fetchDefaultGRPCStatus = function () {
     window.fetchGRPCStatus();
 };
 
-window.fetchSaturnLCDStatus = function () {
-    window.fetchAPIStatus("LCD", "https://lcd.mainnet.secretsaturn.net", "/cosmos/base/tendermint/v1beta1/blocks/latest", "saturn-lcd-status", "saturn-lcd-response");
-};
+
 
 

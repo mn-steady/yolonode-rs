@@ -1016,6 +1016,33 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }}
                         </div>
 
+                        // Peg Section
+                        <div class="price-section-header">
+                            <h2>"Pegs :"</h2>
+                        </div>
+                        <hr class="gold-line" />
+                        <div class="price-list">
+                                <div class="price-row">
+                                    <h3>
+                                        {match icon_map.get().get("SILK") {
+                                            Some(icon_path) => view! {
+                                                cx,
+                                                <img src={icon_path.to_string()} class="token-icon" />
+                                            }.into_view(cx),
+                                            None => "".into_view(cx), 
+                                        }}
+                                        " SILK :"
+                                    </h3>
+                                    <div class="price-display">
+                                        {match prices.get().get("SILK").and_then(|s| s.parse::<f64>().ok()) {
+                                            Some(price) => format!("${:.4}", price),
+                                            None => "No Data".to_string(),
+                                        }}
+                                    </div>
+                                    <hr class="gold-line" />
+                                </div>
+                        </div>
+
                         // Price Ratios Section
                         <div class="price-section-header">
                             <h2>"Ratios :"</h2>
@@ -1047,12 +1074,12 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     ("WETH", "SHD", "ETH/SHD"),
                                     ("WETH", "SCRT", "ETH/SCRT"),
                                     ("WETH", "ATOM", "ETH/ATOM"),
-                                    ("ATOM", "SCRT", "ATOM/SCRT"),
                                     ("SHD", "SCRT", "SHD/SCRT"),
                                     ("SHD", "stkdSCRT", "SHD/STKD"),
                                     ("SHD", "ATOM", "SHD/ATOM"),
                                     ("AMBER", "SHD", "AMBER/SHD"),
                                     ("AMBER", "SCRT", "AMBER/SCRT"),
+                                    ("ATOM", "SCRT", "ATOM/SCRT"),
                                 ];
 
                                 // Generate view dynamically
@@ -1087,32 +1114,6 @@ pub fn App(cx: Scope) -> impl IntoView {
                             }}
                         </div>
 
-                        // Peg Section
-                        <div class="price-section-header">
-                            <h2>"Pegs :"</h2>
-                        </div>
-                        <hr class="gold-line" />
-                        <div class="price-list">
-                                <div class="price-row">
-                                    <h3>
-                                        {match icon_map.get().get("SILK") {
-                                            Some(icon_path) => view! {
-                                                cx,
-                                                <img src={icon_path.to_string()} class="token-icon" />
-                                            }.into_view(cx),
-                                            None => "".into_view(cx), 
-                                        }}
-                                        " SILK :"
-                                    </h3>
-                                    <div class="price-display">
-                                        {match prices.get().get("SILK").and_then(|s| s.parse::<f64>().ok()) {
-                                            Some(price) => format!("${:.4}", price),
-                                            None => "No Data".to_string(),
-                                        }}
-                                    </div>
-                                    <hr class="gold-line" />
-                                </div>
-                        </div>
                     </div>
                 },                                                                   
                 "Wallet" => view! { cx,

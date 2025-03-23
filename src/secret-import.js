@@ -132,13 +132,13 @@ window.fetchLav5RPCStatus = function () {
     window.fetchAPIStatus("RPC", "https://secretnetwork-rpc.lavenderfive.com:443", "/status", "Lav5-rpc-status", "Lav5-rpc-response");
 };
 
-window.fetchWhisperRPCStatus = function () {
+/* window.fetchWhisperRPCStatus = function () {
     window.fetchAPIStatus("RPC", "https://rpc-secret.whispernode.com:443", "/rpc/status", "whisper-rpc-status", "whisper-rpc-response");
-};
+}; */
 
-// window.fetchAnkrRPCStatus = function () {
-   // window.fetchAPIStatus("RPC", "https://scrt.public-rpc.com", "/rpc/status", "ankr-rpc-status", "ankr-rpc-response");
-// };
+/* window.fetchAnkrRPCStatus = function () {
+   window.fetchAPIStatus("RPC", "https://scrt.public-rpc.com", "/rpc/status", "ankr-rpc-status", "ankr-rpc-response");
+}; */
 
 
 

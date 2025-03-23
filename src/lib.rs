@@ -756,6 +756,11 @@ pub fn App(cx: Scope) -> impl IntoView {
                 if let Ok(js_func) = call_js_function("fetchLav5RPCStatus") {
                     js_func.call0(&JsValue::null()).ok();
                 }
+
+                if let Ok(js_func) = call_js_function("fetchWhisperRPCStatus") {
+                    js_func.call0(&JsValue::null()).ok();
+                }
+
                 /* if let Ok(js_func) = call_js_function("fetchAnkrRPCStatus") {
                     js_func.call0(&JsValue::null()).ok();
                 }  */      
@@ -1035,12 +1040,19 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 // Define token pairs for ratio calculation
                                 let token_ratios = vec![
                                     ("WBTC.axl", "WETH", "BTC/ETH"),
+                                    ("WBTC.axl", "SHD", "BTC/SHD"),
+                                    ("WBTC.axl", "SCRT", "BTC/SCRT"),
+                                    ("WBTC.axl", "ATOM", "BTC/ATOM"),
+                                    ("WBTC.axl", "AMBER", "BTC/AMBER"),
+                                    ("WETH", "SHD", "ETH/SHD"),
+                                    ("WETH", "SCRT", "ETH/SCRT"),
+                                    ("WETH", "ATOM", "ETH/ATOM"),
+                                    ("ATOM", "SCRT", "ATOM/SCRT"),
                                     ("SHD", "SCRT", "SHD/SCRT"),
                                     ("SHD", "stkdSCRT", "SHD/STKD"),
                                     ("SHD", "ATOM", "SHD/ATOM"),
                                     ("AMBER", "SHD", "AMBER/SHD"),
                                     ("AMBER", "SCRT", "AMBER/SCRT"),
-                                    ("ATOM", "SCRT", "ATOM/SCRT"),
                                 ];
 
                                 // Generate view dynamically
@@ -1358,6 +1370,13 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 <p>"https://secretnetwork-rpc.lavenderfive.com:443"</p>
                                 <pre id="Lav5-rpc-status" class="formatted-json">"Status: Loading..."</pre>
                                 <pre id="Lav5-rpc-response" class="formatted-json">"Response: Loading..."</pre>
+                            </div>
+
+                            <div class="api-endpoint">
+                                <h3>"WhisperNode RPC 🤐:"</h3>
+                                <p>"https://rpc-secret.whispernode.com:443"</p>
+                                <pre id="whisper-rpc-status" class="formatted-json">"Status: Loading..."</pre>
+                                <pre id="whisper-rpc-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
 
                         </div>

@@ -18,8 +18,8 @@ jobs:
           rustup update nightly-2024-06-20
           rustup default nightly-2024-06-20
           rustup target add wasm32-unknown-unknown
-          cargo install trunk --force
-          cargo install wasm-bindgen-cli --locked --force
+          cargo install trunk --version 0.21.2 --locked
+          cargo install wasm-bindgen-cli --version 0.2.92 --locked
 
       - name: Build the project with Trunk
         run: trunk build --release

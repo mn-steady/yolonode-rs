@@ -1,9 +1,9 @@
 {
   "dependencies": {
-    "@shadeprotocol/shadejs": "^1.5.9",
+    "@shadeprotocol/shadejs": "^1.8.0",
     "buffer": "^6.0.3",
     "secretjs": "^1.15.1",
-    "stridejs": "^0.11.4"
+    "stridejs": "^0.14.1"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^4.0.0",

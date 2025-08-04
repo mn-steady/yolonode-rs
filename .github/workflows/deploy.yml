@@ -8,17 +8,18 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out code
         uses: actions/checkout@v3
 
       - name: Install Rust Nightly and Trunk
         run: |
-          rustup update nightly
-          rustup default nightly
+          rustup update nightly-2024-06-20
+          rustup default nightly-2024-06-20
           rustup target add wasm32-unknown-unknown
           cargo install trunk --force
-          cargo install wasm-bindgen-cli --force
+          cargo install wasm-bindgen-cli --locked --force
 
       - name: Build the project with Trunk
         run: trunk build --release
@@ -32,7 +33,7 @@ jobs:
       - name: Manually Copy Static Files
         run: |
           mkdir -p dist/static
-          cp -r static/* dist/static/ 
+          cp -r static/* dist/static/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

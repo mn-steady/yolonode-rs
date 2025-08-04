@@ -8,7 +8,7 @@
     <base href="/"> <!-- Needed for GitHub Pages deploy with domain name -->
     <link rel="stylesheet" href="./static/style.css">
     <link rel="icon" type="image/png" href="./static/YoloNode-Logo-cropped-circle-plain.png">
-<link rel="modulepreload" href="/yolonode-b5d9ab7d1480e9e3.js" crossorigin=anonymous integrity="sha384-3DPpm1fpz1UvOqCiupU3Mt2YQoXHGOQAnUbo6piaaXKcME0HQNWF6iPjLhRdzxuK"><link rel="modulepreload" href="/snippets/leptos_reactive-f7acfdcc44aba8c4/inline0.js" crossorigin=anonymous integrity="sha384-d8yvubxSuBtBulKXqV75Cat9GIXWqR6k5Bgu7yCoAeqNsM97ASkJwvRGESa4d7HR"><link rel="preload" href="/yolonode-b5d9ab7d1480e9e3_bg.wasm" crossorigin=anonymous integrity="sha384-yvXWlmw3mUH3lYu1X5PsDWgVbwdhR1BCQ7JzYgnCH0Y/urk0D1uy0uuJ7/pR7Txm" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="/yolonode-bd10b532ec86aed7.js" crossorigin="anonymous" integrity="sha384-KiDPfq0Y5V8QDrokvenGxGv4b7LsPQzg2OB5LdV/5HeTB9NBN7WbzwxxeZm8sqwQ"><link rel="modulepreload" href="/snippets/leptos_reactive-f7acfdcc44aba8c4/inline0.js" crossorigin="anonymous" integrity="sha384-d8yvubxSuBtBulKXqV75Cat9GIXWqR6k5Bgu7yCoAeqNsM97ASkJwvRGESa4d7HR"><link rel="preload" href="/yolonode-bd10b532ec86aed7_bg.wasm" crossorigin="anonymous" integrity="sha384-ijzYQ4xnS090teXhKsmFh2QJ71nYbdPQ97ReLCik959yT17rVVCyqT9bDIz1vioO" as="fetch" type="application/wasm"></head>
 <body>
     <div id="app"></div>
 
@@ -42,9 +42,9 @@
         init();
     </script>    
 
-<script type="module" nonce="2Y9kiE3/I60Sy3vHV+Zd6A==">
-import init, * as bindings from '/yolonode-b5d9ab7d1480e9e3.js';
-const wasm = await init('/yolonode-b5d9ab7d1480e9e3_bg.wasm');
+<script type="module">
+import init, * as bindings from '/yolonode-bd10b532ec86aed7.js';
+const wasm = await init({ module_or_path: '/yolonode-bd10b532ec86aed7_bg.wasm' });
 
 
 window.wasmBindings = bindings;

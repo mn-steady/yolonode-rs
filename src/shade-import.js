@@ -95,23 +95,53 @@ window.fetchSilkPrice = async function (
     return window.fetchBatchPrices(derivativeKeys, options);
 };
 
-//Fetch STKD Exchange Rate
-window.fetchSTKDExchangeRate = async function () {
-    try {
-        const derivativeInfo = await queryDerivativeScrtInfo({
-            queryRouterContractAddress: "secret15mkmad8ac036v4nrpcc7nk8wyr578egt077syt",
-            queryRouterCodeHash: "1c7e86ba4fdb6760e70bf08a7df7f44b53eb0b23290e3e69ca96140810d4f432",
-            contractAddress: "secret1k6u0cy4feepm6pehnz804zmwakuwdapm69tuc4",
-            codeHash: "f6be719b3c6feb498d3554ca0398eb6b7e7db262acb33f84a8f12106da6bbb09",
-            queryTimeSeconds: Math.floor(Date.now() / 1000),
-        });
+// Data Normalizer 
+function toFiniteNumber(x) {
+  const n = typeof x === "number" ? x : Number(String(x).trim());
+  return Number.isFinite(n) ? n : NaN;
+}
 
-        console.log("📊 stkd-SCRT Exchange Rate:", derivativeInfo.exchangeRate);
-        return derivativeInfo.exchangeRate;
-    } catch (error) {
-        console.error("❌ Error fetching stkd-SCRT to SCRT exchange rate:", error);
-        throw error;
-    }
+//Fetch STKD Exchange Rate
+window.fetchSTKDExchangeRate = async function (options = {}) {
+  const {
+    lcdEndpoint = DEFAULT_LCD_ENDPOINT,
+    chainId = "secret-4",
+    queryRouterContractAddress = "secret15mkmad8ac036v4nrpcc7nk8wyr578egt077syt",
+    queryRouterCodeHash = "1c7e86ba4fdb6760e70bf08a7df7f44b53eb0b23290e3e69ca96140810d4f432",
+    contractAddress = "secret1k6u0cy4feepm6pehnz804zmwakuwdapm69tuc4",
+    codeHash = "f6be719b3c6feb498d3554ca0398eb6b7e7db262acb33f84a8f12106da6bbb09",
+    queryTimeSeconds = Math.floor(Date.now() / 1000),
+  } = options;
+
+  const info = await queryDerivativeScrtInfo({
+    queryRouterContractAddress,
+    queryRouterCodeHash,
+    contractAddress,
+    codeHash,
+    lcdEndpoint,
+    chainId,
+    queryTimeSeconds,
+  });
+
+  // Detect decimal vs 1e18 integer
+  let num;
+  const s = String(info.exchangeRate);
+  if (/^\d+$/.test(s)) {
+    const big = BigInt(s);
+    const whole = big / 10n ** 18n;
+    const frac = big % 10n ** 18n;
+    num = Number(whole) + Number(frac) / 1e18;
+  } else {
+    num = toFiniteNumber(s);
+  }
+
+  if (!Number.isFinite(num)) throw new Error("exchangeRate not finite");
+  
+  const rounded = Math.round(num * 1e6) / 1e6;
+
+  console.log("📊 stkd-SCRT Exchange Rate:", rounded);
+
+  return rounded;  
 };
 
 // Fetch all ShadeSwap pools though GraphQL

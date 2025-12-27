@@ -79,14 +79,15 @@ window.fetchDefaultLCDStatus = function () {
 window.fetchLav5LCDStatus = function () {
     window.fetchAPIStatus("LCD", "https://secretnetwork-api.lavenderfive.com:443", "/cosmos/base/tendermint/v1beta1/blocks/latest", "Lav5-lcd-status", "Lav5-lcd-response");
 };
-
+/*
 window.fetchLav5RPCStatus = function () {
     window.fetchAPIStatus("RPC", "https://secretnetwork-rpc.lavenderfive.com:443", "/status", "Lav5-rpc-status", "Lav5-rpc-response");
 };
 
 window.fetchAnkrRPCStatus = function () {
    window.fetchAPIStatus("RPC", "https://scrt.public-rpc.com", "/status", "ankr-rpc-status", "ankr-rpc-response");
-};
+}; */
+
 
 
 

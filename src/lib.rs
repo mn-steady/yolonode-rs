@@ -1303,12 +1303,12 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 <pre id="rpc-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
 
-                            <div class="api-endpoint"> 
+                            /* <div class="api-endpoint"> 
                                 <h3>"🚀 Ankr LCD:"</h3>
                                 <p>"https://rpc.ankr.com/http/scrt_cosmos"</p>
                                 <pre id="lcd-status" class="formatted-json">"Status: Loading..."</pre>
                                 <pre id="lcd-response" class="formatted-json">"Response: Loading..."</pre>
-                            </div>
+                            </div> */
 
                             <div class="api-endpoint">
                                 <h3>"🐝 Lavender.Five LCD:"</h3>
@@ -1316,8 +1316,8 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 <pre id="Lav5-lcd-status" class="formatted-json">"Status: Loading..."</pre>
                                 <pre id="Lav5-lcd-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
-
-                            <div class="api-endpoint">
+S
+                            /* <div class="api-endpoint">
                                 <h3>"🚀 Ankr RPC:"</h3>
                                 <p>"https://scrt.public-rpc.com"</p>
                                 <pre id="ankr-rpc-status" class="formatted-json">"Status: Loading..."</pre>
@@ -1329,7 +1329,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                                 <p>"https://secretnetwork-rpc.lavenderfive.com:443"</p>
                                 <pre id="Lav5-rpc-status" class="formatted-json">"Status: Loading..."</pre>
                                 <pre id="Lav5-rpc-response" class="formatted-json">"Response: Loading..."</pre>
-                            </div>
+                            </div> */
 
                     </div>
                 },                                                                           

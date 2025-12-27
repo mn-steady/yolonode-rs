@@ -1313,10 +1313,10 @@ pub fn App(cx: Scope) -> impl IntoView {
                             <div class="api-endpoint">
                                 <h3>"🐝 Lavender.Five LCD:"</h3>
                                 <p>"https://secretnetwork-api.lavenderfive.com:443"</p>
-                                <pre id="Lav5-lcd-status" class="formatted-json">"Status: Loading..."</pre>
-                                <pre id="Lav5-lcd-response" class="formatted-json">"Response: Loading..."</pre>
+                                <pre id="lcd-status" class="formatted-json">"Status: Loading..."</pre>
+                                <pre id="lcd-response" class="formatted-json">"Response: Loading..."</pre>
                             </div>
-S
+
                             /* <div class="api-endpoint">
                                 <h3>"🚀 Ankr RPC:"</h3>
                                 <p>"https://scrt.public-rpc.com"</p>
